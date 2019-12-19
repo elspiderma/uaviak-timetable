@@ -23,7 +23,7 @@ class TimetableGroupCommand(CommandBase):
         return str(text)
 
     def run(self, event):
-        group = event['message']['text']
+        group = event['message']['text'].lower()
 
         tt = Timetable.load()
         tt_group = tt.find(group=group)
