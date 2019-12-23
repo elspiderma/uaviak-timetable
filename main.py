@@ -9,6 +9,9 @@ import config
 HANDLERS = [TimetableGroupCommand]
 
 def proc_event(vk_api, event):
+    if event is None:
+        return None
+
     for i in HANDLERS:
         handler = i(vk_api) 
         if handler.check(event):

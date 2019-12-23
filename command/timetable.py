@@ -10,17 +10,35 @@ class TimetableGroupCommand(CommandBase):
     def check(self, event):
         return True
 
-    @staticmethod
-    def _gen_timetable_text(tt_group, group):
+    @classmethod
+    def _gen_timetable_text(cls, tt_group, group):
         text = TextCreater(f'Расписание группы {group}:')
         for lesson in tt_group:
             line = f'{lesson.number}) {lesson.cabinet} каб. {lesson.teacher} {lesson.subject}'
-            if lesson.is_splitting:
-                line += ' дрб'
+            types_string = cls._gen_type_lesson(lesson)
+            if types_string is not None:
+                line += ' ' + types_string
             
             text.add(line)
 
         return str(text)
+
+    @staticmethod
+    def _gen_type_lesson(lesson):
+        types = list()
+
+        if lesson.is_splitting:
+            types.append('дроб.')
+        if lesson.is_practice:
+            types.append('прак.')
+        if lesson.is_consultations:
+            types.append('консулт.')
+
+        if len(types) == 0:
+            return None
+
+        s = ', '.join(types)
+        return f'({s})'
 
     def run(self, event):
         group = event['message']['text'].lower()
