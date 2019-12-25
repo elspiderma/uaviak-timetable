@@ -1,6 +1,7 @@
 import flask
 from main import proc_event
 from vk_api import VkApi
+import logging
 import config
 import json
 
