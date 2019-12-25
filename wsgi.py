@@ -1,3 +1,4 @@
+import os, sys
 import flask
 from main import proc_event
 from vk_api import VkApi
