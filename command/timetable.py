@@ -41,3 +41,15 @@ class TimetableCommand(CommandBase):
     @classmethod
     def _gen_lesson_text(cls, lesson):
         raise NotImplementedError
+
+    def _message_starts_with(self, prefix, ignore_case=True):
+        text_message = self.event['message']['text']
+
+        if ignore_case:
+            text_message = text_message.lower()
+            prefix = prefix.lower()
+
+        if text_message.startswith(prefix):
+            return True
+        else:
+            return False

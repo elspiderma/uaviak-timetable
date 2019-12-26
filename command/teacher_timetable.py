@@ -7,12 +7,7 @@ from utils.text_creater import TextCreater
 
 class TimetableTeacherCommand(TimetableCommand):
     def check(self):
-        text = self.event['message']['text'].lower()
-
-        if text.startswith('п '):
-            return True
-
-        return False
+        return self._message_starts_with('п ')
 
     @classmethod
     def _gen_lesson_text(cls, lesson):
