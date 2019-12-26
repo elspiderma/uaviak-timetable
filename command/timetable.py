@@ -7,7 +7,8 @@ class TimetableCommand(CommandBase):
     def _gen_timetable_text(cls, tt_group, group):
         text = TextCreater()
         for lesson in tt_group:
-            text.add(cls._gen_lesson_text(lesson))
+            line = cls._gen_lesson_text(lesson)
+            text.add(cls._append_type_lesson(lesson, line))
 
         return str(text)
 
@@ -27,6 +28,15 @@ class TimetableCommand(CommandBase):
 
         s = ', '.join(types)
         return f'({s})'
+
+    @classmethod
+    def _append_type_lesson(cls, lesson, s):
+        type_str = cls._gen_type_lesson(lesson)
+
+        if type_str is not None:
+            s += f' {type_str}'
+
+        return s
 
     @classmethod
     def _gen_lesson_text(cls, lesson):
