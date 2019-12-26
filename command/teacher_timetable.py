@@ -6,8 +6,10 @@ from utils.text_creater import TextCreater
 
 
 class TimetableTeacherCommand(TimetableCommand):
-    def check(self, event):
-        if event['message']['text'][0:2] == 'п ':
+    def check(self):
+        text = self.event['message']['text'].lower()
+        
+        if text.startswith('п '):
             return True
 
         return False
@@ -22,8 +24,8 @@ class TimetableTeacherCommand(TimetableCommand):
 
         return s
 
-    def run(self, event):
-        teacher = event['message']['text'].lower()[2:]
+    def run(self):
+        teacher = self.event['message']['text'].lower()[2:]
 
         tt = Timetable.load()
 
@@ -34,7 +36,7 @@ class TimetableTeacherCommand(TimetableCommand):
         tt_teacher.sort('number')
 
         if len(tt_teacher) == 0:
-            self.vk.messages.send(peer_id=event['message']['peer_id'], message=f'Преподаватель "{teacher}" не найден!', random_id=randint(0, 9999999))
+            self.vk.messages.send(peer_id=self.event['message']['peer_id'], message=f'Преподаватель "{teacher}" не найден!', random_id=randint(0, 9999999))
             return
 
-        self.vk.messages.send(peer_id=event['message']['peer_id'], message=self._gen_timetable_text(tt_teacher, teacher), random_id=randint(0, 9999999))
+        self.vk.messages.send(peer_id=self.event['message']['peer_id'], message=self._gen_timetable_text(tt_teacher, teacher), random_id=randint(0, 9999999))

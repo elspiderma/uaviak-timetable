@@ -6,8 +6,10 @@ from utils.text_creater import TextCreater
 
 
 class TimetableGroupCommand(TimetableCommand):
-    def check(self, event):
-        if event['message']['text'][0:2] == 'г ':
+    def check(self):
+        text = self.event['message']['text'].lower()
+
+        if text.startswith('г '):
             return True
 
         return False
@@ -22,21 +24,15 @@ class TimetableGroupCommand(TimetableCommand):
 
         return s
 
-
-    def run(self, event):
-        group = event['message']['text'].lower()[2:]
+    def run(self):
+        group = self.event['message']['text'][2:].lower()
 
         tt = Timetable.load()
         tt_group = tt.find(group=group)
 
         if len(tt_group) == 0:
-            self.vk.messages.send(peer_id=event['message']['peer_id'], message=f'Группа "{group}" не найдена!', random_id=randint(0, 9999999))
+            m = f'Группа "{group}" не найдена!'
+            self.vk.messages.send(peer_id=self.event['message']['peer_id'], message=m, random_id=randint(0, 9999999))
             return
 
-        self.vk.messages.send(peer_id=event['message']['peer_id'], message=self._gen_timetable_text(tt_group, group), random_id=randint(0, 9999999))
-
-
-# line = f'{lesson.number}) {lesson.cabinet} каб. {lesson.teacher} {lesson.subject}'
-# types_string = cls._gen_type_lesson(lesson)
-# if types_string is not None:
-#     line += ' ' + types_string
+        self.vk.messages.send(peer_id=self.event['message']['peer_id'], message=self._gen_timetable_text(tt_group, group), random_id=randint(0, 9999999))

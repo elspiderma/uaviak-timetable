@@ -15,9 +15,9 @@ def proc_event(vk_api, event):
         return None
 
     for i in HANDLERS:
-        handler = i(vk_api) 
-        if handler.check(event):
-            handler.run(event)
+        handler = i(vk_api, event) 
+        if handler.check():
+            handler.run()
             break
 
 def long_poll():
