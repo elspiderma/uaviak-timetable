@@ -1,28 +1,36 @@
 from uaviak_timetable import Timetable
 from random import randint
-from .base import CommandBase
-from utils.text_creater import TextCreater
-import re
-from command.group_timetable import TimetableGroupCommand
 
-class TimetableTeacherCommand(TimetableGroupCommand):
+from command.timetable import TimetableCommand
+from utils.text_creater import TextCreater
+
+
+class TimetableTeacherCommand(TimetableCommand):
     def check(self, event):
         if event['message']['text'][0:2] == 'п ':
             return True
 
         return False
 
+    @classmethod
+    def _gen_lesson_text(cls, lesson):
+        s = f'{lesson.number}) {lesson.cabinet} каб. {lesson.group} {lesson.subject}'
+        type_str = cls._gen_type_lesson(lesson)
+
+        if type_str is not None:
+            s += f' {type_str}'
+
+        return s
+
     def run(self, event):
         teacher = event['message']['text'].lower()[2:]
-        teacher = re.escape(teacher)
 
         tt = Timetable.load()
 
         tt_teacher = Timetable()
         for lesson in tt:
-            if re.search(rf'{teacher}', lesson.teacher, re.IGNORECASE):
+            if lesson.teacher.lower().find(teacher) != -1:
                 tt_teacher.append_lesson(lesson)
-
         tt_teacher.sort('number')
 
         if len(tt_teacher) == 0:

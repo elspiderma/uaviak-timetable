@@ -1,9 +1,11 @@
 from uaviak_timetable import Timetable
 from random import randint
-from .base import CommandBase
+
+from command.timetable import TimetableCommand
 from utils.text_creater import TextCreater
 
-class TimetableGroupCommand(CommandBase):
+
+class TimetableGroupCommand(TimetableCommand):
     def check(self, event):
         if event['message']['text'][0:2] == 'г ':
             return True
@@ -11,34 +13,15 @@ class TimetableGroupCommand(CommandBase):
         return False
 
     @classmethod
-    def _gen_timetable_text(cls, tt_group, group):
-        text = TextCreater()
-        for lesson in tt_group:
-            line = f'{lesson.number}) {lesson.cabinet} каб. {lesson.teacher} {lesson.subject}'
-            types_string = cls._gen_type_lesson(lesson)
-            if types_string is not None:
-                line += ' ' + types_string
-            
-            text.add(line)
+    def _gen_lesson_text(cls, lesson):
+        s = f'{lesson.number}) {lesson.cabinet} каб. {lesson.teacher} {lesson.subject}'
+        type_str = cls._gen_type_lesson(lesson)
 
-        return str(text)
+        if type_str is not None:
+            s += f' {type_str}'
 
-    @staticmethod
-    def _gen_type_lesson(lesson):
-        types = list()
+        return s
 
-        if lesson.is_splitting:
-            types.append('дроб.')
-        if lesson.is_practice:
-            types.append('прак.')
-        if lesson.is_consultations:
-            types.append('консулт.')
-
-        if len(types) == 0:
-            return None
-
-        s = ', '.join(types)
-        return f'({s})'
 
     def run(self, event):
         group = event['message']['text'].lower()[2:]
@@ -51,3 +34,9 @@ class TimetableGroupCommand(CommandBase):
             return
 
         self.vk.messages.send(peer_id=event['message']['peer_id'], message=self._gen_timetable_text(tt_group, group), random_id=randint(0, 9999999))
+
+
+# line = f'{lesson.number}) {lesson.cabinet} каб. {lesson.teacher} {lesson.subject}'
+# types_string = cls._gen_type_lesson(lesson)
+# if types_string is not None:
+#     line += ' ' + types_string

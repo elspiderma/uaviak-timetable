@@ -27,10 +27,10 @@ def long_poll():
     vk_long_poll = VkBotLongPoll(vk=vk, group_id=config.GROUP_ID, wait=90)
     for event in vk_long_poll.listen():
         event_obj = event.obj
-        #try:
-        proc_event(vk_api, event_obj)
-        #except Exception as e:
-        #    pass
+        try:
+            proc_event(vk_api, event_obj)
+        except Exception as e:
+            print(e)
         
 if __name__ == '__main__':
     long_poll()
