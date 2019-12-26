@@ -1,6 +1,6 @@
 class TextCreater:
     def __init__(self, *argv):
-        self.lines = argv
+        self.lines = list(argv)
 
     def add(self, *argv):
         self.lines += argv

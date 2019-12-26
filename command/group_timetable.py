@@ -17,11 +17,23 @@ class TimetableGroupCommand(TimetableCommand):
         group = self.event['message']['text'][2:].lower()
 
         tt = Timetable.load()
-        tt_group = tt.find(group=group)
+        tt_group = Timetable()
+        for lesson in tt:
+            if lesson.group.startswith(group):
+                tt_group.append_lesson(lesson)
+        tt_group.sort('number')
 
         if len(tt_group) == 0:
             m = f'Группа "{group}" не найдена!'
             self.vk.messages.send(peer_id=self.event['message']['peer_id'], message=m, random_id=randint(0, 9999999))
             return
 
-        self.vk.messages.send(peer_id=self.event['message']['peer_id'], message=self._gen_timetable_text(tt_group, group), random_id=randint(0, 9999999))
+        list_group = tt_group.list('group')
+        list_group.sort()
+
+        m = TextCreater()
+        for i in list_group:
+            m.add(f'{i}:')
+            m.add(*self._gen_timetable_text(tt_group.find(group=i)).lines, '\n')
+
+        self.vk.messages.send(peer_id=self.event['message']['peer_id'], message=m, random_id=randint(0, 9999999))

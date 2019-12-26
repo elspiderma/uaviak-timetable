@@ -4,13 +4,13 @@ from utils.text_creater import TextCreater
 
 class TimetableCommand(CommandBase):
     @classmethod
-    def _gen_timetable_text(cls, tt_group, group):
+    def _gen_timetable_text(cls, tt_group):
         text = TextCreater()
         for lesson in tt_group:
             line = cls._gen_lesson_text(lesson)
             text.add(cls._append_type_lesson(lesson, line))
 
-        return str(text)
+        return text
 
     @staticmethod
     def _gen_type_lesson(lesson):

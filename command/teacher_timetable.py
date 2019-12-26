@@ -20,7 +20,7 @@ class TimetableTeacherCommand(TimetableCommand):
 
         tt_teacher = Timetable()
         for lesson in tt:
-            if lesson.teacher.lower().find(teacher) != -1:
+            if lesson.teacher.lower().startswith(teacher):
                 tt_teacher.append_lesson(lesson)
         tt_teacher.sort('number')
 
@@ -28,4 +28,12 @@ class TimetableTeacherCommand(TimetableCommand):
             self.vk.messages.send(peer_id=self.event['message']['peer_id'], message=f'Преподаватель "{teacher}" не найден!', random_id=randint(0, 9999999))
             return
 
-        self.vk.messages.send(peer_id=self.event['message']['peer_id'], message=self._gen_timetable_text(tt_teacher, teacher), random_id=randint(0, 9999999))
+        list_teacher = tt_teacher.list('teacher')
+        list_teacher.sort()
+
+        m = TextCreater()
+        for i in list_teacher:
+            m.add(f'{i}:')
+            m.add(*self._gen_timetable_text(tt_teacher.find(teacher=i)).lines, '\n')
+
+        self.vk.messages.send(peer_id=self.event['message']['peer_id'], message=m, random_id=randint(0, 9999999))
