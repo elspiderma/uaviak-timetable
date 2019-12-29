@@ -8,9 +8,11 @@ import json
 
 application = flask.Flask(__name__)
 
+
 @application.route('/')
 def index():
     flask.abort(403)
+
 
 @application.route(config.WEBHOOK_URL_PATH, methods=['POST'])
 def webhook():
@@ -23,5 +25,6 @@ def webhook():
         return 'ok'
     else:
         flask.abort(403)
+
 
 logging.basicConfig(stream=sys.stderr, level=logging.INFO)

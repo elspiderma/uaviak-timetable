@@ -1,8 +1,10 @@
-from uaviak_timetable import Timetable
+from abc import ABC
+
 from .base import CommandBase
 from utils.text_creater import TextCreater
 
-class TimetableCommand(CommandBase):
+
+class TimetableCommand(CommandBase, ABC):
     @classmethod
     def _gen_timetable_text(cls, tt_group):
         text = TextCreater()

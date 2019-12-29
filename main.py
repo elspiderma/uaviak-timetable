@@ -10,6 +10,7 @@ import config
 
 HANDLERS = [TimetableGroupCommand, TimetableTeacherCommand, NotFoundCommand]
 
+
 def proc_event(vk_api, event):
     if event is None:
         return None
@@ -19,6 +20,7 @@ def proc_event(vk_api, event):
         if handler.check():
             handler.run()
             break
+
 
 def long_poll():
     vk = VkApi(token=config.TOKEN, api_version='5.103')
@@ -31,8 +33,7 @@ def long_poll():
             proc_event(vk_api, event_obj)
         except Exception as e:
             print(e)
-        
+
+
 if __name__ == '__main__':
     long_poll()
-
-
