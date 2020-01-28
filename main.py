@@ -1,39 +1,73 @@
-import json
-
-from vk_api import VkApi
-from vk_api.bot_longpoll import VkBotLongPoll
-
-from command.group_timetable import TimetableGroupCommand
-from command.teacher_timetable import TimetableTeacherCommand
-from command.not_found import NotFoundCommand
 import config
-
-HANDLERS = [TimetableGroupCommand, TimetableTeacherCommand, NotFoundCommand]
-
-
-def proc_event(vk_api, event):
-    if event is None:
-        return None
-
-    for i in HANDLERS:
-        handler = i(vk_api, event) 
-        if handler.check():
-            handler.run()
-            break
+from vk_bot.vk_bot import VKBot
+import timetable_text
+from random import randint
 
 
-def long_poll():
-    vk = VkApi(token=config.TOKEN, api_version='5.103')
-    vk_api = vk.get_api()
+def timetable_teacher(obj):
+    message_text = obj['message']['text']
+    message_id = obj['message']['id']
+    peer_id = obj['message']['peer_id']
+    random_id = randint(0, 9999999)
 
-    vk_long_poll = VkBotLongPoll(vk=vk, group_id=config.GROUP_ID, wait=90)
-    for event in vk_long_poll.listen():
-        event_obj = event.obj
-        try:
-            proc_event(vk_api, event_obj)
-        except Exception as e:
-            print(e)
+    teacher_name = message_text[2:]
 
+    text_timetable = timetable_text.teacher(teacher_name)
+    if text_timetable is None:
+        text_timetable = 'Преподователь не найден'
+
+    bot.vk_api.messages.send(
+        message=text_timetable,
+        random_id=random_id,
+        peer_id=peer_id,
+        reply_to=message_id
+    )
+
+
+def timetable_group(obj):
+    message_text = obj['message']['text']
+    message_id = obj['message']['id']
+    peer_id = obj['message']['peer_id']
+    random_id = randint(0, 9999999)
+
+    group_name = message_text[2:]
+
+    text_timetable = timetable_text.group(group_name)
+    if text_timetable is None:
+        text_timetable = 'Группа не найдена'
+
+    bot.vk_api.messages.send(
+        message=text_timetable,
+        random_id=random_id,
+        peer_id=peer_id,
+        reply_to=message_id
+    )
+
+
+def not_found(obj):
+    message_id = obj['message']['id']
+    peer_id = obj['message']['peer_id']
+    random_id = randint(0, 9999999)
+
+    text = \
+        'Команда не найдена\n' \
+        'Для того чтобы получить расписание группы напишите:\n' \
+        'г номер_группы\n\n' \
+        'Для того чтобы получить расписание преподователя напишите:\n' \
+        'п фамилия'
+
+    bot.vk_api.messages.send(
+        message=text,
+        random_id=random_id,
+        peer_id=peer_id,
+        reply_to=message_id
+    )
+
+
+bot = VKBot(config.TOKEN_BOT)
+bot.message_new_handler_add(timetable_teacher, head_message="п ")
+bot.message_new_handler_add(timetable_group, head_message="г ")
+bot.message_new_handler_add(not_found)
 
 if __name__ == '__main__':
-    long_poll()
+    bot.polling(config.GROUP_ID)
