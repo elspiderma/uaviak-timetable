@@ -54,7 +54,8 @@ def not_found(obj):
         'Для того чтобы получить расписание группы напишите:\n' \
         'г номер_группы\n\n' \
         'Для того чтобы получить расписание преподователя напишите:\n' \
-        'п фамилия'
+        'п фамилия\n\n' \
+        'Писать номер и фамилию можно не полностью, например, вместо "г 19ис-1" можно написать "г 19ис" или "г 19"'
 
     bot.vk_api.messages.send(
         message=text,
@@ -65,8 +66,8 @@ def not_found(obj):
 
 
 bot = VKBot(config.TOKEN_BOT)
-bot.message_new_handler_add(timetable_teacher, head_message="п ")
-bot.message_new_handler_add(timetable_group, head_message="г ")
+bot.message_new_handler_add(timetable_teacher, head_message="п ", ignore_case=True)
+bot.message_new_handler_add(timetable_group, head_message="г ", ignore_case=True)
 bot.message_new_handler_add(not_found)
 
 if __name__ == '__main__':

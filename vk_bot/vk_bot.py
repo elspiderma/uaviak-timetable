@@ -10,12 +10,12 @@ class VKBot:
 
         self.message_new_handlers = []
 
-    def message_new_handler_add(self, func, head_message: str = None, content_types: list = None):
-        handler = MessageNewHandler(func, head_message, content_types)
+    def message_new_handler_add(self, func, head_message: str = None, ignore_case=False, content_types: list = None):
+        handler = MessageNewHandler(func, head_message, ignore_case, content_types)
         self.message_new_handlers.append(handler)
 
     def process_new_update(self, type_update, update):
-        if type_update == 'message_new':
+        if type_update in ('message_new', VkBotEventType.MESSAGE_NEW):
             for i in self.message_new_handlers:
                 if i.check(update):
                     i.exec(update)
