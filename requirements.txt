@@ -1,3 +1,4 @@
+sqlalchemy
 uaviak_timetable
 vk_api
 flask

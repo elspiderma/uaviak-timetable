@@ -18,8 +18,28 @@ def __get_text_type_lesson(lesson):
     return f'({s})'
 
 
-def group(head_group):
+def __check_header_group(group: str, head_group: str):
+    group = group.lower()
+    head_group = head_group.lower()
+
+    return group.startswith(head_group)
+
+
+def is_exist_group(head_group):
     tt = Timetable.load()
+    list_group = tt.list('group')
+
+    find_groups = []
+    for i in list_group:
+        if __check_header_group(i, head_group):
+            find_groups.append(i)
+
+    return find_groups
+
+
+def group(head_group, tt=None):
+    if tt is None:
+        tt = Timetable.load()
 
     tt_groups = Timetable()
     for lesson in tt:
@@ -51,8 +71,9 @@ def group(head_group):
     return text.strip()
 
 
-def teacher(head_teacher):
-    tt = Timetable.load()
+def teacher(head_teacher, tt=None):
+    if tt is None:
+        tt = Timetable.load()
 
     tt_teacher = Timetable()
     for lesson in tt:
