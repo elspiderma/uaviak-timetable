@@ -114,6 +114,13 @@ def send_notify(obj):
 
     users = session.query(VKUser).filter_by(enable_notify=True).all()
 
+    bot.vk_api.messages.send(
+        message="Обновлено",
+        random_id=randint(0, 9999999),
+        peer_id=obj['message']['peer_id'],
+        reply_to=obj['message']['id']
+    )
+
     tt = Timetable.load()
     for i in users:
         text = timetable_text.group(i.group_notify, tt)
