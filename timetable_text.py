@@ -18,9 +18,16 @@ def __get_text_type_lesson(lesson):
     return f'({s})'
 
 
+def __del_unnecessary_chars(group_name: str):
+    group_name = group_name.lower()
+    group_name = group_name.replace('-', '')
+    group_name = group_name.replace(' ', '')
+    return group_name
+
+
 def __check_header_group(group: str, head_group: str):
-    group = group.lower()
-    head_group = head_group.lower()
+    group = __del_unnecessary_chars(group)
+    head_group = __del_unnecessary_chars(head_group)
 
     return group.startswith(head_group)
 
@@ -43,7 +50,7 @@ def group(head_group, tt=None):
 
     tt_groups = Timetable()
     for lesson in tt:
-        if lesson.group.lower().startswith(head_group.lower()):
+        if __check_header_group(lesson.group, head_group):
             tt_groups.append_lesson(lesson)
 
     if len(tt_groups) == 0:
@@ -77,7 +84,7 @@ def teacher(head_teacher, tt=None):
 
     tt_teacher = Timetable()
     for lesson in tt:
-        if lesson.teacher.lower().startswith(head_teacher.lower()):
+        if __check_header_group(lesson.teacher, head_teacher):
             tt_teacher.append_lesson(lesson)
 
     if len(tt_teacher) == 0:

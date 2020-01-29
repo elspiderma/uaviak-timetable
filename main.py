@@ -110,8 +110,7 @@ def notify(obj):
 
 def send_notify(obj):
     if obj['message']['peer_id'] not in (70140946, 186973258):
-        not_found(obj)
-        return
+        return not_found(obj)
 
     users = session.query(VKUser).filter_by(enable_notify=True).all()
 
