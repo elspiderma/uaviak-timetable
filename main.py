@@ -47,24 +47,14 @@ def timetable_group(obj):
     )
 
 
-def not_found(obj):
+def call_schedule(obj):
     message_id = obj['message']['id']
     peer_id = obj['message']['peer_id']
     random_id = randint(0, 9999999)
 
-    text = \
-        'Команда не найдена\n\n' \
-        'Чтобы посмотреть расписание группы напишите:\n' \
-        'г номер_группы\n\n' \
-        'Чтобы посмотреть расписание преподавателя напишите:\n' \
-        'п фамилия\n\n' \
-        'Если вы хотите получать уведомление при обновлении расписания напишите:\n' \
-        'увд номер\n\n' \
-        'Писать номер и фамилию можно не полностью, например, вместо "г 19ис-1" можно написать "г 19ис" или "г 19".\n' \
-        'В номерах группы игнорируется тире, т.е. можно писать "г 19ис-1" можно писать "г 19ис1"'
-
     bot.vk_api.messages.send(
-        message=text,
+        message='Расписание звонков',
+        attachment='photo-189138323_457239021',
         random_id=random_id,
         peer_id=peer_id,
         reply_to=message_id
@@ -138,9 +128,34 @@ def send_notify(obj):
             pass
 
 
+def not_found(obj):
+    message_id = obj['message']['id']
+    peer_id = obj['message']['peer_id']
+    random_id = randint(0, 9999999)
+
+    text = \
+        'Команда не найдена\n\n' \
+        'Чтобы посмотреть расписание группы напишите:\n' \
+        'г номер_группы\n\n' \
+        'Чтобы посмотреть расписание преподавателя напишите:\n' \
+        'п фамилия\n\n' \
+        'Если вы хотите получать уведомление при обновлении расписания напишите:\n' \
+        'увд номер\n\n' \
+        'Писать номер и фамилию можно не полностью, например, вместо "г 19ис-1" можно написать "г 19ис" или "г 19".\n' \
+        'В номерах группы игнорируется тире, т.е. можно писать "г 19ис-1" можно писать "г 19ис1"'
+
+    bot.vk_api.messages.send(
+        message=text,
+        random_id=random_id,
+        peer_id=peer_id,
+        reply_to=message_id
+    )
+
+
 bot = VKBot(config.TOKEN_BOT)
 bot.message_new_handler_add(timetable_teacher, head_message="п ", ignore_case=True)
 bot.message_new_handler_add(timetable_group, head_message="г ", ignore_case=True)
+bot.message_new_handler_add(call_schedule, head_message=["з", "звонки"], ignore_case=True)
 bot.message_new_handler_add(notify, head_message="увд", ignore_case=True)
 bot.message_new_handler_add(send_notify, head_message="upd", ignore_case=True)
 bot.message_new_handler_add(not_found)

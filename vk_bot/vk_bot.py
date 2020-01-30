@@ -10,7 +10,7 @@ class VKBot:
 
         self.message_new_handlers = []
 
-    def message_new_handler_add(self, func, head_message: str = None, ignore_case=False, content_types: list = None):
+    def message_new_handler_add(self, func, head_message=None, ignore_case=False, content_types: list = None):
         handler = MessageNewHandler(func, head_message, ignore_case, content_types)
         self.message_new_handlers.append(handler)
 
