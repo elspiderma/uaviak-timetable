@@ -6,9 +6,10 @@ class MessageNewHandler(BaseHandler):
     TYPE_ATTACHMENT = 0
     TYPE_TEXT = 1
 
-    def __init__(self, func, head_message=None, ignore_case=False, content_types=None):
+    def __init__(self, func, text_message=None, head_message=None, ignore_case=False, content_types=None):
         super().__init__(func)
 
+        self.text_message = utils.to_list(text_message)
         self.head_message = utils.to_list(head_message)
         self.ignore_case = ignore_case
         self.content_types = utils.to_list(content_types)
@@ -23,15 +24,11 @@ class MessageNewHandler(BaseHandler):
         else:
             return cls.TYPE_TEXT
 
+    def _check_message_text(self, message_text: str):
+        return len(self.text_message) == 0 or self.text_message.count(message_text) > 0
+
     def _check_content_types(self, content_types):
-        if len(self.content_types) == 0:
-            return True
-
-        for i in self.content_types:
-            if i == content_types:
-                return True
-
-        return False
+        return len(self.content_types) == 0 or self.content_types.count(content_types) > 0
 
     def _check_message_head(self, message_text: str):
         if len(self.head_message) == 0:
@@ -42,7 +39,7 @@ class MessageNewHandler(BaseHandler):
 
         for i in self.head_message:
             if self.ignore_case:
-                i.lower()
+                i = i.lower()
 
             if message_text.startswith(i):
                 return True
@@ -51,5 +48,9 @@ class MessageNewHandler(BaseHandler):
 
     def check(self, obj):
         type_message = self._get_content_types(obj['message'])
+        text_message = obj['message']['text']
 
-        return self._check_content_types(type_message) and self._check_message_head(obj['message']['text'])
+        return \
+            self._check_content_types(type_message) and \
+            self._check_message_head(text_message) and \
+            self._check_message_text(text_message)
