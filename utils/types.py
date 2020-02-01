@@ -6,3 +6,7 @@ def to_list(val):
         return val
 
     return [val]
+
+
+def bool2int(val: bool):
+    return int(val) if val is not None else None

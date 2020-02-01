@@ -29,7 +29,7 @@ def timetable_group(obj):
     if text_timetable is None:
         text_timetable = 'Группа не найдена'
 
-    bot.vk_api.messages.send(
+    bot.messages_send(
         message=text_timetable,
         random_id=randint(0, 9999999),
         peer_id=obj['message']['peer_id'],
@@ -38,7 +38,7 @@ def timetable_group(obj):
 
 
 def call_schedule(obj):
-    bot.vk_api.messages.send(
+    bot.messages_send(
         message='Расписание звонков',
         attachment=config.PHOTO_CALLS,
         random_id=randint(0, 9999999),
@@ -68,7 +68,7 @@ def notify_enable(obj):
 
     session.commit()
 
-    bot.vk_api.messages.send(
+    bot.messages_send(
         message=text,
         random_id=randint(0, 9999999),
         peer_id=obj['message']['peer_id'],
@@ -104,7 +104,7 @@ def send_notify(obj):
 
     users = session.query(VKUser).filter_by(enable_notify=True).all()
 
-    bot.vk_api.messages.send(
+    bot.messages_send(
         message="Обновлено",
         random_id=randint(0, 9999999),
         peer_id=obj['message']['peer_id'],
@@ -116,7 +116,7 @@ def send_notify(obj):
         text = 'Выставлено новое расписание:\n\n'
         text += timetable_text.group(i.group_notify, tt)
         try:
-            bot.vk_api.messages.send(
+            bot.messages_send(
                 message=text,
                 random_id=randint(0, 9999999),
                 peer_id=i.id_vk,
@@ -139,7 +139,7 @@ def not_found(obj):
         'Писать номер и фамилию можно не полностью, например, вместо "г 19ис-1" можно написать "г 19ис" или "г 19".\n' \
         'В номерах группы игнорируется тире, т.е. можно писать "г 19ис-1" можно писать "г 19ис1"'
 
-    bot.vk_api.messages.send(
+    bot.messages_send(
         message=text,
         random_id=randint(0, 9999999),
         peer_id=obj['message']['peer_id'],
@@ -157,4 +157,4 @@ bot.message_new_handler_add(send_notify, text_message="upd", ignore_case=True)
 bot.message_new_handler_add(not_found)
 
 if __name__ == '__main__':
-    bot.polling(config.GROUP_ID)
+    bot.polling(config.GROUP_ID, wait=10)
