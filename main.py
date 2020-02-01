@@ -8,12 +8,7 @@ from db import session, VKUser
 
 
 def timetable_teacher(obj):
-    message_text = obj['message']['text']
-    message_id = obj['message']['id']
-    peer_id = obj['message']['peer_id']
-    random_id = randint(0, 9999999)
-
-    teacher_name = message_text[2:]
+    teacher_name = obj['message']['text'][2:]
 
     text_timetable = timetable_text.teacher(teacher_name)
     if text_timetable is None:
@@ -21,19 +16,14 @@ def timetable_teacher(obj):
 
     bot.vk_api.messages.send(
         message=text_timetable,
-        random_id=random_id,
-        peer_id=peer_id,
-        reply_to=message_id
+        random_id=randint(0, 9999999),
+        peer_id=obj['message']['peer_id'],
+        reply_to=obj['message']['id']
     )
 
 
 def timetable_group(obj):
-    message_text = obj['message']['text']
-    message_id = obj['message']['id']
-    peer_id = obj['message']['peer_id']
-    random_id = randint(0, 9999999)
-
-    group_name = message_text[2:]
+    group_name = obj['message']['text'][2:]
 
     text_timetable = timetable_text.group(group_name)
     if text_timetable is None:
@@ -41,63 +31,70 @@ def timetable_group(obj):
 
     bot.vk_api.messages.send(
         message=text_timetable,
-        random_id=random_id,
-        peer_id=peer_id,
-        reply_to=message_id
+        random_id=randint(0, 9999999),
+        peer_id=obj['message']['peer_id'],
+        reply_to=obj['message']['id']
     )
 
 
 def call_schedule(obj):
-    message_id = obj['message']['id']
-    peer_id = obj['message']['peer_id']
-    random_id = randint(0, 9999999)
-
     bot.vk_api.messages.send(
         message='Расписание звонков',
         attachment=config.PHOTO_CALLS,
-        random_id=random_id,
-        peer_id=peer_id,
-        reply_to=message_id
+        random_id=randint(0, 9999999),
+        peer_id=obj['message']['peer_id'],
+        reply_to=obj['message']['id']
     )
 
 
-def notify(obj):
-    message_text = obj['message']['text']
-    message_id = obj['message']['id']
-    peer_id = obj['message']['peer_id']
-    user_id = obj['message']['from_id']
-    random_id = randint(0, 9999999)
-
-    user_db = session.query(VKUser).filter_by(id_vk=user_id).first()
+def notify_enable(obj):
+    user_db = session.query(VKUser).filter_by(id_vk=obj['message']['from_id']).first()
     if user_db is None:
-        user_db = VKUser(id_vk=user_id)
+        user_db = VKUser(id_vk=obj['message']['from_id'])
         session.add(user_db)
-        session.commit()
 
-    if user_db.enable_notify:
-        user_db.enable_notify = False
-        text = 'Уведомления выключены'
+    group_name = obj['message']['text'][4:]
+    find_groups = timetable_text.is_exist_group(group_name)
+
+    if len(find_groups) == 1:
+        user_db.enable_notify = True
+        user_db.group_notify = find_groups[0]
+        text = f'Уведомления включены для группы \"{find_groups[0]}\"'
+    elif len(find_groups) > 1:
+        text = 'Найдено несколько групп, пожалуйста, выбирите одну.\n'
+        text += f'Найденные группы: {", ".join(find_groups)}'
     else:
-        group_name = message_text[4:]
-        find_groups = timetable_text.is_exist_group(group_name)
-
-        if len(find_groups) == 1:
-            user_db.enable_notify = True
-            user_db.group_notify = find_groups[0]
-            text = f'Уведомления включены для группы \"{find_groups[0]}\"'
-        elif len(find_groups) > 1:
-            text = 'Найдено несколько групп, пожалуйста, выбирите одну.\n'
-            text += f'Найденные группы: {", ".join(find_groups)}'
-        else:
-            text = 'Группа не найдена'
+        text = 'Группа не найдена'
 
     session.commit()
 
     bot.vk_api.messages.send(
         message=text,
-        random_id=random_id,
-        peer_id=peer_id,
-        reply_to=message_id
+        random_id=randint(0, 9999999),
+        peer_id=obj['message']['peer_id'],
+        reply_to=obj['message']['id']
+    )
+
+
+def notify_disable(obj):
+    user_db = session.query(VKUser).filter_by(id_vk=obj['message']['from_id']).first()
+    if user_db is None:
+        user_db = VKUser(id_vk=obj['message']['from_id'])
+        session.add(user_db)
+
+    if user_db.enable_notify:
+        user_db.enable_notify = False
+        text = 'Уведомления выключены'
+    else:
+        text = 'Уведомления уже выключены\n\nДля включения напишите:\nувд номер_группы'
+
+    session.commit()
+
+    bot.vk_api.messages.send(
+        message=text,
+        random_id=randint(0, 9999999),
+        peer_id=obj['message']['peer_id'],
+        reply_to=obj['message']['id']
     )
 
 
@@ -129,10 +126,6 @@ def send_notify(obj):
 
 
 def not_found(obj):
-    message_id = obj['message']['id']
-    peer_id = obj['message']['peer_id']
-    random_id = randint(0, 9999999)
-
     text = \
         'Команда не найдена\n\n' \
         'Чтобы посмотреть расписание группы напишите:\n' \
@@ -148,18 +141,19 @@ def not_found(obj):
 
     bot.vk_api.messages.send(
         message=text,
-        random_id=random_id,
-        peer_id=peer_id,
-        reply_to=message_id
+        random_id=randint(0, 9999999),
+        peer_id=obj['message']['peer_id'],
+        reply_to=obj['message']['id']
     )
 
 
 bot = VKBot(config.TOKEN_BOT)
 bot.message_new_handler_add(timetable_teacher, head_message="п ", ignore_case=True)
 bot.message_new_handler_add(timetable_group, head_message="г ", ignore_case=True)
-bot.message_new_handler_add(call_schedule, head_message=["з", "звонки"], ignore_case=True)
-bot.message_new_handler_add(notify, head_message="увд", ignore_case=True)
-bot.message_new_handler_add(send_notify, head_message="upd", ignore_case=True)
+bot.message_new_handler_add(call_schedule, text_message=["з", "звонки"], ignore_case=True)
+bot.message_new_handler_add(notify_disable, text_message='увд', ignore_case=True)
+bot.message_new_handler_add(notify_enable, head_message="увд ", ignore_case=True)
+bot.message_new_handler_add(send_notify, text_message="upd", ignore_case=True)
 bot.message_new_handler_add(not_found)
 
 if __name__ == '__main__':

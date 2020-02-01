@@ -1,5 +1,5 @@
 from vk_bot.handlers.base_handler import BaseHandler
-from utils import utils
+from utils import types
 
 
 class MessageNewHandler(BaseHandler):
@@ -9,10 +9,10 @@ class MessageNewHandler(BaseHandler):
     def __init__(self, func, text_message=None, head_message=None, ignore_case=False, content_types=None):
         super().__init__(func)
 
-        self.text_message = utils.to_list(text_message)
-        self.head_message = utils.to_list(head_message)
+        self.text_message = types.to_list(text_message)
+        self.head_message = types.to_list(head_message)
         self.ignore_case = ignore_case
-        self.content_types = utils.to_list(content_types)
+        self.content_types = types.to_list(content_types)
 
     @classmethod
     def _get_content_types(cls, message):
