@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy import create_engine
 
 import config
@@ -12,4 +12,5 @@ from .vk_user import VKUser
 engine = create_engine(config.DATA_BASE)
 Base.metadata.create_all(engine)
 
-session = Session(bind=engine)
+smkr = sessionmaker(bind=engine)
+session = scoped_session(smkr)

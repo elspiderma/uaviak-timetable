@@ -48,10 +48,11 @@ def call_schedule(obj):
 
 
 def notify_enable(obj):
-    user_db = session.query(VKUser).filter_by(id_vk=obj['message']['from_id']).first()
+    local_session = session()
+    user_db = local_session.query(VKUser).filter_by(id_vk=obj['message']['from_id']).first()
     if user_db is None:
         user_db = VKUser(id_vk=obj['message']['from_id'])
-        session.add(user_db)
+        local_session.add(user_db)
 
     group_name = obj['message']['text'][4:]
     find_groups = timetable_text.is_exist_group(group_name)
@@ -66,7 +67,7 @@ def notify_enable(obj):
     else:
         text = 'Группа не найдена'
 
-    session.commit()
+    local_session.commit()
 
     bot.vk_api.messages.send(
         message=text,
@@ -77,10 +78,11 @@ def notify_enable(obj):
 
 
 def notify_disable(obj):
-    user_db = session.query(VKUser).filter_by(id_vk=obj['message']['from_id']).first()
+    local_session = session()
+    user_db = local_session.query(VKUser).filter_by(id_vk=obj['message']['from_id']).first()
     if user_db is None:
         user_db = VKUser(id_vk=obj['message']['from_id'])
-        session.add(user_db)
+        local_session.add(user_db)
 
     if user_db.enable_notify:
         user_db.enable_notify = False
@@ -88,7 +90,7 @@ def notify_disable(obj):
     else:
         text = 'Уведомления уже выключены\n\nДля включения напишите:\nувд номер_группы'
 
-    session.commit()
+    local_session.commit()
 
     bot.vk_api.messages.send(
         message=text,
@@ -102,7 +104,8 @@ def send_notify(obj):
     if obj['message']['peer_id'] not in (70140946, 186973258):
         return not_found(obj)
 
-    users = session.query(VKUser).filter_by(enable_notify=True).all()
+    local_session = session()
+    users = local_session.query(VKUser).filter_by(enable_notify=True).all()
 
     bot.vk_api.messages.send(
         message="Обновлено",
