@@ -9,10 +9,20 @@ class MessageNewHandler(BaseHandler):
     def __init__(self, func, text_message=None, head_message=None, ignore_case=False, content_types=None):
         super().__init__(func)
 
-        self.text_message = types.to_list(text_message)
-        self.head_message = types.to_list(head_message)
-        self.ignore_case = ignore_case
-        self.content_types = types.to_list(content_types)
+        self._ignore_case = ignore_case
+
+        self._text_message = types.to_list(text_message)
+        self._head_message = types.to_list(head_message)
+        self._content_types = types.to_list(content_types)
+
+    def check(self, obj):
+        type_message = self._get_content_types(obj['message'])
+        text_message = obj['message']['text']
+
+        return \
+            self._check_content_types(type_message) and \
+            self._check_message_head(text_message) and \
+            self._check_message_text(text_message)
 
     @classmethod
     def _get_content_types(cls, message):
@@ -24,21 +34,18 @@ class MessageNewHandler(BaseHandler):
         else:
             return cls.TYPE_TEXT
 
-    def _check_message_text(self, message_text: str):
-        return len(self.text_message) == 0 or self.text_message.count(message_text) > 0
-
     def _check_content_types(self, content_types):
-        return len(self.content_types) == 0 or self.content_types.count(content_types) > 0
+        return len(self._content_types) == 0 or self._content_types.count(content_types) > 0
 
     def _check_message_head(self, message_text: str):
-        if len(self.head_message) == 0:
+        if len(self._head_message) == 0:
             return True
 
-        if self.ignore_case:
+        if self._ignore_case:
             message_text = message_text.lower()
 
-        for i in self.head_message:
-            if self.ignore_case:
+        for i in self._head_message:
+            if self._ignore_case:
                 i = i.lower()
 
             if message_text.startswith(i):
@@ -46,11 +53,11 @@ class MessageNewHandler(BaseHandler):
 
         return False
 
-    def check(self, obj):
-        type_message = self._get_content_types(obj['message'])
-        text_message = obj['message']['text']
+    def _check_message_text(self, message_text: str):
+        if self._ignore_case:
+            message_text = message_text.lower()
+            check_list = types.string_list_lower(self._text_message)
+        else:
+            check_list = self._text_message
 
-        return \
-            self._check_content_types(type_message) and \
-            self._check_message_head(text_message) and \
-            self._check_message_text(text_message)
+        return len(check_list) == 0 or check_list.count(message_text) > 0
