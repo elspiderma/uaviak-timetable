@@ -25,6 +25,5 @@ class GroupUpdateLongPoll(VKBaseObject):
             return None
 
         # TODO: Parse 'object'
-        print(data)
 
         return cls(**data, client=client)

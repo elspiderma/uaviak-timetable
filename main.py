@@ -14,9 +14,8 @@ def timetable_teacher(obj):
     if text_timetable is None:
         text_timetable = 'Преподователь не найден'
 
-    bot.vk_api.messages.send(
+    bot.messages_send(
         message=text_timetable,
-        random_id=randint(0, 9999999),
         peer_id=obj['message']['peer_id'],
         reply_to=obj['message']['id']
     )
@@ -31,7 +30,6 @@ def timetable_group(obj):
 
     bot.messages_send(
         message=text_timetable,
-        random_id=randint(0, 9999999),
         peer_id=obj['message']['peer_id'],
         reply_to=obj['message']['id']
     )
@@ -41,7 +39,6 @@ def call_schedule(obj):
     bot.messages_send(
         message='Расписание звонков',
         attachment=config.PHOTO_CALLS,
-        random_id=randint(0, 9999999),
         peer_id=obj['message']['peer_id'],
         reply_to=obj['message']['id']
     )
@@ -70,7 +67,6 @@ def notify_enable(obj):
 
     bot.messages_send(
         message=text,
-        random_id=randint(0, 9999999),
         peer_id=obj['message']['peer_id'],
         reply_to=obj['message']['id']
     )
@@ -92,7 +88,6 @@ def notify_disable(obj):
 
     bot.vk_api.messages.send(
         message=text,
-        random_id=randint(0, 9999999),
         peer_id=obj['message']['peer_id'],
         reply_to=obj['message']['id']
     )
@@ -106,7 +101,6 @@ def send_notify(obj):
 
     bot.messages_send(
         message="Обновлено",
-        random_id=randint(0, 9999999),
         peer_id=obj['message']['peer_id'],
         reply_to=obj['message']['id']
     )
@@ -118,7 +112,6 @@ def send_notify(obj):
         try:
             bot.messages_send(
                 message=text,
-                random_id=randint(0, 9999999),
                 peer_id=i.id_vk,
             )
         except Exception:
@@ -141,7 +134,6 @@ def not_found(obj):
 
     bot.messages_send(
         message=text,
-        random_id=randint(0, 9999999),
         peer_id=obj['message']['peer_id'],
         reply_to=obj['message']['id']
     )
