@@ -1,4 +1,4 @@
 sqlalchemy
 uaviak_timetable
-vk_api
+requests
 flask

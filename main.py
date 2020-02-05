@@ -1,7 +1,6 @@
 import config
 from vk_bot.vk_bot import VKBot
 import timetable_text
-from random import randint
 from uaviak_timetable import Timetable
 
 from db import session, VKUser
@@ -14,9 +13,8 @@ def timetable_teacher(obj):
     if text_timetable is None:
         text_timetable = 'Преподователь не найден'
 
-    bot.vk_api.messages.send(
+    bot.messages_send(
         message=text_timetable,
-        random_id=randint(0, 9999999),
         peer_id=obj['message']['peer_id'],
         reply_to=obj['message']['id']
     )
@@ -29,19 +27,17 @@ def timetable_group(obj):
     if text_timetable is None:
         text_timetable = 'Группа не найдена'
 
-    bot.vk_api.messages.send(
+    bot.messages_send(
         message=text_timetable,
-        random_id=randint(0, 9999999),
         peer_id=obj['message']['peer_id'],
         reply_to=obj['message']['id']
     )
 
 
 def call_schedule(obj):
-    bot.vk_api.messages.send(
+    bot.messages_send(
         message='Расписание звонков',
         attachment=config.PHOTO_CALLS,
-        random_id=randint(0, 9999999),
         peer_id=obj['message']['peer_id'],
         reply_to=obj['message']['id']
     )
@@ -69,9 +65,8 @@ def notify_enable(obj):
 
     local_session.commit()
 
-    bot.vk_api.messages.send(
+    bot.messages_send(
         message=text,
-        random_id=randint(0, 9999999),
         peer_id=obj['message']['peer_id'],
         reply_to=obj['message']['id']
     )
@@ -92,9 +87,8 @@ def notify_disable(obj):
 
     local_session.commit()
 
-    bot.vk_api.messages.send(
+    bot.messages_send(
         message=text,
-        random_id=randint(0, 9999999),
         peer_id=obj['message']['peer_id'],
         reply_to=obj['message']['id']
     )
@@ -107,9 +101,8 @@ def send_notify(obj):
     local_session = session()
     users = local_session.query(VKUser).filter_by(enable_notify=True).all()
 
-    bot.vk_api.messages.send(
+    bot.messages_send(
         message="Обновлено",
-        random_id=randint(0, 9999999),
         peer_id=obj['message']['peer_id'],
         reply_to=obj['message']['id']
     )
@@ -119,9 +112,8 @@ def send_notify(obj):
         text = 'Выставлено новое расписание:\n\n'
         text += timetable_text.group(i.group_notify, tt)
         try:
-            bot.vk_api.messages.send(
+            bot.messages_send(
                 message=text,
-                random_id=randint(0, 9999999),
                 peer_id=i.id_vk,
             )
         except Exception:
@@ -142,9 +134,8 @@ def not_found(obj):
         'Писать номер и фамилию можно не полностью, например, вместо "г 19ис-1" можно написать "г 19ис" или "г 19".\n' \
         'В номерах группы игнорируется тире, т.е. можно писать "г 19ис-1" можно писать "г 19ис1"'
 
-    bot.vk_api.messages.send(
+    bot.messages_send(
         message=text,
-        random_id=randint(0, 9999999),
         peer_id=obj['message']['peer_id'],
         reply_to=obj['message']['id']
     )
@@ -160,4 +151,4 @@ bot.message_new_handler_add(send_notify, text_message="upd", ignore_case=True)
 bot.message_new_handler_add(not_found)
 
 if __name__ == '__main__':
-    bot.polling(config.GROUP_ID)
+    bot.polling(config.GROUP_ID, wait=10)
