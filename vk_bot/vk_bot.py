@@ -2,12 +2,9 @@ import requests
 import random
 from typing import Callable, List, Union
 
-from utils.types import bool2int
+from utils import bool2int
 
-from vk_bot.handlers.message_new_handler import MessageNewHandler
-from vk_bot.types.long_poll.group_long_poll_server import GroupLongPollServer
-from vk_bot.exceptions import VKBaseError
-from vk_bot.keyboard.keyboard import Keyboard
+from vk_bot import MessageNewHandler, GroupLongPollServer, VKBaseError, Keyboard
 
 
 class VKBot:

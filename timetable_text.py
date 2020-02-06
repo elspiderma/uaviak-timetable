@@ -1,112 +1,95 @@
-from uaviak_timetable import Timetable
+from uaviak_timetable import Timetable, Lesson
 
 
-def __get_text_type_lesson(lesson):
-    types = list()
+class TimetableText:
+    def __init__(self, timetable=None):
+        self.timetable = timetable
+        if self.timetable is None:
+            self.timetable = Timetable.load()
+            self.timetable.sort('number')
 
-    if lesson.is_splitting:
-        types.append('дроб.')
-    if lesson.is_practice:
-        types.append('прак.')
-    if lesson.is_consultations:
-        types.append('консулт.')
+    @classmethod
+    def __get_text_type_lesson(cls, lesson):
+        types = list()
 
-    if len(types) == 0:
-        return None
+        if lesson.is_splitting:
+            types.append('дроб.')
+        if lesson.is_practice:
+            types.append('прак.')
+        if lesson.is_consultations:
+            types.append('консулт.')
 
-    s = ', '.join(types)
-    return f'({s})'
+        if len(types) == 0:
+            return None
 
+        s = ', '.join(types)
+        return f'({s})'
 
-def __del_unnecessary_chars(group_name: str):
-    group_name = group_name.lower()
-    group_name = group_name.replace('-', '')
-    group_name = group_name.replace(' ', '')
-    return group_name
+    @classmethod
+    def __del_unnecessary_chars(cls, group_name: str):
+        group_name = group_name.lower()
+        group_name = group_name.replace('-', '')
+        group_name = group_name.replace(' ', '')
+        return group_name
 
+    @classmethod
+    def __check_header_group(cls, group: str, head_group: str):
+        group = cls.__del_unnecessary_chars(group)
+        head_group = cls.__del_unnecessary_chars(head_group)
 
-def __check_header_group(group: str, head_group: str):
-    group = __del_unnecessary_chars(group)
-    head_group = __del_unnecessary_chars(head_group)
+        return group.startswith(head_group)
 
-    return group.startswith(head_group)
+    @classmethod
+    def __get_text_lesson(cls, lesson: Lesson, attr: str):
+        if attr == 'group':
+            group_or_teacher = lesson.teacher
+        else:
+            group_or_teacher = lesson.group
 
+        text = f'{lesson.number}) {lesson.cabinet} каб. {group_or_teacher} {lesson.subject}'
+        group_type = cls.__get_text_type_lesson(lesson)
 
-def is_exist_group(head_group):
-    tt = Timetable.load()
-    list_group = tt.list('group')
+        if group_type is not None:
+            text += group_type
 
-    find_groups = []
-    for i in list_group:
-        if __check_header_group(i, head_group):
-            find_groups.append(i)
+        return text
 
-    return find_groups
+    def __get_text(self, head_str, attr):
+        text_attr = {}
+        for lesson in self.timetable:
+            value_attr = getattr(lesson, attr)
+            if not self.__check_header_group(value_attr, head_str):
+                continue
 
+            if value_attr not in text_attr:
+                text_attr[value_attr] = []
 
-def group(head_group, tt=None):
-    if tt is None:
+            text_attr[value_attr].append(self.__get_text_lesson(lesson, attr))
+
+        if len(text_attr) == 0:
+            return None
+
+        text = ''
+        for group_number in sorted(text_attr):
+            text += f'{group_number}:\n'
+            text += '\n'.join(text_attr[group_number])
+            text += '\n\n'
+
+        return text
+
+    def get_text_teacher(self, head_teacher):
+        return self.__get_text(head_teacher, 'teacher')
+
+    def get_text_group(self, head_group):
+        return self.__get_text(head_group, 'group')
+
+    def get_list_group(self, head_group):
         tt = Timetable.load()
+        list_group = tt.list('group')
 
-    tt_groups = Timetable()
-    for lesson in tt:
-        if __check_header_group(lesson.group, head_group):
-            tt_groups.append_lesson(lesson)
+        find_groups = []
+        for i in list_group:
+            if self.__check_header_group(i, head_group):
+                find_groups.append(i)
 
-    if len(tt_groups) == 0:
-        return None
-
-    tt_groups.sort('number')
-
-    list_group = tt_groups.list('group')
-    list_group.sort()
-
-    text = ''
-    for i in list_group:
-        lessons = tt_groups.find(group=i)
-
-        text += f'\n{i}: \n'
-        for j in lessons:
-            type_lesson = __get_text_type_lesson(j)
-            text += f'{j.number}) {j.cabinet} каб. {j.teacher} {j.subject}'
-
-            if type_lesson:
-                text += f' {type_lesson}'
-
-            text += '\n'
-
-    return text.strip()
-
-
-def teacher(head_teacher, tt=None):
-    if tt is None:
-        tt = Timetable.load()
-
-    tt_teacher = Timetable()
-    for lesson in tt:
-        if __check_header_group(lesson.teacher, head_teacher):
-            tt_teacher.append_lesson(lesson)
-
-    if len(tt_teacher) == 0:
-        return None
-
-    tt_teacher.sort('number')
-
-    list_teacher = tt_teacher.list('teacher')
-    list_teacher.sort()
-
-    text = ''
-    for i in list_teacher:
-        lessons = tt_teacher.find(teacher=i)
-
-        text += f'\n{i}: \n'
-        for j in lessons:
-            type_lesson = __get_text_type_lesson(j)
-            text += f'{j.number}) {j.cabinet} каб. {j.group} {j.subject}'
-
-            if type_lesson:
-                text += f' {type_lesson}'
-
-            text += '\n'
-
-    return text.strip()
+        return find_groups

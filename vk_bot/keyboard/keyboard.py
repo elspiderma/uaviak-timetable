@@ -1,4 +1,4 @@
-from vk_bot.keyboard.buttons.button_text import ButtonText
+from vk_bot import ButtonText
 import json
 
 

@@ -1,5 +1,5 @@
 from vk_bot.handlers.base_handler import BaseHandler
-from utils import types
+import utils
 
 
 class MessageNewHandler(BaseHandler):
@@ -11,9 +11,9 @@ class MessageNewHandler(BaseHandler):
 
         self._ignore_case = ignore_case
 
-        self._text_message = types.to_list(text_message)
-        self._head_message = types.to_list(head_message)
-        self._content_types = types.to_list(content_types)
+        self._text_message = utils.to_list(text_message)
+        self._head_message = utils.to_list(head_message)
+        self._content_types = utils.to_list(content_types)
 
     def check(self, obj):
         type_message = self._get_content_types(obj['message'])
@@ -56,7 +56,7 @@ class MessageNewHandler(BaseHandler):
     def _check_message_text(self, message_text: str):
         if self._ignore_case:
             message_text = message_text.lower()
-            check_list = types.string_list_lower(self._text_message)
+            check_list = utils.string_list_lower(self._text_message)
         else:
             check_list = self._text_message
 

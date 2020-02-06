@@ -1,20 +1,30 @@
 import config
-from vk_bot.vk_bot import VKBot
-import timetable_text
-from uaviak_timetable import Timetable
+from vk_bot import VKBot
+from timetable_text import TimetableText
 
 from db import session, VKUser
+
+
+def send_timetable(obj):
+    # TODO: Убрать костыль
+    if obj['message']['text'][0].isnumeric():
+        obj['message']['text'] = 'г ' + obj['message']['text']
+        timetable_group(obj)
+    else:
+        obj['message']['text'] = 'п ' + obj['message']['text']
+        timetable_teacher(obj)
 
 
 def timetable_teacher(obj):
     teacher_name = obj['message']['text'][2:]
 
-    text_timetable = timetable_text.teacher(teacher_name)
-    if text_timetable is None:
-        text_timetable = 'Преподователь не найден'
+    timetable = TimetableText()
+    text = timetable.get_text_teacher(teacher_name)
+    if text is None:
+        text = 'Преподователь не найден'
 
     bot.messages_send(
-        message=text_timetable,
+        message=text,
         peer_id=obj['message']['peer_id'],
         reply_to=obj['message']['id']
     )
@@ -23,12 +33,13 @@ def timetable_teacher(obj):
 def timetable_group(obj):
     group_name = obj['message']['text'][2:]
 
-    text_timetable = timetable_text.group(group_name)
-    if text_timetable is None:
-        text_timetable = 'Группа не найдена'
+    timetable = TimetableText()
+    text = timetable.get_text_group(group_name)
+    if text is None:
+        text = 'Группа не найдена'
 
     bot.messages_send(
-        message=text_timetable,
+        message=text,
         peer_id=obj['message']['peer_id'],
         reply_to=obj['message']['id']
     )
@@ -51,7 +62,8 @@ def notify_enable(obj):
         local_session.add(user_db)
 
     group_name = obj['message']['text'][4:]
-    find_groups = timetable_text.is_exist_group(group_name)
+    timetable = TimetableText()
+    find_groups = timetable.get_list_group(group_name)
 
     if len(find_groups) == 1:
         user_db.enable_notify = True
@@ -96,7 +108,7 @@ def notify_disable(obj):
 
 def send_notify(obj):
     if obj['message']['peer_id'] not in (70140946, 186973258):
-        return not_found(obj)
+        return send_timetable(obj)
 
     local_session = session()
     users = local_session.query(VKUser).filter_by(enable_notify=True).all()
@@ -107,10 +119,10 @@ def send_notify(obj):
         reply_to=obj['message']['id']
     )
 
-    tt = Timetable.load()
+    timetable = TimetableText()
     for i in users:
         text = 'Выставлено новое расписание:\n\n'
-        text += timetable_text.group(i.group_notify, tt)
+        text += timetable.get_text_group(i.group_notify)
         try:
             bot.messages_send(
                 message=text,
@@ -120,19 +132,16 @@ def send_notify(obj):
             pass
 
 
-def not_found(obj):
-    text = \
-        'Команда не найдена\n\n' \
-        'Чтобы посмотреть расписание группы напишите:\n' \
-        'г номер_группы\n\n' \
-        'Чтобы посмотреть расписание преподавателя напишите:\n' \
-        'п фамилия\n\n' \
-        'Чтобы посмотреть расписание звонков напишите:\n' \
-        '"з" или "звонки"\n\n' \
-        'Если вы хотите получать уведомление при обновлении расписания напишите:\n' \
-        'увд номер\n\n' \
-        'Писать номер и фамилию можно не полностью, например, вместо "г 19ис-1" можно написать "г 19ис" или "г 19".\n' \
-        'В номерах группы игнорируется тире, т.е. можно писать "г 19ис-1" можно писать "г 19ис1"'
+def send_help(obj):
+    text = """Список команд:
+    \"увд номер_группы\" - включить уведомления
+    \"увд\" - выключить уведомления
+    \"з\" или \"звонки\" - расписание звонков
+    \"п фамилия\" - посмотреть расписание преподавателя
+    \"г фамилия\" - посмотреть расписание группы
+    
+    Посмотреть расписание просто написав номер группы или фамилию преподавателя.
+    Можно писать фамилию и номер неполностью, например, вместо \"19ис-1\" можно написать \"19ис\"."""
 
     bot.messages_send(
         message=text,
@@ -148,7 +157,8 @@ bot.message_new_handler_add(call_schedule, text_message=["з", "звонки"], 
 bot.message_new_handler_add(notify_disable, text_message='увд', ignore_case=True)
 bot.message_new_handler_add(notify_enable, head_message="увд ", ignore_case=True)
 bot.message_new_handler_add(send_notify, text_message="upd", ignore_case=True)
-bot.message_new_handler_add(not_found)
+bot.message_new_handler_add(send_help, text_message="команды", ignore_case=True)
+bot.message_new_handler_add(send_timetable)
 
 if __name__ == '__main__':
     bot.polling(config.GROUP_ID, wait=10)

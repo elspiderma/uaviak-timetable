@@ -1,4 +1,4 @@
-from vk_bot.keyboard.buttons.button import Button
+from vk_bot import Button
 
 
 class ButtonVKPay(Button):
