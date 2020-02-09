@@ -1,5 +1,8 @@
 import config
+
 from vk_bot import VKBot
+from vk_bot import VKBaseError
+
 from timetable_text import TimetableText
 
 from db import session, VKUser
@@ -122,13 +125,14 @@ def send_notify(obj):
     local_session = session()
     users = local_session.query(VKUser).filter_by(enable_notify=True).all()
 
-    bot.messages_send(
-        message="Обновлено",
+    id_message = bot.messages_send(
+        message="Рассылка...",
         peer_id=obj['message']['peer_id'],
         reply_to=obj['message']['id']
     )
 
     timetable = TimetableText()
+    fail_user = 0
     for i in users:
         text = 'Выставлено новое расписание:\n\n'
         text += timetable.get_text_group(i.group_notify)
@@ -137,8 +141,14 @@ def send_notify(obj):
                 message=text,
                 peer_id=i.id_vk,
             )
-        except Exception:
-            pass
+        except VKBaseError:
+            fail_user += 1
+
+    bot.messages_edit(
+        peer_id=obj['message']['peer_id'],
+        message=f'Рассылка окончена!\nСообщений разослано: {len(users)}\nНеудачно: {fail_user}',
+        message_id=id_message
+    )
 
 
 def send_help(obj):

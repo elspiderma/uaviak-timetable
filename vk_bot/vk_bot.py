@@ -74,6 +74,23 @@ class VKBot:
             intent=intent
         )
 
+    def messages_edit(self, peer_id: int, message: str = None, message_id: int = None, lat: Union[int, float] = None,
+                      long: Union[int, float] = None, attachment: str = None, keep_forward_messages: bool = None,
+                      keep_snippets: bool = None, group_id: int = None, dont_parse_links: bool = None) -> int:
+        return self._method(
+            'messages.edit',
+            peer_id=peer_id,
+            message=message,
+            message_id=message_id,
+            lat=lat,
+            long=long,
+            attachment=attachment,
+            keep_forward_messages=bool2int(keep_forward_messages),
+            keep_snippets=bool2int(keep_snippets),
+            group_id=group_id,
+            dont_parse_links=bool2int(dont_parse_links)
+        )
+
     def message_new_handler_add(self, func: Callable,
                                 text_message: Union[List[str], str] = None,
                                 head_message: Union[List[str], str] = None,
