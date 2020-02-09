@@ -6,13 +6,22 @@ from db import session, VKUser
 
 
 def send_timetable(obj):
-    # TODO: Убрать костыль
-    if obj['message']['text'][0].isnumeric():
-        obj['message']['text'] = 'г ' + obj['message']['text']
-        timetable_group(obj)
+    search_text = obj['message']['text']
+
+    timetable = TimetableText()
+    if search_text[0].isnumeric():
+        text = timetable.get_text_group(search_text)
     else:
-        obj['message']['text'] = 'п ' + obj['message']['text']
-        timetable_teacher(obj)
+        text = timetable.get_text_teacher(search_text)
+
+    if text is None:
+        text = 'Группа или преподаватель не найден'
+
+    bot.messages_send(
+        message=text,
+        peer_id=obj['message']['peer_id'],
+        reply_to=obj['message']['id']
+    )
 
 
 def timetable_teacher(obj):
