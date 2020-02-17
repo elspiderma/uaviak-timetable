@@ -6,8 +6,7 @@ import config
 
 Base = declarative_base()
 
-from .timetable import Timetable
-from .vk_user import VKUser
+from db.notify import Notify
 
 engine = create_engine(config.DATA_BASE)
 Base.metadata.create_all(engine)

@@ -5,7 +5,7 @@ from vk_bot import VKBaseError
 
 from timetable_text import TimetableText
 
-from db import session, VKUser
+from db import session, Notify
 
 
 def send_timetable(obj):
@@ -66,91 +66,6 @@ def call_schedule(obj):
     )
 
 
-def notify_enable(obj):
-    local_session = session()
-    user_db = local_session.query(VKUser).filter_by(id_vk=obj['message']['from_id']).first()
-    if user_db is None:
-        user_db = VKUser(id_vk=obj['message']['from_id'])
-        local_session.add(user_db)
-
-    group_name = obj['message']['text'][4:]
-    timetable = TimetableText()
-    find_groups = timetable.get_list_group(group_name)
-
-    if len(find_groups) == 1:
-        user_db.enable_notify = True
-        user_db.group_notify = find_groups[0]
-        text = f'Уведомления включены для группы \"{find_groups[0]}\"'
-    elif len(find_groups) > 1:
-        text = 'Найдено несколько групп, пожалуйста, выбирите одну.\n'
-        text += f'Найденные группы: {", ".join(find_groups)}'
-    else:
-        text = 'Группа не найдена'
-
-    local_session.commit()
-
-    bot.messages_send(
-        message=text,
-        peer_id=obj['message']['peer_id'],
-        reply_to=obj['message']['id']
-    )
-
-
-def notify_disable(obj):
-    local_session = session()
-    user_db = local_session.query(VKUser).filter_by(id_vk=obj['message']['from_id']).first()
-    if user_db is None:
-        user_db = VKUser(id_vk=obj['message']['from_id'])
-        local_session.add(user_db)
-
-    if user_db.enable_notify:
-        user_db.enable_notify = False
-        text = 'Уведомления выключены'
-    else:
-        text = 'Уведомления уже выключены\n\nДля включения напишите:\nувд номер_группы'
-
-    local_session.commit()
-
-    bot.messages_send(
-        message=text,
-        peer_id=obj['message']['peer_id'],
-        reply_to=obj['message']['id']
-    )
-
-
-def send_notify(obj):
-    if obj['message']['peer_id'] not in (70140946, 186973258):
-        return send_timetable(obj)
-
-    local_session = session()
-    users = local_session.query(VKUser).filter_by(enable_notify=True).all()
-
-    id_message = bot.messages_send(
-        message="Рассылка...",
-        peer_id=obj['message']['peer_id'],
-        reply_to=obj['message']['id']
-    )
-
-    timetable = TimetableText()
-    fail_user = 0
-    for i in users:
-        text = 'Выставлено новое расписание:\n\n'
-        text += timetable.get_text_group(i.group_notify)
-        try:
-            bot.messages_send(
-                message=text,
-                peer_id=i.id_vk,
-            )
-        except VKBaseError:
-            fail_user += 1
-
-    bot.messages_edit(
-        peer_id=obj['message']['peer_id'],
-        message=f'Рассылка окончена!\nСообщений разослано: {len(users)}\nНеудачно: {fail_user}',
-        message_id=id_message
-    )
-
-
 def send_help(obj):
     text = """Список команд:
     \"увд номер_группы\" - включить уведомления
@@ -169,14 +84,88 @@ def send_help(obj):
     )
 
 
+def notify(obj):
+    local_session = session()
+
+    head_obj = obj['message']['text'][4:]
+    is_group = head_obj[0].isnumeric()
+
+    exist_notify = local_session.query(Notify).filter_by(
+        id_vk=obj['message']['peer_id'],
+        is_group=is_group,
+        search_text=head_obj
+    ).first()
+
+    if exist_notify is None:
+        timetable = TimetableText()
+
+        if is_group:
+            objs_find = timetable.get_list_group(head_obj)
+        else:
+            objs_find = timetable.get_list_teacher(head_obj)
+
+        if len(objs_find) == 1:
+            local_session.add(Notify(
+                id_vk=obj['message']['peer_id'],
+                is_group=is_group,
+                search_text=objs_find[0]
+            ))
+            text = f'Уведомления для {"группы" if is_group else "преподователя"} "{objs_find[0]}" включены'
+        elif len(objs_find) > 1:
+            text = f'Найдено несколько {"групп" if is_group else "преподователей"}: {", ".join(objs_find)}\n' \
+                   f'Повторите команду, написав {"полный номер группы" if is_group else "полное имя преподователя"}'
+        else:
+            text = "Группа не найдена" if is_group else "Преподователь не найден"
+    else:
+        local_session.delete(exist_notify)
+        text = f'Уведомления для {"группы" if is_group else "преподователя"} "{exist_notify.search_text}" выключены'
+
+    local_session.commit()
+
+    bot.messages_send(
+        message=text,
+        peer_id=obj['message']['peer_id'],
+        reply_to=obj['message']['id']
+    )
+
+
+def notify_send(obj):
+    if obj['message']['peer_id'] not in (70140946, 186973258):
+        return send_timetable(obj)
+
+    timetable = TimetableText()
+
+    local_session = session()
+    notify_users = local_session.query(Notify).all()
+
+    texts = {}
+    for i in notify_users:
+        if i.id_vk not in texts:
+            texts[i.id_vk] = list()
+
+        if i.is_group:
+            text = timetable.get_text_group(i.search_text)
+        else:
+            text = timetable.get_text_teacher(i.search_text)
+
+        texts[i.id_vk].append(text)
+
+    SEP = '\n\n'
+    for vk_id, text_groups in texts.items():
+        text = f'Выставлено новое расписание:\n\n{SEP.join(text_groups)}'
+        bot.messages_send(
+            message=text,
+            peer_id=vk_id,
+        )
+
+
 bot = VKBot(config.TOKEN_BOT)
-bot.message_new_handler_add(timetable_teacher, head_message="п ", ignore_case=True)
-bot.message_new_handler_add(timetable_group, head_message="г ", ignore_case=True)
-bot.message_new_handler_add(call_schedule, text_message=["з", "звонки"], ignore_case=True)
-bot.message_new_handler_add(notify_disable, text_message='увд', ignore_case=True)
-bot.message_new_handler_add(notify_enable, head_message="увд ", ignore_case=True)
-bot.message_new_handler_add(send_notify, text_message="upd", ignore_case=True)
-bot.message_new_handler_add(send_help, text_message="команды", ignore_case=True)
+bot.message_new_handler_add(timetable_teacher, head_message='п ', ignore_case=True)
+bot.message_new_handler_add(timetable_group, head_message='г ', ignore_case=True)
+bot.message_new_handler_add(call_schedule, text_message=['з', 'звонки'], ignore_case=True)
+bot.message_new_handler_add(notify, head_message='увд ', ignore_case=True)
+bot.message_new_handler_add(notify_send, text_message='upd', ignore_case=True)
+bot.message_new_handler_add(send_help, text_message='команды', ignore_case=True)
 bot.message_new_handler_add(send_timetable)
 
 if __name__ == '__main__':
