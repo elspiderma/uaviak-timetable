@@ -13,8 +13,7 @@ def webhook():
     if flask.request.headers.get('content-type') == 'application/json':
         update = json.loads(flask.request.get_data().decode('utf-8'))
 
-        tr = threading.Thread(target=bot.process_new_update, args=(update['type'], update['object'], ), daemon=True)
-        tr.start()
+        bot.process_new_update(update['type'], update['object'])
         return 'ok'
     else:
         flask.abort(403)

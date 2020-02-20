@@ -1,5 +1,6 @@
 import requests
 import random
+from threading import Thread
 from typing import Callable, List, Union
 
 from utils import bool2int
@@ -10,11 +11,13 @@ from vk_bot import MessageNewHandler, GroupLongPollServer, VKBaseError, Keyboard
 class VKBot:
     def __init__(self,
                  token: str,
+                 threaded: bool = True,
                  version_api: str = '5.103',
                  base_url: str = 'https://api.vk.com/method/'):
         self.token = token
         self.version_api = version_api
         self.base_url = base_url
+        self.threaded = threaded
 
         self._message_new_handlers = []
 
@@ -103,7 +106,11 @@ class VKBot:
         if type_update == 'message_new':
             for i in self._message_new_handlers:
                 if i.check(update):
-                    i.exec(update)
+                    if self.threaded:
+                        task_thread = Thread(target=i.exec, args=(update, ))
+                        task_thread.start()
+                    else:
+                        i.exec(update)
                     break
 
     def polling(self, group_id: Union[str, int], wait: int = 30):
