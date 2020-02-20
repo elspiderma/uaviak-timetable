@@ -14,3 +14,7 @@ def string_list_lower(list_str: list):
 
 def bool2int(val: bool):
     return int(val) if val is not None else None
+
+
+def get_user(session):
+    pass

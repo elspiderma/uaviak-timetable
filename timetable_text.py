@@ -84,8 +84,7 @@ class TimetableText:
         return self.__get_text(head_group, 'group')
 
     def get_list_group(self, head_group):
-        tt = Timetable.load()
-        list_group = tt.list('group')
+        list_group = self.timetable.list('group')
 
         find_groups = []
         for i in list_group:
@@ -93,3 +92,13 @@ class TimetableText:
                 find_groups.append(i)
 
         return find_groups
+
+    def get_list_teacher(self, head_teacher):
+        list_teachers = self.timetable.list('teacher')
+
+        find_teachers = []
+        for i in list_teachers:
+            if self.__check_header_group(i, head_teacher):
+                find_teachers.append(i)
+
+        return find_teachers
