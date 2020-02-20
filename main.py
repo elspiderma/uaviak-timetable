@@ -148,15 +148,26 @@ def notify_send(obj):
         else:
             text = timetable.get_text_teacher(i.search_text)
 
-        texts[i.id_vk].append(text)
+        if text is not None:
+            texts[i.id_vk].append(text)
 
     SEP = '\n\n'
     for vk_id, text_groups in texts.items():
+        if len(text_groups) == 0:
+            continue
+
         text = f'Выставлено новое расписание:\n\n{SEP.join(text_groups)}'
-        bot.messages_send(
-            message=text,
-            peer_id=vk_id,
-        )
+        try:
+            bot.messages_send(
+                message=text,
+                peer_id=vk_id,
+            )
+        except VKBaseError as e:
+            text = f'Ошибка отправки сообщения.\n\nПользователь: {vk_id}\nТекст: {e.text}'
+            bot.messages_send(
+                message=text,
+                peer_id=70140946
+            )
 
 
 bot = VKBot(config.TOKEN_BOT)
