@@ -85,37 +85,46 @@ def send_help(obj):
 
 
 def notify(obj):
-    local_session = session()
-
     head_obj = obj['message']['text'][4:]
     is_group = head_obj[0].isnumeric()
 
+    timetable = TimetableText()
+    if is_group:
+        objs_find = timetable.get_list_group(head_obj)
+    else:
+        objs_find = timetable.get_list_teacher(head_obj)
+
+    if len(objs_find) > 1:
+        text = f'Найдено несколько {"групп" if is_group else "преподователей"}: {", ".join(objs_find)}\n' \
+               f'Повторите команду, написав {"полный номер группы" if is_group else "полное имя преподователя"}'
+        bot.messages_send(
+            message=text,
+            peer_id=obj['message']['peer_id'],
+            reply_to=obj['message']['id']
+        )
+        return
+    elif len(objs_find) == 0:
+        bot.messages_send(
+            message='Группа не найдена' if is_group else 'Преподователь не найден',
+            peer_id=obj['message']['peer_id'],
+            reply_to=obj['message']['id']
+        )
+        return
+
+    local_session = session()
     exist_notify = local_session.query(Notify).filter_by(
         id_vk=obj['message']['peer_id'],
         is_group=is_group,
-        search_text=head_obj
+        search_text=objs_find[0]
     ).first()
 
     if exist_notify is None:
-        timetable = TimetableText()
-
-        if is_group:
-            objs_find = timetable.get_list_group(head_obj)
-        else:
-            objs_find = timetable.get_list_teacher(head_obj)
-
-        if len(objs_find) == 1:
-            local_session.add(Notify(
-                id_vk=obj['message']['peer_id'],
-                is_group=is_group,
-                search_text=objs_find[0]
-            ))
-            text = f'Уведомления для {"группы" if is_group else "преподователя"} "{objs_find[0]}" включены'
-        elif len(objs_find) > 1:
-            text = f'Найдено несколько {"групп" if is_group else "преподователей"}: {", ".join(objs_find)}\n' \
-                   f'Повторите команду, написав {"полный номер группы" if is_group else "полное имя преподователя"}'
-        else:
-            text = "Группа не найдена" if is_group else "Преподователь не найден"
+        local_session.add(Notify(
+            id_vk=obj['message']['peer_id'],
+            is_group=is_group,
+            search_text=objs_find[0]
+        ))
+        text = f'Уведомления для {"группы" if is_group else "преподователя"} "{objs_find[0]}" включены'
     else:
         local_session.delete(exist_notify)
         text = f'Уведомления для {"группы" if is_group else "преподователя"} "{exist_notify.search_text}" выключены'
