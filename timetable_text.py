@@ -1,4 +1,5 @@
 from uaviak_timetable import Timetable, Lesson
+from utils import number_weekday_to_text
 
 
 class TimetableText:
@@ -74,6 +75,11 @@ class TimetableText:
             text += f'{group_number}:\n'
             text += '\n'.join(text_attr[group_number])
             text += '\n\n'
+
+        date_text = self.timetable.date.strftime('%d.%m')
+        date_text = f'{number_weekday_to_text(self.timetable.date.weekday())} {date_text}'
+
+        text += date_text
 
         return text
 
