@@ -178,6 +178,11 @@ def notify_send(obj):
                 peer_id=70140946
             )
 
+    bot.messages_send(
+        message='Рассылка закончена',
+        peer_id=obj['message']['peer_id']
+    )
+
 
 bot = VKBot(config.TOKEN_BOT)
 bot.message_new_handler_add(timetable_teacher, head_message='п ', ignore_case=True)
