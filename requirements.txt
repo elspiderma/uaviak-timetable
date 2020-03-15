@@ -1,4 +1,0 @@
-sqlalchemy
-uaviak_timetable
-requests
-flask
