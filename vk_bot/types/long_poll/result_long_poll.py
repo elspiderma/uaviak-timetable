@@ -1,5 +1,5 @@
 from vk_bot.types.vk_base_object import VKBaseObject
-from vk_bot.types.long_poll.group_update_long_poll import GroupUpdateLongPoll
+from vk_bot.types.long_poll.update_long_poll import GroupUpdateLongPoll
 from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:

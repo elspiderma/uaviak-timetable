@@ -9,7 +9,7 @@ from db import session, Notify
 
 
 def send_timetable(obj):
-    search_text = obj['message']['text']
+    search_text = obj.message.text
 
     timetable = TimetableText()
     if search_text[0].isnumeric():
@@ -20,50 +20,33 @@ def send_timetable(obj):
     if text is None:
         text = 'Группа или преподаватель не найден'
 
-    bot.messages_send(
-        message=text,
-        peer_id=obj['message']['peer_id'],
-        reply_to=obj['message']['id']
-    )
+    obj.message.reply(message=text)
 
 
 def timetable_teacher(obj):
-    teacher_name = obj['message']['text'][2:]
+    teacher_name = obj.message.text[2:]
 
     timetable = TimetableText()
     text = timetable.get_text_teacher(teacher_name)
     if text is None:
         text = 'Преподователь не найден'
 
-    bot.messages_send(
-        message=text,
-        peer_id=obj['message']['peer_id'],
-        reply_to=obj['message']['id']
-    )
+    obj.message.reply(message=text)
 
 
 def timetable_group(obj):
-    group_name = obj['message']['text'][2:]
+    group_name = obj.message.text[2:]
 
     timetable = TimetableText()
     text = timetable.get_text_group(group_name)
     if text is None:
         text = 'Группа не найдена'
 
-    bot.messages_send(
-        message=text,
-        peer_id=obj['message']['peer_id'],
-        reply_to=obj['message']['id']
-    )
+    obj.message.reply(message=text)
 
 
 def call_schedule(obj):
-    bot.messages_send(
-        message='Расписание звонков',
-        attachment=config.PHOTO_CALLS,
-        peer_id=obj['message']['peer_id'],
-        reply_to=obj['message']['id']
-    )
+    obj.message.reply(message='Расписание звонков', attachment=config.PHOTO_CALLS)
 
 
 def send_help(obj):
@@ -77,15 +60,11 @@ def send_help(obj):
     Посмотреть расписание просто написав номер группы или фамилию преподавателя.
     Можно писать фамилию и номер неполностью, например, вместо \"19ис-1\" можно написать \"19ис\"."""
 
-    bot.messages_send(
-        message=text,
-        peer_id=obj['message']['peer_id'],
-        reply_to=obj['message']['id']
-    )
+    obj.message.reply(message=text)
 
 
 def notify(obj):
-    head_obj = obj['message']['text'][4:]
+    head_obj = obj.message.text[4:]
     is_group = head_obj[0].isnumeric()
 
     timetable = TimetableText()
@@ -97,30 +76,22 @@ def notify(obj):
     if len(objs_find) > 1:
         text = f'Найдено несколько {"групп" if is_group else "преподователей"}: {", ".join(objs_find)}\n' \
                f'Повторите команду, написав {"полный номер группы" if is_group else "полное имя преподователя"}'
-        bot.messages_send(
-            message=text,
-            peer_id=obj['message']['peer_id'],
-            reply_to=obj['message']['id']
-        )
+        obj.message.reply(message=text)
         return
     elif len(objs_find) == 0:
-        bot.messages_send(
-            message='Группа не найдена' if is_group else 'Преподователь не найден',
-            peer_id=obj['message']['peer_id'],
-            reply_to=obj['message']['id']
-        )
+        obj.message.reply(message='Группа не найдена' if is_group else 'Преподователь не найден')
         return
 
     local_session = session()
     exist_notify = local_session.query(Notify).filter_by(
-        id_vk=obj['message']['peer_id'],
+        id_vk=obj.message.peer_id,
         is_group=is_group,
         search_text=objs_find[0]
     ).first()
 
     if exist_notify is None:
         local_session.add(Notify(
-            id_vk=obj['message']['peer_id'],
+            id_vk=obj.message.peer_id,
             is_group=is_group,
             search_text=objs_find[0]
         ))
@@ -131,15 +102,11 @@ def notify(obj):
 
     local_session.commit()
 
-    bot.messages_send(
-        message=text,
-        peer_id=obj['message']['peer_id'],
-        reply_to=obj['message']['id']
-    )
+    obj.message.reply(message=text)
 
 
 def notify_send(obj):
-    if obj['message']['peer_id'] not in (70140946, 186973258):
+    if obj.message.peer_id not in (70140946, 186973258):
         return send_timetable(obj)
 
     timetable = TimetableText()
@@ -178,10 +145,7 @@ def notify_send(obj):
                 peer_id=70140946
             )
 
-    bot.messages_send(
-        message='Рассылка закончена',
-        peer_id=obj['message']['peer_id']
-    )
+    obj.message.reply(message='Рассылка закончена')
 
 
 bot = VKBot(config.TOKEN_BOT)

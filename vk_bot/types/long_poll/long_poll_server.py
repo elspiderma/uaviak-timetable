@@ -1,7 +1,7 @@
 import requests
 
 from vk_bot.types.vk_base_object import VKBaseObject
-from vk_bot.types.long_poll.group_result_long_poll import GroupResultLongPoll
+from vk_bot.types.long_poll.result_long_poll import GroupResultLongPoll
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -25,4 +25,5 @@ class GroupLongPollServer(VKBaseObject):
 
     def request(self, wait: int = 25):
         data = requests.get(self.get_url(wait)).json()
+        print(data)
         return GroupResultLongPoll.de_dict(data, self.client)

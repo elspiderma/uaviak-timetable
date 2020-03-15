@@ -1,3 +1,4 @@
+from vk_bot.types.long_poll.message_new import MessageNew
 from vk_bot.types.vk_base_object import VKBaseObject
 from typing import TYPE_CHECKING
 
@@ -8,7 +9,7 @@ if TYPE_CHECKING:
 class GroupUpdateLongPoll(VKBaseObject):
     def __init__(self,
                  type: str,
-                 object,
+                 object: object,
                  group_id: int,
                  event_id: str,
                  client: 'VKBot' = None):
@@ -25,5 +26,7 @@ class GroupUpdateLongPoll(VKBaseObject):
             return None
 
         # TODO: Parse 'object'
+        if data['type'] == 'message_new':
+            data['object'] = MessageNew.de_dict(data.get('object'), client)
 
         return cls(**data, client=client)

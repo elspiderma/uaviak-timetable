@@ -5,7 +5,8 @@ from typing import Callable, List, Union
 
 from utils import bool2int
 
-from vk_bot import MessageNewHandler, GroupLongPollServer, VKBaseError, Keyboard
+from vk_bot import MessageNewHandler, GroupLongPollServer, VKBaseError, Keyboard, MessageNew, \
+    GroupUpdateLongPoll
 
 
 class VKBot:
@@ -81,7 +82,7 @@ class VKBot:
                       long: Union[int, float] = None, attachment: str = None, keep_forward_messages: bool = None,
                       keep_snippets: bool = None, group_id: int = None, dont_parse_links: bool = None) -> int:
         return self._method(
-            'messages.edit',
+            'message.edit',
             peer_id=peer_id,
             message=message,
             message_id=message_id,
@@ -102,15 +103,15 @@ class VKBot:
         handler = MessageNewHandler(func, text_message, head_message, ignore_case, content_types)
         self._message_new_handlers.append(handler)
 
-    def process_new_update(self, type_update: str, update: dict):
-        if type_update == 'message_new':
+    def process_new_update(self, update: 'GroupUpdateLongPoll'):
+        if update.type == 'message_new':
             for i in self._message_new_handlers:
                 if i.check(update):
                     if self.threaded:
-                        task_thread = Thread(target=i.exec, args=(update, ))
+                        task_thread = Thread(target=i.exec, args=(update.object, ))
                         task_thread.start()
                     else:
-                        i.exec(update)
+                        i.exec(update.object)
                     break
 
     def polling(self, group_id: Union[str, int], wait: int = 30):
@@ -129,4 +130,4 @@ class VKBot:
             if result.updates is not None:
                 long_poll.ts = result.ts
                 for upd in result.updates:
-                    self.process_new_update(upd.type, upd.object)
+                    self.process_new_update(upd)

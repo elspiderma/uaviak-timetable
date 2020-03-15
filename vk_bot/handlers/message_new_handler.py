@@ -1,3 +1,4 @@
+from vk_bot.types.long_poll.update_long_poll import GroupUpdateLongPoll
 from vk_bot.handlers.base_handler import BaseHandler
 import utils
 
@@ -16,8 +17,8 @@ class MessageNewHandler(BaseHandler):
         self._content_types = utils.to_list(content_types)
 
     def check(self, obj):
-        type_message = self._get_content_types(obj['message'])
-        text_message = obj['message']['text']
+        type_message = self._get_content_types(obj.object.message)
+        text_message = obj.object.message.text
 
         return \
             self._check_content_types(type_message) and \
@@ -26,8 +27,8 @@ class MessageNewHandler(BaseHandler):
 
     @classmethod
     def _get_content_types(cls, message):
-        attachments = message.get('attachments', [])
-        geo = message.get('geo')
+        attachments = message.attachments
+        geo = message.geo
 
         if len(attachments) > 0 or geo is not None:
             return cls.TYPE_ATTACHMENT
