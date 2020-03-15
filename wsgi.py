@@ -14,7 +14,7 @@ def webhook():
         bot.process_new_update(GroupUpdateLongPoll.de_dict(update))
         return 'ok'
     else:
-        flask.abort(403)
+        flask.abort(400)
 
 
 if __name__ == '__main__':
