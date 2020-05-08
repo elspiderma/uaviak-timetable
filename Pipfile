@@ -5,13 +5,13 @@ verify_ssl = true
 
 [dev-packages]
 bpython = "*"
-v = {editable = true,version = "*"}
 
 [packages]
-uaviak-timetable = {editable = true,git = "https://github.com/glebliutsko/UAviaK-Timetable.git"}
 requests = "*"
 SQLAlchemy = "*"
-Flask = "*"
+vkbottle = "*"
+aiohttp = "*"
+uaviak-timetable = "*"
 
 [requires]
 python_version = "3.8"
