@@ -1,6 +1,9 @@
 import os
 
 TOKEN_BOT = os.getenv('TOKEN_BOT')
-GROUP_ID = os.getenv('GROUP_ID')
+CONFIRMATION_TOKEN = os.getenv('CONFIRMATION_TOKEN')
+SECRET = os.getenv('SECRET')
+
 DATA_BASE = os.getenv('DATA_BASE')
-PHOTO_CALLS = os.getenv('PHOTO_CALLS')
+
+STATIC_DIR = os.getenv('STATIC_DIR', f'{os.path.dirname(__file__)}/static')
