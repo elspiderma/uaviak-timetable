@@ -3,10 +3,9 @@ from vkbottle.api.exceptions import VKError
 from timetable_text import TimetableText
 from utils import get_random
 from db import session, Notify
-
+from main import bot
 
 bp = Blueprint(name="Notify")
-import main
 
 
 @bp.on.message(text='увд <group_or_teacher>', lower=True)
@@ -89,4 +88,4 @@ async def notify_send(msg: Message):
         if text is not None:
             texts[i.id_vk].append(text)
 
-    main.bot.loop.create_task(mailing_timetable(texts, msg.peer_id))
+    bot.loop.create_task(mailing_timetable(texts, msg.peer_id))
