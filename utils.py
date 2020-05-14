@@ -1,12 +1,13 @@
 import os
 import random
 import json
+from typing import Tuple
 
 from vkbottle.types.responses.photos import GetMessagesUploadServer
 import aiohttp
 
 
-def number_weekday_to_text(number):
+def number_weekday_to_text(number: int) -> str:
     if number == 0:
         return 'Пн'
     elif number == 1:
@@ -23,12 +24,11 @@ def number_weekday_to_text(number):
         return 'Вс'
 
 
-def get_random():
+def get_random() -> int:
     return random.getrandbits(31) * random.choice([-1, 1])
 
 
-async def upload_photo(upload_server: GetMessagesUploadServer, path):
-    print('GHafjsdfksdfkjshdfkjshdfksdhfksjfhskdjfh------------------------------')
+async def upload_photo(upload_server: GetMessagesUploadServer, path) -> Tuple[str, str, str]:
     url = upload_server.upload_url
 
     file_extension = os.path.splitext(path)[1]
@@ -53,3 +53,15 @@ async def upload_photo(upload_server: GetMessagesUploadServer, path):
             data_photo_upload = json.loads(data_photo_upload)
 
     return data_photo_upload['server'], data_photo_upload['photo'], data_photo_upload['hash']
+
+
+def parse_massive_int_env(name: str, sep: str = ',') -> Tuple[int]:
+    varenv = os.getenv(name)
+    if varenv is None:
+        return tuple()
+
+    varenv_split = varenv.split(sep)
+    varenv_split = tuple(varenv_split)
+    # Convert ('123', '345') to (123, 345)
+    varenv_split = tuple(map(int, varenv_split))
+    return varenv_split

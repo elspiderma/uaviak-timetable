@@ -3,6 +3,7 @@ from vkbottle.api.exceptions import VKError
 from timetable_text import TimetableText
 from utils import get_random
 from db import session, Notify
+from rules import AdminMessage
 from main import bot
 
 bp = Blueprint(name="Notify")
@@ -64,12 +65,8 @@ async def mailing_timetable(mailing_user: dict, initiator: int):
     await bp.api.messages.send(peer_id=initiator, message='Рассылка закончина', random_id=get_random())
 
 
-@bp.on.message(text='upd', lower=True)
+@bp.on.message(AdminMessage(), text='upd', lower=True)
 async def notify_send(msg: Message):
-    if msg.peer_id not in (70140946, 186973258):
-        await msg('Ошибка!')
-        return
-
     timetable = TimetableText()
 
     local_session = session()

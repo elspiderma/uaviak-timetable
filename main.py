@@ -1,7 +1,7 @@
 import config
 from vkbottle import Bot
 
-bot = Bot(tokens=config.TOKEN_BOT, secret=config.SECRET)
+bot = Bot(tokens=config.TOKEN_BOT)
 
 
 if __name__ == '__main__':
