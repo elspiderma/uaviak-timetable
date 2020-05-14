@@ -12,4 +12,4 @@ engine = create_engine(config.DATA_BASE)
 Base.metadata.create_all(engine)
 
 smkr = sessionmaker(bind=engine)
-session = scoped_session(smkr)
+session = smkr()

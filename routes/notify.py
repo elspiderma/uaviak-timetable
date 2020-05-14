@@ -9,6 +9,7 @@ from main import bot
 bp = Blueprint(name="Notify")
 
 
+@bp.on.chat_message(text='увд <group_or_teacher>', lower=True, command=True)
 @bp.on.message(text='увд <group_or_teacher>', lower=True)
 async def notify_config(msg: Message, group_or_teacher: str):
     is_group: bool = group_or_teacher[0].isnumeric()
@@ -28,23 +29,24 @@ async def notify_config(msg: Message, group_or_teacher: str):
         await msg('Группа не найдена' if is_group else 'Преподователь не найден')
         return
 
-    local_session = session()
-    exist_notify = local_session.query(Notify).filter_by(
+    exist_notify = session.query(Notify).filter_by(
         id_vk=msg.peer_id,
         is_group=is_group,
         search_text=objs_find[0]
     ).first()
 
     if exist_notify is None:
-        local_session.add(Notify(
+        session.add(Notify(
             id_vk=msg.peer_id,
             is_group=is_group,
             search_text=objs_find[0]
         ))
         text = f'Уведомления для {"группы" if is_group else "преподователя"} "{objs_find[0]}" включены'
     else:
-        local_session.delete(exist_notify)
+        session.delete(exist_notify)
         text = f'Уведомления для {"группы" if is_group else "преподователя"} "{exist_notify.search_text}" выключены'
+
+    session.commit()
 
     await msg(text, reply_to=msg.id)
 
@@ -69,8 +71,7 @@ async def mailing_timetable(mailing_user: dict, initiator: int):
 async def notify_send(msg: Message):
     timetable = TimetableText()
 
-    local_session = session()
-    notify_users = local_session.query(Notify).all()
+    notify_users = session.query(Notify).all()
 
     texts = {}
     for i in notify_users:
