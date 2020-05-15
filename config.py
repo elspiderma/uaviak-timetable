@@ -1,5 +1,5 @@
 import os
-from utils import parse_massive_int_env
+from utils.env import parse_massive_int_env
 
 TOKEN_BOT = os.getenv('TOKEN_BOT')
 DATA_BASE = os.getenv('DATA_BASE')

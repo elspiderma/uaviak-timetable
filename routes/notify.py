@@ -1,7 +1,7 @@
 from vkbottle.bot import Blueprint, Message
 from vkbottle.api.exceptions import VKError
 from timetable_text import TimetableText
-from utils import get_random
+from utils.random import get_random
 from db import session, Notify
 from rules import AdminMessage
 from main import bot
