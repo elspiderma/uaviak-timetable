@@ -1,5 +1,6 @@
 from vkbottle.bot import Blueprint, Message
 from vkbottle.api.exceptions import VKError
+
 from timetable_text import TimetableText
 from utils.random import get_random
 from db import session, Notify
@@ -52,6 +53,15 @@ async def notify_config(msg: Message, group_or_teacher: str):
 
 
 async def mailing_timetable(mailing_user: dict, initiator: int):
+    """Рассылка уведомлений
+    Словарь `mailing_user` должен иметь следующую структуру:
+    ```
+    {
+        "ID_VK1": ["TIMETABLE1", "TIMETABLE2", "TIMETABLE3"],
+        "ID_VK2": ["TIMETABLE4", "TIMETABLE5"],
+    }
+    ```
+    """
     SEP = '\n\n'
     for vk_id, text_groups in mailing_user.items():
         if len(text_groups) == 0:
@@ -61,6 +71,8 @@ async def mailing_timetable(mailing_user: dict, initiator: int):
         try:
             await bp.api.messages.send(peer_id=vk_id, message=text, random_id=get_random())
         except VKError as e:
+            # TODO: Автоотписка от уведомлений, если пользователь запретил сообщения
+            # Уведомление об ошибке отправки сообщения.
             text = f'Ошибка отправки сообщения.\n\nПользователь: {vk_id}\nТекст: {e.args}'
             await bp.api.messages.send(peer_id=70140946, message=text, random_id=get_random())
 

@@ -1,5 +1,6 @@
-import config
 from vkbottle import Bot
+
+import config
 
 bot = Bot(tokens=config.TOKEN_BOT)
 

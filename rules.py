@@ -1,5 +1,6 @@
 from vkbottle import Message
 from vkbottle.rule import AbstractMessageRule
+
 import config
 
 

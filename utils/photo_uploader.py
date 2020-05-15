@@ -1,14 +1,21 @@
 import os
 import aiohttp
 import json
-from typing import TYPE_CHECKING, NamedTuple, Union
+
 from db import session, CachePhoto
+
+from typing import TYPE_CHECKING, NamedTuple, Union
 if TYPE_CHECKING:
     from vkbottle.types import Photo
     from vkbottle.api import Api
 
 
 class PhotoUploader:
+    """Кэширующий, загрузчик фото. Если фото уже залито на сервера VK, то не будет загружать повторно.
+
+    TODO: Добавить возможность удаления фото из кэша.
+    TODO: Сверять фото по дате изменения.
+    """
     class PhotoUploadedInfo(NamedTuple):
         server: str
         photo: str
@@ -29,16 +36,20 @@ class PhotoUploader:
         return self.__id_photo
 
     def _get_cache(self):
+        """Метод, получающий фото из кэша. Если фото не кэширавано, то возвращает `None`"""
         photo_cache: CachePhoto = session.query(CachePhoto).filter_by(name_file=self.name_file).first()
         if photo_cache:
             return photo_cache.id_vk
 
     def _save_cache(self):
+        """Сохраняет фото в кэш"""
         cache_photo = CachePhoto(id_vk=self.__id_photo, name_file=self.name_file)
         session.add(cache_photo)
         session.commit()
 
     async def _set_id_photo(self) -> None:
+        """Устанавливает атрибут `__id_photo`."""
+        # Проверяем наличие фото в кеше
         cache_photo = self._get_cache()
         if cache_photo is not None:
             self.__id_photo = cache_photo
@@ -50,11 +61,20 @@ class PhotoUploader:
         self.__id_photo = f'photo{saved_info.owner_id}_{saved_info.id}_{saved_info.access_key}'
         self._save_cache()
 
+    @classmethod
+    def __formation_id(cls, saved_info: 'Photo') -> str:
+        """Формирует ID фото, для отправки в ЛС.
+        Формат строки `photo{owner_id}_{photo_id}_{access_key}`.
+        """
+        return f'photo{saved_info.owner_id}_{saved_info.id}_{saved_info.access_key}'
+
     async def __save_photo(self, photo_info: PhotoUploadedInfo) -> 'Photo':
+        """Сохроняет фото на серверах VK."""
         saved_info = await self.vk.photos.save_messages_photo(photo_info.photo, photo_info.server, photo_info.hash)
         return saved_info[0]
 
     async def __upload_to_server(self, url: str) -> PhotoUploadedInfo:
+        """Загружает фото на сервер VK."""
         data = aiohttp.FormData()
         with open(self.path, 'rb') as f:
             data.add_field('photo',
@@ -70,11 +90,13 @@ class PhotoUploader:
         return self.__class__.PhotoUploadedInfo(**photo_uploaded_info)
 
     async def __get_url_upload(self) -> str:
+        """Получение ссылки на загрузку фото."""
         server_upload = await self.vk.photos.get_messages_upload_server()
         return server_upload.upload_url
 
     @classmethod
     def get_content_type(cls, path: str) -> str:
+        """Определяет `content_type` для файла."""
         file_extension = os.path.splitext(path)[1]
         if file_extension == '.png':
             return 'image/png'

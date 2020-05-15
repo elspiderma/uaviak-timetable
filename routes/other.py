@@ -1,4 +1,5 @@
 from vkbottle.bot import Blueprint, Message
+
 from utils.random import get_random
 
 bp = Blueprint(name="Other")

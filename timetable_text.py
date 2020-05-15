@@ -80,7 +80,6 @@ class TimetableText:
         date_text = f'{number_weekday_to_text(self.timetable.date.weekday())} {date_text}'
 
         text += date_text
-
         return text
 
     def get_text_teacher(self, head_teacher):
