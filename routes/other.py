@@ -1,4 +1,5 @@
 from vkbottle.bot import Blueprint, Message
+from utils.random import get_random
 
 bp = Blueprint(name="Other")
 
@@ -15,3 +16,10 @@ async def send_help(msg: Message):
     Можно писать фамилию и номер неполностью, например, вместо \"19ис-1\" можно написать \"19ис\"."""
 
     await msg(text, reply_to=msg.id)
+
+
+@bp.on.chat_action('chat_invite_user')
+async def add_chat(msg: Message):
+    await msg.api.messages.send(peer_id=70140946, message=f'Новая беседа: {msg.peer_id}', random_id=get_random())
+    await msg('Для включения уведомлений напишите:\n/увд <номер_группы_или_преподавателя>.\n\n'
+              'Для отключения повторите команду.')
