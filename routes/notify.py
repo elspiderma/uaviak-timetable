@@ -1,5 +1,5 @@
 from vkbottle.bot import Blueprint, Message
-from vkbottle.api.exceptions import VKError
+from vkbottle import VKError
 
 from timetable_text import TimetableText
 from utils.random import get_random
