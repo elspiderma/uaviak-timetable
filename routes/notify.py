@@ -10,7 +10,7 @@ from main import bot
 bp = Blueprint(name="Notify")
 
 
-@bp.on.chat_message(text='увд <group_or_teacher>', lower=True, command=True)
+@bp.on.chat_message(text='/увд <group_or_teacher>', lower=True)
 @bp.on.message(text='увд <group_or_teacher>', lower=True)
 async def notify_config(msg: Message, group_or_teacher: str):
     is_group: bool = group_or_teacher[0].isnumeric()

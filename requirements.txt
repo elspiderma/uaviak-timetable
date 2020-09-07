@@ -1,0 +1,4 @@
+SQLAlchemy
+vkbottle==2.7.7
+aiohttp
+uaviak-timetable
