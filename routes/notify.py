@@ -76,7 +76,8 @@ async def mailing_timetable(mailing_user: dict, initiator: int):
             await bp.api.messages.send(peer_id=70140946, message=text, random_id=get_random())
             if e.error_code in (7, 901):
                 session.query(Notify).filter_by(id_vk=vk_id).delete()
-                session.commit()
+
+    session.commit()
 
     await bp.api.messages.send(peer_id=initiator, message='Рассылка закончина', random_id=get_random())
 
