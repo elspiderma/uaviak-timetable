@@ -10,7 +10,6 @@ from db.notify import Notify
 from db.cache_photo import CachePhoto
 
 engine = create_engine(config.DATA_BASE)
-Base.metadata.create_all(engine)
 
 smkr = sessionmaker(bind=engine)
 session = smkr()
