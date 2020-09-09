@@ -8,6 +8,8 @@ Base = declarative_base()
 
 from db.notify import Notify
 from db.cache_photo import CachePhoto
+from db.timetabledb import TimetableDB
+from db.keyvalue import KeyValue
 
 engine = create_engine(config.DATA_BASE)
 
