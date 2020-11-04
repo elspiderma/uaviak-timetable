@@ -2,6 +2,7 @@ import enum
 from vkbottle.bot import Blueprint, Message
 
 from timetable_text import TimetableText
+import requests
 
 bp = Blueprint(name="Query timetable")
 
@@ -16,7 +17,11 @@ def get_timetable_text(type_: TypeTimetable, query: str, message_not_found: str)
         преподавателя (`type_ == TypeTimetable.TEACHER`).
     Если расписание подходящее под `query` не найдено, то будет возвращено `message_not_found`.
     """
-    timetable = TimetableText()
+    try:
+        timetable = TimetableText()
+    except requests.exceptions.ConnectionError:
+        return 'Не могу получить расписание :('
+
     if type_ == TypeTimetable.GROUP:
         text = timetable.get_text_group(query)
     elif type_ == TypeTimetable.TEACHER:

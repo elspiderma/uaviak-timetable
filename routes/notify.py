@@ -71,10 +71,13 @@ async def mailing_timetable(mailing_user: dict, initiator: int):
         try:
             await bp.api.messages.send(peer_id=vk_id, message=text, random_id=get_random())
         except VKError as e:
-            # TODO: Автоотписка от уведомлений, если пользователь запретил сообщения
             # Уведомление об ошибке отправки сообщения.
             text = f'Ошибка отправки сообщения.\n\nПользователь: {vk_id}\nТекст: {e.args}'
             await bp.api.messages.send(peer_id=70140946, message=text, random_id=get_random())
+            if e.error_code in (7, 901):
+                session.query(Notify).filter_by(id_vk=vk_id).delete()
+
+    session.commit()
 
     await bp.api.messages.send(peer_id=initiator, message='Рассылка закончина', random_id=get_random())
 
@@ -86,16 +89,16 @@ async def notify_send(msg: Message):
     notify_users = session.query(Notify).all()
 
     texts = {}
-    for i in notify_users:
-        if i.id_vk not in texts:
-            texts[i.id_vk] = list()
+    for user in notify_users:
+        if user.id_vk not in texts:
+            texts[user.id_vk] = list()
 
-        if i.is_group:
-            text = timetable.get_text_group(i.search_text)
+        if user.is_group:
+            text = timetable.get_text_group(user.search_text)
         else:
-            text = timetable.get_text_teacher(i.search_text)
+            text = timetable.get_text_teacher(user.search_text)
 
         if text is not None:
-            texts[i.id_vk].append(text)
+            texts[user.id_vk].append(text)
 
     bot.loop.create_task(mailing_timetable(texts, msg.peer_id))

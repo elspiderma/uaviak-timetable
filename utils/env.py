@@ -9,6 +9,5 @@ def parse_massive_int_env(name: str, sep: str = ',') -> Tuple[int]:
 
     varenv_split = varenv.split(sep)
     varenv_split = tuple(varenv_split)
-    # Convert ('123', '345') to (123, 345)
-    varenv_split = tuple(map(int, varenv_split))
+    varenv_split = tuple(map(int, varenv_split)) # Convert ('123', '345') to (123, 345)
     return varenv_split
