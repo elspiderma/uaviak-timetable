@@ -89,16 +89,16 @@ async def notify_send(msg: Message):
     notify_users = session.query(Notify).all()
 
     texts = {}
-    for i in notify_users:
-        if i.id_vk not in texts:
-            texts[i.id_vk] = list()
+    for user in notify_users:
+        if user.id_vk not in texts:
+            texts[user.id_vk] = list()
 
-        if i.is_group:
-            text = timetable.get_text_group(i.search_text)
+        if user.is_group:
+            text = timetable.get_text_group(user.search_text)
         else:
-            text = timetable.get_text_teacher(i.search_text)
+            text = timetable.get_text_teacher(user.search_text)
 
         if text is not None:
-            texts[i.id_vk].append(text)
+            texts[user.id_vk].append(text)
 
     bot.loop.create_task(mailing_timetable(texts, msg.peer_id))
