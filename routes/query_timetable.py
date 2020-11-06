@@ -1,8 +1,9 @@
 import enum
+
+import requests
 from vkbottle.bot import Blueprint, Message
 
 from timetable.timetable_text import TimetableText
-import requests
 
 bp = Blueprint(name="Query timetable")
 

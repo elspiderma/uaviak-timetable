@@ -4,7 +4,6 @@ import config
 
 bot = Bot(tokens=config.TOKEN_BOT)
 
-
 if __name__ == '__main__':
     from routes import query_timetable, call_schedule, notify, other
 

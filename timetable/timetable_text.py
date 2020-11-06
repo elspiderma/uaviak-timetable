@@ -1,4 +1,5 @@
 from uaviak_timetable import Lesson
+
 from timetable.timetable_async import TimetableAsync
 from utils.weekday import number_weekday_to_text
 

@@ -1,11 +1,11 @@
-from vkbottle.bot import Blueprint, Message
 from vkbottle import VKError
+from vkbottle.bot import Blueprint, Message
 
+from db import session, Notify
+from main import bot
 from timetable.timetable_text import TimetableText
 from utils.random import get_random
-from db import session, Notify
 from utils.rules import AdminMessage
-from main import bot
 
 bp = Blueprint(name="Notify")
 

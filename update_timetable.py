@@ -1,5 +1,4 @@
 import asyncio
-import typing
 
 import db
 from timetable.timetable_async import TimetableCache

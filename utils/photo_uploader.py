@@ -1,10 +1,11 @@
-import os
-import aiohttp
 import json
+import os
+from typing import TYPE_CHECKING, NamedTuple, Union
+
+import aiohttp
 
 from db import session, CachePhoto
 
-from typing import TYPE_CHECKING, NamedTuple, Union
 if TYPE_CHECKING:
     from vkbottle.types import Photo
     from vkbottle.api import Api
@@ -16,6 +17,7 @@ class PhotoUploader:
     TODO: Добавить возможность удаления фото из кэша.
     TODO: Сверять фото по дате изменения.
     """
+
     class PhotoUploadedInfo(NamedTuple):
         server: str
         photo: str

@@ -1,7 +1,8 @@
 import os
-import config
+
 from vkbottle.bot import Blueprint, Message
 
+import config
 from utils.photo_uploader import PhotoUploader
 
 bp = Blueprint(name="Call schedule")

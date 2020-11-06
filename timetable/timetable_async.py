@@ -1,8 +1,9 @@
+import typing
+
 import aiohttp
 from uaviak_timetable.timetable import Timetable
 
 from utils.hashfile import HashFile
-import typing
 
 
 class TimetableAsync(Timetable):
