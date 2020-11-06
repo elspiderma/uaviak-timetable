@@ -1,13 +1,15 @@
-from uaviak_timetable import Timetable, Lesson
+from uaviak_timetable import Lesson
+from timetable.timetable_async import TimetableAsync
 from utils.weekday import number_weekday_to_text
 
 
 class TimetableText:
-    def __init__(self, timetable=None):
+    def __init__(self, timetable):
         self.timetable = timetable
-        if self.timetable is None:
-            self.timetable = Timetable.load()
-            self.timetable.sort('number')
+
+    @classmethod
+    async def load(cls):
+        return cls(await TimetableAsync.load())
 
     @classmethod
     def __get_text_type_lesson(cls, lesson):

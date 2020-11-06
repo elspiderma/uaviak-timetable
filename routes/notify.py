@@ -1,10 +1,10 @@
 from vkbottle.bot import Blueprint, Message
 from vkbottle import VKError
 
-from timetable_text import TimetableText
+from timetable.timetable_text import TimetableText
 from utils.random import get_random
 from db import session, Notify
-from rules import AdminMessage
+from utils.rules import AdminMessage
 from main import bot
 
 bp = Blueprint(name="Notify")
@@ -15,7 +15,7 @@ bp = Blueprint(name="Notify")
 async def notify_config(msg: Message, group_or_teacher: str):
     is_group: bool = group_or_teacher[0].isnumeric()
 
-    timetable = TimetableText()
+    timetable = await TimetableText.load()
     if is_group:
         objs_find = timetable.get_list_group(group_or_teacher)
     else:
@@ -84,7 +84,7 @@ async def mailing_timetable(mailing_user: dict, initiator: int):
 
 @bp.on.message(AdminMessage(), text='upd', lower=True)
 async def notify_send(msg: Message):
-    timetable = TimetableText()
+    timetable = await TimetableText.load()
 
     notify_users = session.query(Notify).all()
 
