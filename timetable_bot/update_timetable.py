@@ -4,7 +4,7 @@ import db
 from timetable.timetable_async import TimetableCache
 
 
-async def update_timetable():
+async def update_timetable() -> dict:
     modified = {
         'lessons': set(),
         'teachers': set(),
