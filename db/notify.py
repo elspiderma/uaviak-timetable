@@ -1,12 +1,20 @@
-from sqlalchemy import Column, Boolean, String, Integer
+from tortoise.models import Model
+from tortoise import fields
 
-from . import Base
+
+class NotifyTeacher(Model):
+    class Meta:
+        table = 'notify_teacher'
+
+    id = fields.IntField(pk=True)
+    id_chat = fields.ForeignKeyField('models.Chat')
+    teacher = fields.ForeignKeyField('models.Teacher')
 
 
-class Notify(Base):
-    __tablename__ = 'notify'
+class NotifyGroup(Model):
+    class Meta:
+        table = 'notify_group'
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    id_vk = Column(Integer, index=True)
-    is_group = Column(Boolean, default=True)
-    search_text = Column(String(255))
+    id = fields.IntField(pk=True)
+    id_chat = fields.ForeignKeyField('models.Chat')
+    group = fields.ForeignKeyField('models.Group')

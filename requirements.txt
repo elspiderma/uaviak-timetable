@@ -1,4 +1,4 @@
-SQLAlchemy
 vkbottle==2.7.7
 aiohttp
-git+https://github.com/glebliutsko/UAviaK-Timetable.git@development
+uaviak_timetable
+tortoise-orm

@@ -1,17 +1,25 @@
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
+from db.teacher import Teacher
+from db.group import Group
+from db.chat import Chat
+from db.notify import NotifyGroup, NotifyTeacher
+from db.timetable import Timetable
+from tortoise import Tortoise
+from config import DATA_BASE
 
-import config
 
-Base = declarative_base()
+async def init():
+    await Tortoise.init(
+        db_url=DATA_BASE,
+        modules={'models': [
+            'db.chat',
+            'db.group',
+            'db.teacher',
+            'db.notify',
+            'db.timetable'
+        ]}
+    )
+    await Tortoise.generate_schemas()
 
-from db.notify import Notify
-from db.cache_photo import CachePhoto
-from db.timetabledb import TimetableDB
-from db.keyvalue import KeyValue
 
-engine = create_engine(config.DATA_BASE)
-
-smkr = sessionmaker(bind=engine)
-session = smkr()
+async def stop():
+    await Tortoise.close_connections()
