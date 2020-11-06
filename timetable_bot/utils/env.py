@@ -3,6 +3,12 @@ from typing import Tuple
 
 
 def parse_massive_int_env(name: str, sep: str = ',') -> Tuple[int]:
+    """ Парсит массив значений типа int из переменой окружения.
+
+    @param name: Имя переменой окружения.
+    @param sep: Разделитель между элементами.
+    @return: Кортеж из элементов.
+    """
     varenv = os.getenv(name)
     if varenv is None:
         return tuple()

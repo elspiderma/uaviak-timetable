@@ -13,6 +13,7 @@ bp = Blueprint(name="Notify")
 @bp.on.chat_message(text='/увд <group_or_teacher>', lower=True)
 @bp.on.message(text='увд <group_or_teacher>', lower=True)
 async def notify_config(msg: Message, group_or_teacher: str):
+    """Включает (если включено, отключает), уведомление для группы или преподавателя."""
     is_group: bool = group_or_teacher[0].isnumeric()
 
     timetable = await TimetableText.load()
@@ -53,14 +54,16 @@ async def notify_config(msg: Message, group_or_teacher: str):
 
 
 async def mailing_timetable(mailing_user: dict, initiator: int):
-    """Рассылка уведомлений
-    Словарь `mailing_user` должен иметь следующую структуру:
-    ```
-    {
-        "ID_VK1": ["TIMETABLE1", "TIMETABLE2", "TIMETABLE3"],
-        "ID_VK2": ["TIMETABLE4", "TIMETABLE5"],
-    }
-    ```
+    """Рассылка расписания. По окончании отправляет сообщение инициатору.
+
+    @param mailing_user: Словарь, должен иметь следующую структуру:
+        ```
+        {
+            "ID_VK1": ["TIMETABLE1", "TIMETABLE2", "TIMETABLE3"],
+            "ID_VK2": ["TIMETABLE4", "TIMETABLE5"],
+        }
+        ```
+    @param initiator: ID инициатора рассылки.
     """
     SEP = '\n\n'
     for vk_id, text_groups in mailing_user.items():
@@ -84,6 +87,7 @@ async def mailing_timetable(mailing_user: dict, initiator: int):
 
 @bp.on.message(AdminMessage(), text='upd', lower=True)
 async def notify_send(msg: Message):
+    """Рассылка сообщений."""
     timetable = await TimetableText.load()
 
     notify_users = session.query(Notify).all()

@@ -7,6 +7,7 @@ bp = Blueprint(name="Other")
 
 @bp.on.message(text=['команды', 'помощь'], lower=True)
 async def send_help(msg: Message):
+    """Помощь по боту."""
     text = """Список команд:
     \"увд номер_группы или имя_преподавателя\" - включить уведомления
     \"з\" или \"звонки\" - расписание звонков
@@ -21,6 +22,7 @@ async def send_help(msg: Message):
 
 @bp.on.chat_action('chat_invite_user')
 async def add_chat(msg: Message):
+    """Новая беседа."""
     await msg.api.messages.send(peer_id=70140946, message=f'Новая беседа: {msg.peer_id}', random_id=get_random())
     await msg('Для включения уведомлений напишите:\n/увд <номер_группы_или_преподавателя>.\n\n'
               'Для отключения повторите команду.')

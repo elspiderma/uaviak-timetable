@@ -14,9 +14,12 @@ class TypeTimetable(enum.Enum):
 
 
 async def get_timetable_text(type_: TypeTimetable, query: str, message_not_found: str):
-    """Получение расписания для группы (`type_ == TypeTimetable.GROUP`) или
-        преподавателя (`type_ == TypeTimetable.TEACHER`).
-    Если расписание подходящее под `query` не найдено, то будет возвращено `message_not_found`.
+    """Получение расписания для группы/преподавателя.
+
+    @param type_: Тип поиска. `TypeTimetable.TEACHER` поиск по преподавателям. `TypeTimetable.GROUP` поиск по группе.
+    @param query: Шаблон поиска.
+    @param message_not_found: Сообзение, которое будет возвращено, если не найдено `query`.
+    @return:
     """
     try:
         timetable = await TimetableText.load()
@@ -38,16 +41,19 @@ async def get_timetable_text(type_: TypeTimetable, query: str, message_not_found
 
 @bp.on.message(text=['п <name>', 'группа <number>'], lower=True)
 async def timetable_teacher(msg: Message, name: str):
+    """Расписание преподавателя."""
     await msg(await get_timetable_text(TypeTimetable.TEACHER, name, 'Преподователь не найден'), reply_to=msg.id)
 
 
 @bp.on.message(text=['г <number>', 'группа <number>'], lower=True)
 async def timetable_group(msg: Message, number: str):
+    """Расписание группы."""
     await msg(await get_timetable_text(TypeTimetable.GROUP, number, 'Группа не найдена'), reply_to=msg.id)
 
 
 @bp.on.message()
 async def timetable_all(msg: Message):
+    """Расписание группы/преподавателя."""
     query = msg.text
     message_not_found = 'Группа или преподаватель не найден'
 

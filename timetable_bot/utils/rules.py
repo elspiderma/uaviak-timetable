@@ -6,4 +6,5 @@ import config
 
 class AdminMessage(AbstractMessageRule):
     async def check(self, message: Message) -> bool:
+        """Проверяет отправлино ли сообщение админом."""
         return message.peer_id in config.ADMIN_ID

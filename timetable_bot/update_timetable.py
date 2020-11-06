@@ -5,6 +5,13 @@ from timetable.timetable_async import TimetableCache
 
 
 async def update_timetable() -> dict:
+    """Получает новое расписание колледжа.
+
+    @return: Словарь из ключей `lessons`, `teachers`, `groups`.
+        lessons - множество новых уроков
+        teachers - множество учителей, для который обновилось расписание
+        groups - множество групп, для который обновилось расписание
+    """
     modified = {
         'lessons': set(),
         'teachers': set(),
