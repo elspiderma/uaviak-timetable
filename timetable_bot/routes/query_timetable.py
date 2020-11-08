@@ -18,8 +18,8 @@ async def get_timetable_text(type_: TypeTimetable, query: str, message_not_found
 
     @param type_: Тип поиска. `TypeTimetable.TEACHER` поиск по преподавателям. `TypeTimetable.GROUP` поиск по группе.
     @param query: Шаблон поиска.
-    @param message_not_found: Сообзение, которое будет возвращено, если не найдено `query`.
-    @return:
+    @param message_not_found: Сообщение, которое будет возвращено, если не найдено `query`.
+    @return: Расписание, либо `message_not_found`.
     """
     try:
         timetable = await TimetableText.load()

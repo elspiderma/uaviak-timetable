@@ -11,3 +11,13 @@ ADMIN_ID = parse_massive_int_env('ADMIN_ID')
 TMPDIR = os.getenv('TMPDIR', '/tmp')
 if not os.path.isdir(TMPDIR):
     os.mkdir(TMPDIR)
+
+TORTOISE_ORM = {
+    "connections": {"default": DATA_BASE},
+    "apps": {
+        "models": {
+            "models": ["db"],
+            "default_connection": "default",
+        },
+    },
+}
