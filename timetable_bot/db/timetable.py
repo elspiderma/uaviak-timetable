@@ -1,7 +1,10 @@
+import typing
+
 from tortoise import fields
 from tortoise.models import Model
 
-from uaviak_timetable.timetable import Department
+if typing.TYPE_CHECKING:
+    from db import Group, Teacher
 
 
 class Timetable(Model):
@@ -9,12 +12,16 @@ class Timetable(Model):
         table = 'timetable'
 
     id = fields.IntField(pk=True)
-    department = fields.CharEnumField(Department)
+    department = fields.IntField()
     date = fields.DateField()
-    group = fields.ForeignKeyField('models.Group', related_name='timetable', on_delete=fields.CASCADE)
+    group: fields.ForeignKeyRelation['Group'] = fields.ForeignKeyField(
+        'models.Group', related_name='lessons', on_delete=fields.CASCADE
+    )
     number = fields.IntField()
     cabinet = fields.CharField(20)
-    teacher = fields.ForeignKeyField('models.Teacher', related_name='timetable', on_delete=fields.CASCADE)
+    teacher: fields.ForeignKeyRelation['Teacher'] = fields.ForeignKeyField(
+        'models.Teacher', related_name='lessons', on_delete=fields.CASCADE
+    )
     subject = fields.CharField(100)
     is_splitting = fields.BooleanField()
     is_practice = fields.BooleanField()
