@@ -18,33 +18,22 @@ async def update_timetable() -> dict:
         'groups': set()
     }
 
-    timetable = await TimetableCache.load()
-    if not timetable:
+    timetables = await TimetableCache.load()
+    if not timetables:
         return modified
 
-    for lesson in timetable:
-        group = await db.Group.filter(title=lesson.group).first()
-        if group is None:
-            group = await db.Group.create(title=lesson.group)
+    for timetable in timetables:
+        for lesson in timetable:
+            group = await db.Group.filter(title=lesson.group).first()
+            if group is None:
+                group = await db.Group.create(title=lesson.group)
 
-        teacher = await db.Teacher.filter(short_name=lesson.teacher).first()
-        if teacher is None:
-            teacher = await db.Teacher.create(short_name=lesson.teacher)
+            teacher = await db.Teacher.filter(short_name=lesson.teacher).first()
+            if teacher is None:
+                teacher = await db.Teacher.create(short_name=lesson.teacher)
 
-        is_exists_lesson = await db.Timetable.filter(
-            date=timetable.date,
-            group=group,
-            number=lesson.number,
-            cabinet=lesson.cabinet,
-            teacher=teacher,
-            subject=lesson.subject,
-            is_splitting=lesson.is_splitting,
-            is_practice=lesson.is_practice,
-            is_consultations=lesson.is_consultations,
-            is_exam=lesson.is_exam
-        ).exists()
-        if not is_exists_lesson:
-            lesson = await db.Timetable.create(
+            is_exists_lesson = await db.Timetable.filter(
+                department=timetable.department.value,
                 date=timetable.date,
                 group=group,
                 number=lesson.number,
@@ -55,10 +44,24 @@ async def update_timetable() -> dict:
                 is_practice=lesson.is_practice,
                 is_consultations=lesson.is_consultations,
                 is_exam=lesson.is_exam
-            )
-            modified['lessons'].add(lesson)
-            modified['teachers'].add(teacher)
-            modified['groups'].add(group)
+            ).exists()
+            if not is_exists_lesson:
+                lesson = await db.Timetable.create(
+                    department=timetable.department.value,
+                    date=timetable.date,
+                    group=group,
+                    number=lesson.number,
+                    cabinet=lesson.cabinet,
+                    teacher=teacher,
+                    subject=lesson.subject,
+                    is_splitting=lesson.is_splitting,
+                    is_practice=lesson.is_practice,
+                    is_consultations=lesson.is_consultations,
+                    is_exam=lesson.is_exam
+                )
+                modified['lessons'].add(lesson)
+                modified['teachers'].add(teacher)
+                modified['groups'].add(group)
 
     return modified
 

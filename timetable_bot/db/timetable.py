@@ -1,12 +1,15 @@
 from tortoise import fields
 from tortoise.models import Model
 
+from uaviak_timetable.timetable import Department
+
 
 class Timetable(Model):
     class Meta:
         table = 'timetable'
 
     id = fields.IntField(pk=True)
+    department = fields.CharEnumField(Department)
     date = fields.DateField()
     group = fields.ForeignKeyField('models.Group', related_name='timetable', on_delete=fields.CASCADE)
     number = fields.IntField()
