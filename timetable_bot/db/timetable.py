@@ -2,6 +2,7 @@ import typing
 
 from tortoise import fields
 from tortoise.models import Model
+from uaviak_timetable.timetable import Department
 
 if typing.TYPE_CHECKING:
     from db import Group, Teacher
@@ -12,7 +13,7 @@ class Timetable(Model):
         table = 'timetable'
 
     id = fields.IntField(pk=True)
-    department = fields.IntField()
+    department = fields.IntEnumField(Department)
     date = fields.DateField()
     group: fields.ForeignKeyRelation['Group'] = fields.ForeignKeyField(
         'models.Group', related_name='lessons', on_delete=fields.CASCADE
