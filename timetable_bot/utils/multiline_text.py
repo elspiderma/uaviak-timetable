@@ -7,7 +7,10 @@ class MultilineText:
             lines = lines[::-1]
 
         for i in lines:
-            self.lines.insert(0, i)
+            if insert_in_begin:
+                self.lines.insert(0, i)
+            else:
+                self.lines.append(i)
 
     def get(self):
         return '\n'.join(self.lines)
