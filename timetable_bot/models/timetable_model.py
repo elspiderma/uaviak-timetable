@@ -1,4 +1,4 @@
-from typing import List, Optional, TYPE_CHECKING, Union
+from typing import List, Optional, TYPE_CHECKING, Union, ClassVar
 
 from tortoise.functions import Max
 
@@ -14,19 +14,24 @@ class TimetableModel:
         self.date = date
         self._cache_db = dict()
 
+    async def _get_orm_object(self, obj: ClassVar[Group] or ClassVar[Teacher]) -> List[Union[Group, Teacher]]:
+        """Получает элементы за дату `self.date`.
+
+        @param obj: Класс, объекты которого нужно полуить.
+        @return: Найденные объекты.
+        """
+        if obj.__name__ not in self._cache_db:
+            self._cache_db[obj.__name__] = await obj.filter(lessons__date=self.date).distinct()
+
+        return self._cache_db[obj.__name__]
+
     @property
     async def _teachers(self) -> List[db.Teacher]:
-        if 'teachers' not in self._cache_db:
-            self._cache_db['teachers'] = await db.Teacher.filter(lessons__date=self.date).distinct()
-
-        return self._cache_db['teachers']
+        return await self._get_orm_object(db.Teacher)
 
     @property
     async def _groups(self) -> List[db.Group]:
-        if 'groups' not in self._cache_db:
-            self._cache_db['groups'] = await db.Group.filter(lessons__date=self.date).distinct()
-
-        return self._cache_db['groups']
+        return await self._get_orm_object(db.Group)
 
     @classmethod
     async def for_last_day(cls) -> 'TimetableModel':
@@ -104,19 +109,22 @@ class TimetableModel:
 
         return suitable_groups
 
-    async def get_timetable_for_teacher(self, teacher: Union[Teacher, int]) -> TimetableForTeacher:
-        """Получает расписание для учителя.
+    async def _get_timetable(self, *, group_id: int = None, teacher_id: int = None):
+        assert group_id is None or teacher_id is None, 'only one parameter needs to be passed'
 
-        @param teacher: Учитель, для которого необходимо расписание. Это может быть объект `structures.Teacher`, либо
-            его ID
-        """
-        if isinstance(teacher, int):
-            teacher = await db.Teacher.filter(id=teacher).first()
+        orm_filter = {'date': self.date}
+        if group_id is not None:
+            object_which = await db.Group.filter(id=group_id).first()
+            orm_filter['group'] = object_which
+        else:
+            object_which = await db.Teacher.filter(id=teacher_id).first()
+            orm_filter['teacher'] = object_which
 
         lessons = list()
-        lessons_orm = await db.Timetable.filter(date=self.date, teacher=teacher).order_by('number').all()
+        lessons_orm = await db.Timetable.filter(**orm_filter).order_by('number').all()
         for lesson in lessons_orm:
-            group = await lesson.group.prefetch_related()
+            group = await lesson.group.prefetch_related() if group_id is None else object_which
+            teacher = await lesson.teacher.prefetch_related() if teacher_id is None else object_which
 
             lessons.append(Lesson(id=lesson.id,
                                   department=lesson.department,
@@ -131,6 +139,27 @@ class TimetableModel:
                                   is_consultations=lesson.is_consultations,
                                   is_exam=lesson.is_exam))
 
-        return TimetableForTeacher(date=self.date,
-                                   teacher=Teacher(id=teacher.id, name=teacher.short_name, full_name=teacher.full_name),
-                                   lessons=lessons)
+        if group_id is not None:
+            return TimetableForGroup(date=self.date, group=Group(id=object_which.id, title=object_which.title),
+                                     lessons=lessons)
+        else:
+            return TimetableForTeacher(date=self.date,
+                                       teacher=Teacher(id=object_which.id, name=object_which.short_name,
+                                                       full_name=object_which.full_name),
+                                       lessons=lessons)
+
+    async def get_timetable_for_teacher(self, teacher: Union[Teacher, int]) -> TimetableForTeacher:
+        """Получает расписание для учителя.
+
+        @param teacher: Учитель, для которого необходимо расписание. Это может быть объект `structures.Teacher`, либо
+            его ID
+        """
+        return await self._get_timetable(teacher_id=teacher if isinstance(teacher, int) else teacher.id)
+
+    async def get_timetable_for_group(self, group: Union[Group, int]):
+        """Получает расписание для учителя.
+
+        @param group: Группа, для которого необходимо расписание. Это может быть объект `structures.Group`, либо
+            его ID
+        """
+        return await self._get_timetable(group_id=group if isinstance(group, int) else group.id)
