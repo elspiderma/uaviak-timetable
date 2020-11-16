@@ -1,11 +1,13 @@
 import enum
 
-import requests
 from vkbottle.bot import Blueprint, Message
 
-from timetable.timetable_text import TimetableText
+from models import TimetableModel
+from view import TimetableTeacherView, TimetableGroupView
 
-bp = Blueprint(name="Query timetable")
+
+bp = Blueprint()
+bp.labeler.vbml_ignore_case = True
 
 
 class TypeTimetable(enum.Enum):
@@ -13,51 +15,57 @@ class TypeTimetable(enum.Enum):
     GROUP = enum.auto()
 
 
-async def get_timetable_text(type_: TypeTimetable, query: str, message_not_found: str):
-    """Получение расписания для группы/преподавателя.
+async def get_timetable(type_: TypeTimetable, query: str, message_not_found: str):
+    """Получает расписания для группы/преподавателя.
 
     @param type_: Тип поиска. `TypeTimetable.TEACHER` поиск по преподавателям. `TypeTimetable.GROUP` поиск по группе.
     @param query: Шаблон поиска.
     @param message_not_found: Сообщение, которое будет возвращено, если не найдено `query`.
     @return: Расписание, либо `message_not_found`.
     """
-    try:
-        timetable = await TimetableText.load()
-    except requests.exceptions.ConnectionError:
-        return 'Не могу получить расписание :('
 
-    if type_ == TypeTimetable.GROUP:
-        text = timetable.get_text_group(query)
-    elif type_ == TypeTimetable.TEACHER:
-        text = timetable.get_text_teacher(query)
-    else:
-        raise ValueError()
+    timetable_db = await TimetableModel.for_last_day()
+    MODEL_VIEW_LIST = {
+        TypeTimetable.GROUP: {
+            'model_list': timetable_db.get_groups,
+            'model_timetable': timetable_db.get_timetable_for_group,
+            'view': TimetableGroupView
+        },
+        TypeTimetable.TEACHER: {
+            'model_list': timetable_db.get_teachers,
+            'model_timetable': timetable_db.get_timetable_for_teacher,
+            'view': TimetableTeacherView
+        }
+    }
 
-    if text is None:
+    list_items_query = await MODEL_VIEW_LIST[type_]['model_list'](query, True)
+    if len(list_items_query) == 0:
         return message_not_found
+
+    list_timetables = [await MODEL_VIEW_LIST[type_]['model_timetable'](i) for i in list_items_query]
+    text = MODEL_VIEW_LIST[type_]['view'].get_text(list_timetables)
 
     return text
 
 
-@bp.on.message(text=['п <name>', 'группа <number>'], lower=True)
+@bp.on.private_message(text=['п <name>', 'преподаватель <name>'])
 async def timetable_teacher(msg: Message, name: str):
     """Расписание преподавателя."""
-    await msg(await get_timetable_text(TypeTimetable.TEACHER, name, 'Преподователь не найден'), reply_to=msg.id)
+    await msg.answer(await get_timetable(TypeTimetable.GROUP, name, "Преподователь не найден"))
 
 
-@bp.on.message(text=['г <number>', 'группа <number>'], lower=True)
-async def timetable_group(msg: Message, number: str):
+@bp.on.private_message(text=['г <title>', 'группа <title>'])
+async def timetable_group(msg: Message, title: str):
     """Расписание группы."""
-    await msg(await get_timetable_text(TypeTimetable.GROUP, number, 'Группа не найдена'), reply_to=msg.id)
+    await msg.answer(await get_timetable(TypeTimetable.GROUP, title, "Группа не найдена"))
 
 
-@bp.on.message()
+@bp.on.private_message()
 async def timetable_all(msg: Message):
     """Расписание группы/преподавателя."""
     query = msg.text
-    message_not_found = 'Группа или преподаватель не найден'
 
-    if query[0].isnumeric():
-        await msg(await get_timetable_text(TypeTimetable.GROUP, query, message_not_found), reply_to=msg.id)
-    else:
-        await msg(await get_timetable_text(TypeTimetable.TEACHER, query, message_not_found), reply_to=msg.id)
+    # Номера групп всегда начинаются на цифры.
+    # Например 19ис-1, 18ом-1.
+    type_ = TypeTimetable.GROUP if query[0].isnumeric() else TypeTimetable.TEACHER
+    await msg.answer(await get_timetable(type_, query, 'Группа или преподаватель не найден'))
