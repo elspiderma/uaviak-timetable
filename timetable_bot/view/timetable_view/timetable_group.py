@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 class TimetableGroupView(TimetableViewABC):
     @classmethod
     def _get_line_lesson(cls, lesson: 'Lesson'):
-        return f'{lesson.number}) {lesson.cabinet} {lesson.teacher.name} {lesson.subject}'
+        return f'{lesson.number}) {lesson.cabinet} каб. {lesson.teacher.name} {lesson.subject}'
 
     @classmethod
     def _get_title_timetable(cls, timetable: 'TimetableForGroup'):
