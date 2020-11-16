@@ -2,7 +2,7 @@ import locale
 import logging
 import os
 
-from utils.env import parse_massive_int_env
+from utils.env import parse_massive_int_env, LOGGING_LEVEL
 
 TOKEN_BOT = os.getenv('TOKEN_BOT')
 DATA_BASE = os.getenv('DATA_BASE')
@@ -15,9 +15,9 @@ if not os.path.isdir(TMPDIR):
 ADMIN_ID = parse_massive_int_env('ADMIN_ID')
 
 locale.setlocale(locale.LC_ALL, os.getenv('LANG'))
-DEBUG = bool(int(os.getenv('DEBUG_ENABLE', '0')))
-if DEBUG:
-    logging.basicConfig(level=logging.DEBUG)
+
+LOG_LEVEL = int(os.getenv('LOG_LEVEL', '3'))
+logging.basicConfig(level=LOGGING_LEVEL[LOG_LEVEL])
 
 TORTOISE_ORM = {
     "connections": {"default": DATA_BASE},

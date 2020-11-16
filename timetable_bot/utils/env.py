@@ -1,5 +1,14 @@
 import os
 from typing import Tuple
+import logging
+
+LOGGING_LEVEL = {
+    1: logging.DEBUG,
+    2: logging.INFO,
+    3: logging.WARNING,
+    4: logging.ERROR,
+    5: logging.CRITICAL
+}
 
 
 def parse_massive_int_env(name: str, sep: str = ',') -> Tuple[int]:
