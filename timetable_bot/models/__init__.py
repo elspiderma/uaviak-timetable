@@ -1,3 +1,4 @@
-from models.timetable_model import TimetableModel
+from models.timetable_models.timetable_teacher import TimetableTeacherModel
+from models.timetable_models.timetable_group import TimetableGroupModel
 
-__all__ = ['TimetableModel']
+__all__ = ['TimetableTeacherModel', 'TimetableGroupModel']
