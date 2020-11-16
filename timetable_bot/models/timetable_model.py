@@ -14,30 +14,31 @@ class TimetableModel:
         self.date = date
         self._cache_db = dict()
 
-    async def _get_orm_object(self, obj: ClassVar[Group] or ClassVar[Teacher]) -> List[Union[Group, Teacher]]:
+    async def _get_orm_object(self, obj: ClassVar[Group] or ClassVar[Teacher], order_by) -> List[Union[Group, Teacher]]:
         """Получает элементы за дату `self.date`.
 
         @param obj: Класс, объекты которого нужно полуить.
+        @param order_by: Поле для сортировки.
         @return: Найденные объекты.
         """
         if obj.__name__ not in self._cache_db:
-            self._cache_db[obj.__name__] = await obj.filter(lessons__date=self.date).distinct()
+            self._cache_db[obj.__name__] = await obj.filter(lessons__date=self.date).order_by(order_by).distinct()
 
         return self._cache_db[obj.__name__]
 
     @property
     async def _teachers(self) -> List[db.Teacher]:
-        return await self._get_orm_object(db.Teacher)
+        return await self._get_orm_object(db.Teacher, 'short_name')
 
     @property
     async def _groups(self) -> List[db.Group]:
-        return await self._get_orm_object(db.Group)
+        return await self._get_orm_object(db.Group, 'title')
 
     @classmethod
     async def for_last_day(cls) -> 'TimetableModel':
         """Последнее расписание.
 
-        @return Объект расписания
+        @return Объект расписания.
         """
         return cls(await cls._get_last_date())
 
@@ -62,7 +63,7 @@ class TimetableModel:
         @param ignore_case: Если `True`, то игнорирует регистор символов, иначе регистор символов учитывается.
         @return: `True` - если `template` начинается с `search_query`, иначе `False`.
         """
-        def _del_unnecessary_chars(s: str):
+        def _del_ignore_chars(s: str):
             if ignore_char is None:
                 return s
 
@@ -70,9 +71,11 @@ class TimetableModel:
                 s = s.replace(i, '')
             return s
 
-        template = _del_unnecessary_chars(template)
-        search_query = _del_unnecessary_chars(search_query)
+        # Удаляем игнорируемые симвлы
+        template = _del_ignore_chars(template)
+        search_query = _del_ignore_chars(search_query)
 
+        # Приводим к нижнему регистру, если задан `ignore_case`.
         if ignore_case:
             template = template.lower()
             search_query = search_query.lower()
@@ -152,7 +155,7 @@ class TimetableModel:
         """Получает расписание для учителя.
 
         @param teacher: Учитель, для которого необходимо расписание. Это может быть объект `structures.Teacher`, либо
-            его ID
+            его ID.
         """
         return await self._get_timetable(teacher_id=teacher if isinstance(teacher, int) else teacher.id)
 
@@ -160,6 +163,6 @@ class TimetableModel:
         """Получает расписание для учителя.
 
         @param group: Группа, для которого необходимо расписание. Это может быть объект `structures.Group`, либо
-            его ID
+            его ID.
         """
         return await self._get_timetable(group_id=group if isinstance(group, int) else group.id)
