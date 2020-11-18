@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ClearDB" type="DatabaseScript">
+    <data-source id="2f2eae71-f25e-4278-8b1e-dd28db1e259b" namespace="database/&quot;uaviak&quot;" />
+    <script-text>DROP TABLE IF EXISTS groups, teachers, chats, notify_group, notify_teacher, timetable CASCADE</script-text>
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="ClearTMP" run_configuration_type="ShConfigurationType" />
+    </method>
+  </configuration>
+</component>
