@@ -1,11 +1,12 @@
 from vkbottle.bot import Blueprint, Message
-
-from utils.random import get_random
+from vkbottle.dispatch.rules.bot import ChatActionRule
+from vkbottle_types.objects import MessagesMessageActionStatus
 
 bp = Blueprint(name="Other")
+bp.labeler.vbml_ignore_case = True
 
 
-@bp.on.message(text=['команды', 'помощь'], lower=True)
+@bp.on.message(text=['команды', 'помощь'])
 async def send_help(msg: Message):
     """Помощь по боту."""
     text = """Список команд:
@@ -17,12 +18,11 @@ async def send_help(msg: Message):
     Посмотреть расписание просто написав номер группы или фамилию преподавателя.
     Можно писать фамилию и номер неполностью, например, вместо \"19ис-1\" можно написать \"19ис\"."""
 
-    await msg(text, reply_to=msg.id)
+    await msg.answer(text, reply_to=msg.id)
 
 
-@bp.on.chat_action('chat_invite_user')
+@bp.on.chat_message(ChatActionRule([MessagesMessageActionStatus.CHAT_INVITE_USER]))
 async def add_chat(msg: Message):
     """Новая беседа."""
-    await msg.api.messages.send(peer_id=70140946, message=f'Новая беседа: {msg.peer_id}', random_id=get_random())
-    await msg('Для включения уведомлений напишите:\n/увд <номер_группы_или_преподавателя>.\n\n'
+    await msg.answer('Для включения уведомлений напишите:\n/увд <номер_группы_или_преподавателя>.\n\n'
               'Для отключения повторите команду.')
