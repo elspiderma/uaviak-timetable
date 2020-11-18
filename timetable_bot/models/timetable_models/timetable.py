@@ -22,7 +22,7 @@ class TimetableABCModel:
 
     @classmethod
     def _match_object(cls, query: str, obj: Union['db.Teacher', 'db.Group'], approximate: bool) -> bool:
-        """Подходил ли запрос объекту.
+        """Подходит ли запрос объекту.
 
         @param query: Запрос поиска.
         @param obj: Объект сравниваемый с запросом.
@@ -77,17 +77,17 @@ class TimetableABCModel:
 
         orm_filter = {'date': self.date}
         if is_group_timetable:
-            object_which = await db.Group.filter(id=group_id).first()
-            orm_filter['group'] = object_which
+            object_which_timetable = await db.Group.filter(id=group_id).first()
+            orm_filter['group'] = object_which_timetable
         else:
-            object_which = await db.Teacher.filter(id=teacher_id).first()
-            orm_filter['teacher'] = object_which
+            object_which_timetable = await db.Teacher.filter(id=teacher_id).first()
+            orm_filter['teacher'] = object_which_timetable
 
         lessons = list()
         lessons_orm = await db.Timetable.filter(**orm_filter).order_by('number').all()
         for lesson in lessons_orm:
-            group = await lesson.group.prefetch_related() if not is_group_timetable else object_which
-            teacher = await lesson.teacher.prefetch_related() if is_group_timetable else object_which
+            group = await lesson.group.prefetch_related() if not is_group_timetable else object_which_timetable
+            teacher = await lesson.teacher.prefetch_related() if is_group_timetable else object_which_timetable
 
             lessons.append(Lesson(id=lesson.id,
                                   department=lesson.department,
@@ -103,10 +103,12 @@ class TimetableABCModel:
                                   is_exam=lesson.is_exam))
 
         if group_id is not None:
-            return TimetableForGroup(date=self.date, group=Group(id=object_which.id, title=object_which.title),
+            return TimetableForGroup(date=self.date, group=Group(id=object_which_timetable.id,
+                                                                 title=object_which_timetable.title),
                                      lessons=lessons)
         else:
             return TimetableForTeacher(date=self.date,
-                                       teacher=Teacher(id=object_which.id, name=object_which.short_name,
-                                                       full_name=object_which.full_name),
+                                       teacher=Teacher(id=object_which_timetable.id,
+                                                       name=object_which_timetable.short_name,
+                                                       full_name=object_which_timetable.full_name),
                                        lessons=lessons)
