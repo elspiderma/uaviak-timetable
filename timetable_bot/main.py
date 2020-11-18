@@ -22,6 +22,7 @@ bot_polling = BotPolling(wait=90)
 bot = Bot(config.TOKEN_BOT, loop_wrapper=loopw, polling=bot_polling)
 
 routes.bp_query_timetable.load(bot)
+routes.bp_other.load(bot)
 
 
 if __name__ == '__main__':
