@@ -2,8 +2,9 @@ import enum
 
 from vkbottle.bot import Blueprint, Message
 
-from models import TimetableGroupModel, TimetableTeacherModel
+from models import TimetableGroupModel, TimetableTeacherModel, Chat
 from view import TimetableTeacherView, TimetableGroupView
+from utils.timetable import is_group
 
 
 bp = Blueprint()
@@ -52,21 +53,25 @@ async def get_timetable(type_: TypeTimetable, query: str, message_not_found: str
 @bp.on.private_message(text=['п <name>', 'преподаватель <name>'])
 async def timetable_teacher(msg: Message, name: str):
     """Расписание преподавателя."""
-    await msg.answer(await get_timetable(TypeTimetable.GROUP, name, "Преподователь не найден"))
+    chat = await Chat.get_by_id(msg.id)
+
+    await msg.answer(await get_timetable(TypeTimetable.GROUP, name, "Преподователь не найден"), reply_to=msg.id)
 
 
 @bp.on.private_message(text=['г <title>', 'группа <title>'])
 async def timetable_group(msg: Message, title: str):
     """Расписание группы."""
-    await msg.answer(await get_timetable(TypeTimetable.GROUP, title, "Группа не найдена"))
+    chat = await Chat.get_by_id(msg.id)
+
+    await msg.answer(await get_timetable(TypeTimetable.GROUP, title, "Группа не найдена"), reply_to=msg.id)
 
 
 @bp.on.private_message()
 async def timetable_all(msg: Message):
     """Расписание группы/преподавателя."""
+    chat = await Chat.get_by_id(msg.peer_id)
     query = msg.text
 
-    # Номера групп всегда начинаются на цифры.
-    # Например 19ис-1, 18ом-1.
-    type_ = TypeTimetable.GROUP if query[0].isnumeric() else TypeTimetable.TEACHER
-    await msg.answer(await get_timetable(type_, query, 'Группа или преподаватель не найден'))
+    type_ = TypeTimetable.GROUP if is_group(query) else TypeTimetable.TEACHER
+    await msg.answer(await get_timetable(type_, query, 'Группа или преподаватель не найден'),
+                     reply_to=msg.id)

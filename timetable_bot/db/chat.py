@@ -7,5 +7,5 @@ class Chat(Model):
         table = 'chats'
 
     id = fields.IntField(pk=True)
-    id_vk = fields.IntField()
+    id_vk = fields.IntField(unique=True)
     is_photo = fields.BooleanField(default=True)

@@ -1,6 +1,7 @@
 from typing import List, TYPE_CHECKING, Union, Optional
 
 from utils.multiline_text import GroupMultilineText
+
 if TYPE_CHECKING:
     from structures import TimetableForTeacher, TimetableForGroup, Lesson
 

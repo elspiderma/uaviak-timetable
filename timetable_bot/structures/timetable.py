@@ -1,5 +1,6 @@
 import typing
 from dataclasses import dataclass
+
 from structures import Group, Teacher, Lesson
 
 if typing.TYPE_CHECKING:

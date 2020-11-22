@@ -1,5 +1,5 @@
-from typing import Optional, TYPE_CHECKING
 from dataclasses import dataclass
+from typing import Optional, TYPE_CHECKING
 
 from uaviak_timetable.timetable import Department
 

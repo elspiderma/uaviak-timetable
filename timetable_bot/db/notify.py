@@ -7,7 +7,7 @@ class NotifyTeacher(Model):
         table = 'notify_teacher'
 
     id = fields.IntField(pk=True)
-    id_chat = fields.ForeignKeyField('models.Chat', on_delete=fields.CASCADE)
+    chat = fields.ForeignKeyField('models.Chat', on_delete=fields.CASCADE)
     teacher = fields.ForeignKeyField('models.Teacher', on_delete=fields.CASCADE)
 
 
@@ -16,5 +16,5 @@ class NotifyGroup(Model):
         table = 'notify_group'
 
     id = fields.IntField(pk=True)
-    id_chat = fields.ForeignKeyField('models.Chat', on_delete=fields.CASCADE)
+    chat = fields.ForeignKeyField('models.Chat', on_delete=fields.CASCADE)
     group = fields.ForeignKeyField('models.Group', on_delete=fields.CASCADE)

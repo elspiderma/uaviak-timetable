@@ -1,6 +1,6 @@
+import logging
 import os
 from typing import Tuple
-import logging
 
 LOGGING_LEVEL = {
     1: logging.DEBUG,
