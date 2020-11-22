@@ -33,6 +33,3 @@ async def notify_config(msg: Message, group_or_teacher: str):
     else:
         # TODO: Сообщение о том, что найдено несколько объектов.
         pass
-
-
-    bot.loop.create_task(mailing_timetable(texts, msg.peer_id))
