@@ -1,14 +1,13 @@
 import json
 import os
 from typing import TYPE_CHECKING, NamedTuple, Union
+from config import TMPDIR
 
 import aiohttp
 
-from db import session, CachePhoto
-
 if TYPE_CHECKING:
     from vkbottle.types import Photo
-    from vkbottle.api import Api
+    from vkbottle.api import API
 
 
 class PhotoUploader:
@@ -23,7 +22,7 @@ class PhotoUploader:
         photo: str
         hash: str
 
-    def __init__(self, path: str, name_file: str, vk_api: 'Api'):
+    def __init__(self, path: str, name_file: str, vk_api: 'API'):
         self.path = path
         self.name_file = name_file
         self.content_type = self.get_content_type(path)
@@ -39,15 +38,16 @@ class PhotoUploader:
 
     def _get_cache(self):
         """Метод, получающий фото из кэша. Если фото не кэширавано, то возвращает `None`"""
-        photo_cache: CachePhoto = session.query(CachePhoto).filter_by(name_file=self.name_file).first()
-        if photo_cache:
-            return photo_cache.id_vk
+        if os.path.isfile(os.path.join(TMPDIR, self.name_file)):
+            with open(os.path.join(TMPDIR, self.name_file), 'r') as f:
+                return f.read()
+        else:
+            return None
 
     def _save_cache(self):
         """Сохраняет фото в кэш"""
-        cache_photo = CachePhoto(id_vk=self.__id_photo, name_file=self.name_file)
-        session.add(cache_photo)
-        session.commit()
+        with open(os.path.join(TMPDIR, self.name_file), 'w') as f:
+            f.write(self.__id_photo)
 
     async def _set_id_photo(self) -> None:
         """Устанавливает атрибут `__id_photo`."""
@@ -62,13 +62,6 @@ class PhotoUploader:
         saved_info = await self.__save_photo(uploaded_info)
         self.__id_photo = f'photo{saved_info.owner_id}_{saved_info.id}_{saved_info.access_key}'
         self._save_cache()
-
-    @classmethod
-    def __formation_id(cls, saved_info: 'Photo') -> str:
-        """Формирует ID фото, для отправки в ЛС.
-        Формат строки `photo{owner_id}_{photo_id}_{access_key}`.
-        """
-        return f'photo{saved_info.owner_id}_{saved_info.id}_{saved_info.access_key}'
 
     async def __save_photo(self, photo_info: PhotoUploadedInfo) -> 'Photo':
         """Сохроняет фото на серверах VK."""

@@ -21,6 +21,7 @@ bot_polling = BotPolling(wait=90)
 
 bot = Bot(config.TOKEN_BOT, loop_wrapper=loopw, polling=bot_polling)
 
+routes.bp_call_schedule.load(bot)
 routes.bp_other.load(bot)
 routes.bp_notify.load(bot)
 routes.bp_query_timetable.load(bot)

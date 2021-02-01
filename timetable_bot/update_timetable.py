@@ -1,7 +1,7 @@
 import asyncio
 
 import db
-from timetable.timetable_async import TimetableCache
+from timetable.timetable_async import TimetableAsync
 
 
 async def update_timetable() -> dict:
@@ -18,9 +18,7 @@ async def update_timetable() -> dict:
         'groups': set()
     }
 
-    timetables = await TimetableCache.load()
-    if not timetables:
-        return modified
+    timetables = await TimetableAsync.load()
 
     for timetable in timetables:
         for lesson in timetable:

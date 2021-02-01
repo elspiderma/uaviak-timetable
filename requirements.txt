@@ -1,4 +1,4 @@
-vkbottle==3.0
+vkbottle
 aiohttp
 uaviak_timetable
 tortoise-orm

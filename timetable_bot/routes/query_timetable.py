@@ -35,17 +35,17 @@ async def get_timetable(type_: TypeTimetable, query: str, message_not_found: str
     @param message_not_found: Сообщение, которое будет возвращено, если не найдено `query`.
     @return: Расписание, либо `message_not_found`.
     """
-    Model = MODEL_VIEW_LIST[type_]['model']
-    View = MODEL_VIEW_LIST[type_]['view']
+    model = MODEL_VIEW_LIST[type_]['model']
+    view = MODEL_VIEW_LIST[type_]['view']
 
-    timetable_db = await Model.for_last_day()
+    timetable = await model.for_last_day()
 
-    list_items_query = await timetable_db.search(query, True)
+    list_items_query = await timetable.search(query, True)
     if len(list_items_query) == 0:
         return message_not_found
 
-    list_timetables = [await timetable_db.get_timetable(i) for i in list_items_query]
-    text = View.get_text(list_timetables)
+    list_timetables = [await timetable.get_timetable(i) for i in list_items_query]
+    text = view.get_text(list_timetables)
 
     return text
 
