@@ -5,7 +5,7 @@ import os
 from utils.env import parse_massive_int_env, LOGGING_LEVEL
 
 TOKEN_BOT = os.getenv('TOKEN_BOT')
-DATA_BASE = os.getenv('DATA_BASE')
+DATA_BASE = os.getenv('DATA_BASE', 'sqlite://db.sqlite')
 
 STATIC_DIR = os.getenv('STATIC_DIR', f'{os.path.dirname(__file__)}/../static')
 TMPDIR = os.getenv('TMPDIR', '/tmp')

@@ -8,9 +8,9 @@ if typing.TYPE_CHECKING:
     from db import Group, Teacher
 
 
-class Timetable(Model):
+class Lesson(Model):
     class Meta:
-        table = 'timetable'
+        table = 'lessons'
 
     id = fields.IntField(pk=True)
     department = fields.IntEnumField(Department)

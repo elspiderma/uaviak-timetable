@@ -1,9 +1,10 @@
 import json
 import os
 from typing import TYPE_CHECKING, NamedTuple, Union
-from config import TMPDIR
 
 import aiohttp
+
+from config import TMPDIR
 
 if TYPE_CHECKING:
     from vkbottle.types import Photo

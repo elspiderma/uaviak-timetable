@@ -2,18 +2,13 @@ import enum
 
 from vkbottle.bot import Blueprint, Message
 
-from models import TimetableGroupModel, TimetableTeacherModel, Chat
-from view import TimetableTeacherView, TimetableGroupView
+from core import TimetableGroupModel, TimetableTeacherModel, Chat
 from utils.timetable import is_group
-
+from view import TimetableTeacherView, TimetableGroupView
 
 bp = Blueprint()
 bp.labeler.vbml_ignore_case = True
 
-
-class TypeTimetable(enum.Enum):
-    TEACHER = enum.auto()
-    GROUP = enum.auto()
 
 MODEL_VIEW_LIST = {
     TypeTimetable.GROUP: {

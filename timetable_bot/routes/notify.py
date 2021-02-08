@@ -1,7 +1,7 @@
 from vkbottle.bot import Blueprint, Message
-from utils.timetable import is_group
-from models import TimetableTeacherModel, TimetableGroupModel, Chat
 
+from core import TimetableTeacherModel, TimetableGroupModel, Chat
+from utils.timetable import is_group
 
 bp = Blueprint(name="Notify")
 bp.labeler.vbml_ignore_case = True

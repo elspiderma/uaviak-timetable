@@ -1,7 +1,11 @@
 import asyncio
 
 import db
-from timetable.timetable_async import TimetableAsync
+from utils.timetable import TimetableAsync, get_last_date_timetable
+
+from models.timetable import TimetableModel, TimetableNotFound
+from datetime import date
+from tortoise.functions import Max
 
 
 async def update_timetable() -> dict:
@@ -30,7 +34,7 @@ async def update_timetable() -> dict:
             if teacher is None:
                 teacher = await db.Teacher.create(short_name=lesson.teacher)
 
-            is_exists_lesson = await db.Timetable.filter(
+            is_exists_lesson = await db.Lesson.filter(
                 department=timetable.department.value,
                 date=timetable.date,
                 group=group,
@@ -44,7 +48,7 @@ async def update_timetable() -> dict:
                 is_exam=lesson.is_exam
             ).exists()
             if not is_exists_lesson:
-                lesson = await db.Timetable.create(
+                lesson = await db.Lesson.create(
                     department=timetable.department.value,
                     date=timetable.date,
                     group=group,
@@ -66,7 +70,11 @@ async def update_timetable() -> dict:
 
 async def main():
     await db.init()
-    print(await update_timetable())
+    # print(await update_timetable())
+    a = TimetableModel('19ис-1', await get_last_date_timetable())
+    b = await a.exec()
+    c = await b[0].lessons[0].teacher.prefetch_related()
+    print(c.short_name)
     await db.stop()
 
 
