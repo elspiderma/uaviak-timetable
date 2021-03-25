@@ -1,0 +1,1 @@
+from uaviak_timetable.parser.timetable_getter import TimetableGetter
