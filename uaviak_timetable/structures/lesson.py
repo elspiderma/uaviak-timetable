@@ -1,30 +1,9 @@
 from dataclasses import dataclass
-from enum import Enum
-import datetime
 from typing import Optional
 
-from uaviak_timetable.exceptions import ParseLessonError, ParseTimetableError
+from uaviak_timetable.exceptions import ParseLessonError
+from uaviak_timetable.structures import TypesLesson
 from uaviak_timetable.utils import index_upper
-
-
-class TypesLesson(Enum):
-    """Возможные типы уроков."""
-    # Дробление
-    SPLIT = 1
-    # Практика
-    PRACTICAL = 2
-    # Консультация
-    CONSULTATION = 3
-    # Экзамен
-    EXAM = 4
-
-
-class Departament(Enum):
-    """Отделения"""
-    # Очное
-    FULL_TIME = 1
-    # Заочное
-    CORRESPONDENCE = 2
 
 
 @dataclass
@@ -151,72 +130,3 @@ class LessonDB(_LessonBase):
     group: GroupDB
     # Преподаватель
     teacher: TeacherDB
-
-
-@dataclass
-class _TimetableBase:
-    """Базовый дата-класс расписания."""
-    # Дополнительная информация
-    additional_info: str
-    # Дата
-    date: datetime.date
-    # Отделение
-    departament: Departament
-
-
-@dataclass
-class TimetableParsed(_TimetableBase):
-    """Дата-класс представляющий расписание на сайте колледжа."""
-    # Уроки
-    lessons: list[LessonParsed]
-
-    @classmethod
-    def parse(cls, title: str, info: str, lessons: list[str]) -> 'TimetableParsed':
-        # Заголовок имеет формат "Расписание [на] {дата} {date_of_week} ({department} отделение)".
-        # Например:
-        # Расписание 23.03.2021 Вторник (Заочное отделение)
-        # или
-        # Расписание на 23.03.2021 Вторник (Дневное отделение)
-        split_title = title.split()
-        if len(split_title) < 5:
-            raise ParseTimetableError(title, info, lessons)
-
-        date = split_title[1]
-        if date == 'на':  # Если заголовок содержит "на", значит дата во 2 индексе
-            date = split_title[2]
-
-        try:
-            # Парсинг даты
-            day, month, year = date.split('.')
-            date = datetime.date(day=int(day), month=int(month), year=int(year))
-        except ValueError:
-            raise ParseTimetableError(title, info, lessons)
-
-        # Парсинг отделения
-        if 'Дневное отделение' in title:
-            departament = Departament.FULL_TIME
-        elif 'Заочное отделение' in title:
-            departament = Departament.CORRESPONDENCE
-        else:
-            raise ParseTimetableError(title, info, lessons)
-
-        # Парсинг пар
-        parsed_lesson = list()
-        for i in lessons:
-            parsed_lesson.append(LessonParsed.parse(i))
-
-        return cls(
-            additional_info=info,
-            date=date,
-            departament=departament,
-            lessons=parsed_lesson
-        )
-
-
-@dataclass
-class TimetableDB(_TimetableBase):
-    """Дата-класс представляющий расписание в БД."""
-    # ID расписания
-    id: int
-    # Уроки
-    lessons: list[LessonDB]
