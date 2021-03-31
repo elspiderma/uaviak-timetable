@@ -81,9 +81,6 @@ class TimetableGetter:
         # <Расписание для 2 группы>
         # -------------------------
         # <Расписание для n группы>
-        #
-        # <Заголовок> имеет формат "Расписание [на] {date} {date_of_week} ({department} отделение)".
-        # <Доп. информация> -- произвольный текст без четкого формата.
 
         timetable_lines = timetable_text.strip().splitlines()
 
@@ -95,6 +92,7 @@ class TimetableGetter:
         is_timetable_begin = False
         for line in timetable_lines:
             line = line.strip()
+            line = ' '.join(line.split())  # Удаляем повторяющиеся пробелы
 
             if line != '':  # Игнорируем пустые линии
                 # Строка содержащяя только "-" является разделителем
@@ -108,11 +106,13 @@ class TimetableGetter:
         return title, '\n'.join(additional_info_lines), prepare_timetable_lines
 
     @classmethod
-    async def load(cls):
+    async def load(cls) -> list[TimetableParsed]:
         html_timetable = await cls._load_html()
-        raw_timetables = cls._prepare_timetable_text(html_timetable)
+        raw_timetables = cls._parse_html(html_timetable)
 
         timetables = list()
         for i in raw_timetables:
             title, info, lessons = cls._prepare_timetable_text(i)
             timetables.append(TimetableParsed.parse(title, info, lessons))
+
+        return timetables
