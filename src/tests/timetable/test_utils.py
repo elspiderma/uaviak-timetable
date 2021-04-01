@@ -1,6 +1,6 @@
 import pytest
 
-from uaviak_timetable.utils import is_string_one_unique_char, ittr_string_with_index, index_upper
+from timetable.utils import is_string_one_unique_char, ittr_string_with_index, index_upper
 
 
 def test_is_string_one_unique_char():

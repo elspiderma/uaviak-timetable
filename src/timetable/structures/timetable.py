@@ -2,11 +2,11 @@ import datetime
 import typing
 from dataclasses import dataclass
 
-from uaviak_timetable.exceptions import ParseTimetableError
-from uaviak_timetable.structures import Departament, LessonParsed
+from timetable.exceptions import ParseTimetableError
+from timetable.structures import Departament, LessonParsed
 
 if typing.TYPE_CHECKING:
-    from uaviak_timetable.structures import LessonDB
+    from timetable.structures import LessonDB
 
 
 @dataclass

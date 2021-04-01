@@ -2,8 +2,8 @@ import datetime
 
 import pytest
 
-from uaviak_timetable.exceptions import ParseLessonError, ParseTimetableError
-from uaviak_timetable.structures import LessonParsed, TypesLesson, TimetableParsed, Departament
+from timetable.exceptions import ParseLessonError, ParseTimetableError
+from timetable.structures import LessonParsed, TypesLesson, TimetableParsed, Departament
 
 
 class TestLessonParsed:

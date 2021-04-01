@@ -1,12 +1,12 @@
 import aiohttp
 from bs4 import BeautifulSoup
 
-from uaviak_timetable.exceptions import GetHtmlError
-from uaviak_timetable.structures import TimetableParsed
-from uaviak_timetable.utils import is_string_one_unique_char
+from timetable.exceptions import GetHtmlError
+from timetable.structures import TimetableParsed
+from timetable.utils import is_string_one_unique_char
 
 
-class TimetableGetter:
+class TimetableParser:
     TIMETABLE_URL = 'https://uaviak.ru/pages/raspisanie-/'
     USER_AGENT = 'TimetableParser/1.0'
     # Классы HTML-элементов, содержащие расписание
@@ -63,7 +63,7 @@ class TimetableGetter:
     @classmethod
     def _prepare_timetable_text(cls, timetable_text: str) -> tuple[str, str, list[str]]:
         """
-        Обрабатываем текст расписания, дробит его на отдельные пары.
+        Обрабатываем текст расписания, дробит его на отдельные части.
 
         Args:
             timetable_text: Сырой текст расписания.

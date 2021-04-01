@@ -1,29 +1,9 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from uaviak_timetable.exceptions import ParseLessonError
-from uaviak_timetable.structures import TypesLesson
-from uaviak_timetable.utils import index_upper
-
-
-@dataclass
-class GroupDB:
-    """Дата-класс предствляющий группу в БД."""
-    # ID группы
-    id: int
-    # Номер группы
-    number: str
-
-
-@dataclass
-class TeacherDB:
-    """Дата-класс предствляющий преподавателя в БД."""
-    # ID преподавателя
-    id: int
-    # Имя преподавателя
-    short_name: str
-    # Полное имя преподавателя
-    full_name: Optional[str]
+from timetable.exceptions import ParseLessonError
+from timetable.structures import TypesLesson
+from timetable.utils import index_upper
 
 
 @dataclass
@@ -119,6 +99,26 @@ class LessonParsed(_LessonBase):
             group=group,
             teacher=teacher
         )
+
+
+@dataclass
+class GroupDB:
+    """Дата-класс предствляющий группу в БД."""
+    # ID группы
+    id: int
+    # Номер группы
+    number: str
+
+
+@dataclass
+class TeacherDB:
+    """Дата-класс предствляющий преподавателя в БД."""
+    # ID преподавателя
+    id: int
+    # Имя преподавателя
+    short_name: str
+    # Полное имя преподавателя
+    full_name: Optional[str]
 
 
 @dataclass

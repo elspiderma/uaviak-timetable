@@ -1,8 +1,8 @@
 import pytest
 
-from uaviak_timetable.structures import Departament
-from uaviak_timetable.exceptions import GetHtmlError
-from uaviak_timetable.parser import TimetableGetter
+from timetable.structures import Departament
+from timetable.exceptions import GetHtmlError
+from timetable.timetable_parser import TimetableParser
 from aioresponses import aioresponses
 
 
@@ -30,33 +30,33 @@ class TestTimetableGetter:
     @pytest.mark.asyncio
     async def test_load_html(self, timetable_html):
         with aioresponses() as m:
-            m.get(TimetableGetter.TIMETABLE_URL, status=200, body=timetable_html)
-            loaded_html = await TimetableGetter._load_html()
+            m.get(TimetableParser.TIMETABLE_URL, status=200, body=timetable_html)
+            loaded_html = await TimetableParser._load_html()
 
             assert loaded_html == timetable_html
 
         with pytest.raises(GetHtmlError) as e:
             with aioresponses() as m:
-                m.get(TimetableGetter.TIMETABLE_URL, status=500)
-                await TimetableGetter._load_html()
+                m.get(TimetableParser.TIMETABLE_URL, status=500)
+                await TimetableParser._load_html()
 
-        assert e.value.exceptions.code == 500
+        assert e.value.exceptions.status == 500
 
     def test_parse_html(self, timetable_html, timetables_text):
-        parsed_html = TimetableGetter._parse_html(timetable_html)
+        parsed_html = TimetableParser._parse_html(timetable_html)
 
         assert len(parsed_html) == 2
         for parsed, text in zip(parsed_html, timetables_text):
             assert parsed == text
 
     def test_prepare_timetable_text(self, timetables_text):
-        title, info, lessons = TimetableGetter._prepare_timetable_text(timetables_text[0])
+        title, info, lessons = TimetableParser._prepare_timetable_text(timetables_text[0])
         assert title == 'Расписание 23.03.2021 Вторник (Заочное отделение)'
         assert info == ''
         assert len(lessons) == 4
         assert lessons[0] == '18ктиз 1 705л Ларионова Л.Ф. Информационные технологии в пр'
 
-        title, info, lessons = TimetableGetter._prepare_timetable_text(timetables_text[1])
+        title, info, lessons = TimetableParser._prepare_timetable_text(timetables_text[1])
         assert title == 'Расписание 23.03.2021 Вторник (Дневное отделение)'
         assert info == 'Режим работы на 24.03.2021\n1 пара 8.15 - 9.15\n2 пара 9.25 - 10.25\n3 пара 10.35 - 11.35'
         assert len(lessons) == 220
@@ -65,9 +65,9 @@ class TestTimetableGetter:
     @pytest.mark.asyncio
     async def test_load(self, timetable_html):
         with aioresponses() as m:
-            m.get(TimetableGetter.TIMETABLE_URL, status=200, body=timetable_html)
+            m.get(TimetableParser.TIMETABLE_URL, status=200, body=timetable_html)
 
-            timetables = await TimetableGetter.load()
+            timetables = await TimetableParser.load()
             assert timetables[0].departament == Departament.CORRESPONDENCE
             assert timetables[0].additional_info == ''
             assert len(timetables[0].lessons) == 4
