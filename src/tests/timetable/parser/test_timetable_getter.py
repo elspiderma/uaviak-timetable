@@ -69,7 +69,7 @@ class TestTimetableGetter:
 
             timetables = await TimetableParser.load()
             assert timetables[0].departament == Departament.CORRESPONDENCE
-            assert timetables[0].additional_info == ''
+            assert timetables[0].additional_info is None
             assert len(timetables[0].lessons) == 4
 
             assert timetables[1].departament == Departament.FULL_TIME

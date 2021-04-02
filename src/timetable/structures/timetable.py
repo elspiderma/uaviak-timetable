@@ -1,19 +1,20 @@
 import datetime
-import typing
+from typing import TYPE_CHECKING, Optional
 from dataclasses import dataclass
 
 from timetable.exceptions import ParseTimetableError
 from timetable.structures import Departament, LessonParsed
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from timetable.structures import LessonDB
+    import asyncpg
 
 
 @dataclass
 class _TimetableBase:
     """Базовый дата-класс расписания."""
     # Дополнительная информация
-    additional_info: str
+    additional_info: Optional[str]
     # Дата
     date: datetime.date
     # Отделение
@@ -61,6 +62,9 @@ class TimetableParsed(_TimetableBase):
         for i in lessons:
             parsed_lesson.append(LessonParsed.parse(i))
 
+        if info == '':
+            info = None
+
         return cls(
             additional_info=info,
             date=date,
@@ -73,6 +77,6 @@ class TimetableParsed(_TimetableBase):
 class TimetableDB(_TimetableBase):
     """Дата-класс представляющий расписание в БД."""
     # ID расписания
-    id: int
+    id: Optional[int]
     # Уроки
     lessons: list['LessonDB']

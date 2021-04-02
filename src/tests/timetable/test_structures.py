@@ -67,17 +67,17 @@ class TestTimetableParsed:
         assert parsed_timetable.lessons == lessons_parsed
         assert parsed_timetable.additional_info == info
 
-        parsed_timetable = TimetableParsed.parse('Расписание на 23.03.2021 Вторник (Заочное отделение)', info, lessons)
+        parsed_timetable = TimetableParsed.parse('Расписание на 23.03.2021 Вторник (Заочное отделение)', '', lessons)
         assert parsed_timetable.date == datetime.date(2021, 3, 23)
         assert parsed_timetable.departament == Departament.CORRESPONDENCE
         assert parsed_timetable.lessons == lessons_parsed
-        assert parsed_timetable.additional_info == info
+        assert parsed_timetable.additional_info is None
 
         with pytest.raises(ParseTimetableError) as e:
-            TimetableParsed.parse('Расписание на 23.30.2021 Вторник (Заочное отделение)', info, lessons)
+            TimetableParsed.parse('Расписание на 23.30.2021 Вторник (Заочное отделение)', '', lessons)
         assert e.value.title == 'Расписание на 23.30.2021 Вторник (Заочное отделение)'
         assert e.value.lessons == lessons
-        assert e.value.info == info
+        assert e.value.info == ''
 
         with pytest.raises(ParseTimetableError) as e:
             TimetableParsed.parse('неправильный загаловок', info, lessons)

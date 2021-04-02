@@ -105,7 +105,7 @@ class LessonParsed(_LessonBase):
 class GroupDB:
     """Дата-класс предствляющий группу в БД."""
     # ID группы
-    id: int
+    id: Optional[int]
     # Номер группы
     number: str
 
@@ -114,7 +114,7 @@ class GroupDB:
 class TeacherDB:
     """Дата-класс предствляющий преподавателя в БД."""
     # ID преподавателя
-    id: int
+    id: Optional[int]
     # Имя преподавателя
     short_name: str
     # Полное имя преподавателя
@@ -125,7 +125,7 @@ class TeacherDB:
 class LessonDB(_LessonBase):
     """Дата-класс предствляющий пару в БД."""
     # ID пары в БД
-    id: int
+    id: Optional[int]
     # Группа
     group: GroupDB
     # Преподаватель
