@@ -5,7 +5,7 @@
 -- Dumped from database version 13.2 (Debian 13.2-1.pgdg100+1)
 -- Dumped by pg_dump version 13.2
 
--- Started on 2021-04-01 21:08:57 +04
+-- Started on 2021-04-02 20:30:38 +04
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -21,22 +21,22 @@ SET row_security = off;
 SET default_table_access_method = heap;
 
 --
--- TOC entry 200 (class 1259 OID 16391)
--- Name: group; Type: TABLE; Schema: public; Owner: -
+-- TOC entry 200 (class 1259 OID 16385)
+-- Name: groups; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public."group" (
+CREATE TABLE public.groups (
     id integer NOT NULL,
     number character varying(30) NOT NULL
 );
 
 
 --
--- TOC entry 202 (class 1259 OID 16401)
--- Name: lesson; Type: TABLE; Schema: public; Owner: -
+-- TOC entry 201 (class 1259 OID 16388)
+-- Name: lessons; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.lesson (
+CREATE TABLE public.lessons (
     id_timetable integer NOT NULL,
     number integer NOT NULL,
     subject character varying(100) NOT NULL,
@@ -49,11 +49,11 @@ CREATE TABLE public.lesson (
 
 
 --
--- TOC entry 201 (class 1259 OID 16396)
--- Name: teacher; Type: TABLE; Schema: public; Owner: -
+-- TOC entry 202 (class 1259 OID 16394)
+-- Name: teachers; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.teacher (
+CREATE TABLE public.teachers (
     id integer NOT NULL,
     short_name character varying(30) NOT NULL,
     full_name character varying(30) NOT NULL
@@ -61,7 +61,7 @@ CREATE TABLE public.teacher (
 
 
 --
--- TOC entry 203 (class 1259 OID 16419)
+-- TOC entry 203 (class 1259 OID 16397)
 -- Name: timetables; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -74,34 +74,34 @@ CREATE TABLE public.timetables (
 
 
 --
--- TOC entry 2816 (class 2606 OID 16395)
--- Name: group group_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- TOC entry 2816 (class 2606 OID 16404)
+-- Name: groups group_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public."group"
+ALTER TABLE ONLY public.groups
     ADD CONSTRAINT group_pkey PRIMARY KEY (id);
 
 
 --
--- TOC entry 2820 (class 2606 OID 16408)
--- Name: lesson lesson_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- TOC entry 2818 (class 2606 OID 16406)
+-- Name: lessons lesson_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.lesson
+ALTER TABLE ONLY public.lessons
     ADD CONSTRAINT lesson_pkey PRIMARY KEY (id);
 
 
 --
--- TOC entry 2818 (class 2606 OID 16400)
--- Name: teacher teacher_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- TOC entry 2820 (class 2606 OID 16408)
+-- Name: teachers teacher_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.teacher
+ALTER TABLE ONLY public.teachers
     ADD CONSTRAINT teacher_pkey PRIMARY KEY (id);
 
 
 --
--- TOC entry 2822 (class 2606 OID 16426)
+-- TOC entry 2822 (class 2606 OID 16410)
 -- Name: timetables timetables_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -110,33 +110,33 @@ ALTER TABLE ONLY public.timetables
 
 
 --
--- TOC entry 2824 (class 2606 OID 16414)
--- Name: lesson lesson_id_group_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- TOC entry 2823 (class 2606 OID 16411)
+-- Name: lessons lesson_id_group_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.lesson
-    ADD CONSTRAINT lesson_id_group_fkey FOREIGN KEY (id_group) REFERENCES public."group"(id);
-
-
---
--- TOC entry 2823 (class 2606 OID 16409)
--- Name: lesson lesson_id_teacher_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.lesson
-    ADD CONSTRAINT lesson_id_teacher_fkey FOREIGN KEY (id_teacher) REFERENCES public.teacher(id);
+ALTER TABLE ONLY public.lessons
+    ADD CONSTRAINT lesson_id_group_fkey FOREIGN KEY (id_group) REFERENCES public.groups(id);
 
 
 --
--- TOC entry 2825 (class 2606 OID 16427)
--- Name: lesson lesson_id_timetable_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- TOC entry 2824 (class 2606 OID 16416)
+-- Name: lessons lesson_id_teacher_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.lesson
+ALTER TABLE ONLY public.lessons
+    ADD CONSTRAINT lesson_id_teacher_fkey FOREIGN KEY (id_teacher) REFERENCES public.teachers(id);
+
+
+--
+-- TOC entry 2825 (class 2606 OID 16421)
+-- Name: lessons lesson_id_timetable_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.lessons
     ADD CONSTRAINT lesson_id_timetable_fkey FOREIGN KEY (id_timetable) REFERENCES public.timetables(id) NOT VALID;
 
 
--- Completed on 2021-04-01 21:08:57 +04
+-- Completed on 2021-04-02 20:30:39 +04
 
 --
 -- PostgreSQL database dump complete
