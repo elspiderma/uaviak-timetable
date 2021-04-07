@@ -33,6 +33,7 @@ async def init_connection(user: str, password: str, database: str, ip: str, **kw
         host=ip,
         **kwargs
     )
+    await _connection.execute('SET search_path TO public')
 
 
 def get_connection() -> asyncpg.Connection:
@@ -52,7 +53,10 @@ def get_connection() -> asyncpg.Connection:
 
 async def close_connection():
     """Закрывает подключение к БД."""
+    global _connection
+
     if _connection is None:
         raise ConnectionNotInit('first you need execute init_connection')
 
     await _connection.close()
+    _connection = None

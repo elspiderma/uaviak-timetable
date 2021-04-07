@@ -1,7 +1,7 @@
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Optional
 
-from timetable.exceptions import DataNotFoundError
-from timetable.structures import TimetableDB, Departament
+from timetable.exceptions import DataNotFoundError, TimetableExistError
+from timetable.structures import TimetableDB as Timetable, Departament
 
 if TYPE_CHECKING:
     import datetime
@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
 class TimetableDB:
     """Класс для работы с расписание в БД. Он реализует методы для получения, обновления и добавления расписания."""
+
     def __init__(self, connection: 'asyncpg.Connection'):
         self.conn = connection
 
@@ -18,7 +19,7 @@ class TimetableDB:
             self,
             date: 'datetime.date',
             departament: Optional[Departament] = None
-    ) -> Union[TimetableDB, list[TimetableDB]]:
+    ) -> list[Timetable]:
         """
         Получает расписание за определенный день.
         Args:
@@ -32,20 +33,25 @@ class TimetableDB:
         Raises:
             DataNotFoundError: Расписание не найдено
         """
-        # TODO: Реализовть получение ОДНОГО отделения
-        result = await self.conn.fetch('SELECT * FROM timetables WHERE date = $1 AND departament = $2',
-                                       date, departament.value)
+        if departament is None:
+            result = await self.conn.fetch('SELECT * FROM timetables WHERE date = $1', date)
+        else:
+            result = await self.conn.fetch('SELECT * FROM timetables WHERE date = $1 AND departament = $2',
+                                           date, departament.value)
+
         if len(result) == 0:
             raise DataNotFoundError(f'timetable for {date} not found')
-        timetable = result[0]
 
-        return TimetableDB(
-            id=timetable['id'],
-            additional_info=timetable['additional_info'],
-            date=timetable['date'],
-            departament=Departament(timetable['departament']),
-            lessons=[]
-        )
+        timetables = []
+        for i in result:
+            timetables.append(Timetable(
+                id=i['id'],
+                additional_info=i['additional_info'],
+                date=i['date'],
+                departament=Departament(i['departament']),
+                lessons=[]
+            ))
+        return timetables
 
     async def add_new_timetable_from_site(self, timetable: 'TimetableParsed'):
         """
@@ -53,4 +59,25 @@ class TimetableDB:
         Args:
             timetable: Расписание полученное с сайта
         """
-        pass  # TODO
+        result = await self.conn.fetch(
+            'INSERT INTO timetables(additional_info, date, departament) VALUES ($1, $2, $3) RETURNING id',
+            timetable.additional_info, timetable.date, timetable.departament.value
+        )
+        timetable_id = result[0]['id']
+
+        for lesson in timetable.lessons:
+            await self.conn.execute(
+                'INSERT INTO '
+                'lessons(id_timetable, number, subject, cabinet, types, id_group, id_teacher) '
+                'VALUES ($1, $2, $3, $4, $5, '
+                '(SELECT id FROM groups WHERE groups.number = $6), '
+                '(SELECT id FROM teachers WHERE short_name = $7)'
+                ')',
+                timetable_id,
+                lesson.number,
+                lesson.subject,
+                lesson.cabinet,
+                lesson.types,
+                lesson.group,
+                lesson.teacher
+            )

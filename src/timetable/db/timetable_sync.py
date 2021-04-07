@@ -13,7 +13,7 @@ class TimetableSync:
     def __init__(self, timetable_db: 'TimetableDB'):
         self.timetable_db = timetable_db
 
-    async def _update_timetable(self, timetable_from_db: 'TimetableDB', timetable_from_site: TimetableParsed):
+    async def _update_timetable(self, timetable_from_db: 'TimetableDB', timetable_from_site: 'TimetableParsed'):
         """
         Обновление уже существуещего расписания
         Args:
@@ -28,7 +28,7 @@ class TimetableSync:
 
         for timetable in timetables_from_site:
             try:
-                timetable_from_db = await self.timetable_db.get_timetable_by_day(timetable.date, timetable.departament)
+                timetable_from_db = await self.timetable_db.get_timetable_by_day(timetable.date, timetable.departament)[0]
             except DataNotFoundError:
                 await self.timetable_db.add_new_timetable_from_site(timetable)
             else:

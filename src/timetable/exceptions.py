@@ -26,7 +26,16 @@ class ParseLessonError(GetTimetableError):
         super().__init__(f'error parse line: {self.line}')
 
 
-# Исключения связанные с запросами в БД.
-class DataNotFoundError(Exception):
+class TimetableDBError(Exception):
+    """Исключения связанные с запросами в БД."""
+    pass
+
+
+class DataNotFoundError(TimetableDBError):
     """Подходящие данные не найдены."""
+    pass
+
+
+class TimetableExistError(TimetableDBError):
+    """Расписание уже существует."""
     pass
