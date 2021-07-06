@@ -40,7 +40,7 @@ class TimetableDB:
                                            date, departament.value)
 
         if len(result) == 0:
-            raise DataNotFoundError(f'timetable for {date} not found')
+            raise DataNotFoundError(f'parser for {date} not found')
 
         timetables = []
         for i in result:
@@ -66,18 +66,8 @@ class TimetableDB:
         timetable_id = result[0]['id']
 
         for lesson in timetable.lessons:
-            await self.conn.execute(
-                'INSERT INTO '
-                'lessons(id_timetable, number, subject, cabinet, types, id_group, id_teacher) '
-                'VALUES ($1, $2, $3, $4, $5, '
-                '(SELECT id FROM groups WHERE groups.number = $6), '
-                '(SELECT id FROM teachers WHERE short_name = $7)'
-                ')',
-                timetable_id,
-                lesson.number,
-                lesson.subject,
-                lesson.cabinet,
-                lesson.types,
-                lesson.group,
-                lesson.teacher
+            await self.conn.fetch(
+                'SELECT * FROM add_lesson'
+                '($1,         $2,            $3,             $4,             $5,           $6,           $7)',
+                timetable_id, lesson.number, lesson.subject, lesson.cabinet, lesson.types, lesson.group, lesson.teacher
             )

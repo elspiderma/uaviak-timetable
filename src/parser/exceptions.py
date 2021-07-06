@@ -24,18 +24,3 @@ class ParseLessonError(GetTimetableError):
     def __init__(self, s: str):
         self.line = s
         super().__init__(f'error parse line: {self.line}')
-
-
-class TimetableDBError(Exception):
-    """Исключения связанные с запросами в БД."""
-    pass
-
-
-class DataNotFoundError(TimetableDBError):
-    """Подходящие данные не найдены."""
-    pass
-
-
-class TimetableExistError(TimetableDBError):
-    """Расписание уже существует."""
-    pass

@@ -4,7 +4,7 @@ from timetable.exceptions import DataNotFoundError
 from timetable.timetable_parser import TimetableParser
 
 if TYPE_CHECKING:
-    from timetable.db import TimetableDB
+    from db import TimetableDB
     from timetable.structures import TimetableParsed, TimetableDB
 
 

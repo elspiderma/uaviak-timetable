@@ -11,11 +11,3 @@ class TypesLesson(Enum):
     CONSULTATION = 3
     # Экзамен
     EXAM = 4
-
-
-class Departament(Enum):
-    """Отделения"""
-    # Очное
-    FULL_TIME = 1
-    # Заочное
-    CORRESPONDENCE = 2
