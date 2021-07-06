@@ -5,7 +5,6 @@ from aioresponses import aioresponses
 
 from parser import HtmlTimetable
 from parser.exceptions import GetHtmlError
-from tests.conftest import get_resources
 
 
 class TestHtmlTimetable:

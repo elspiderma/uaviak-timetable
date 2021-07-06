@@ -56,7 +56,7 @@ class TextTimetable:
         else:
             # Фамилия преподавателя всегда начинает с большой буквы. Соответственно ищем первую прописную букву
             # и делим строку по ней.
-            index_split = index_upper(tmp)
+            index_split = index_upper(tmp[1:]) + 1
 
             cabinet = tmp[:index_split]
             teacher = tmp[index_split:]
