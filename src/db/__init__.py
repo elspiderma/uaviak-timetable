@@ -1,2 +1,2 @@
-from .timetable_db import TimetableDB
-from .timetable_sync import TimetableSync
+from .database import Database
+from .connection_keeper import ConnectionKeeper
