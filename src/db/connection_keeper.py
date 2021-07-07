@@ -1,5 +1,6 @@
-import asyncpg
 from typing import Optional
+
+import asyncpg
 
 
 class ConnectionNotInit(Exception):

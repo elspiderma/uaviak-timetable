@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
-    from parser.structures import Departaments, Lesson
+    from uaviak_parser.structures import Departaments, Lesson
     import datetime
 
 

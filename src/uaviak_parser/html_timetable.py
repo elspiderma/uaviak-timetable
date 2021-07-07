@@ -1,7 +1,7 @@
 import aiohttp
 from bs4 import BeautifulSoup
 
-from parser.exceptions import GetHtmlError
+from uaviak_parser.exceptions import GetHtmlError
 
 
 class HtmlTimetable:
@@ -26,7 +26,7 @@ class HtmlTimetable:
         """
         timetables_text = []
 
-        soup = BeautifulSoup(self.html, 'html.parser')
+        soup = BeautifulSoup(self.html, 'html.uaviak_parser')
         for class_html in self.CLASS_WITH_TIMETABLE:
             timetable_soup = soup.find(class_=class_html)
             timetable_soup.find(class_='title').extract()  # Удаляем заголовок, "Расписание *** отделения"

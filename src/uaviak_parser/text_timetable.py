@@ -1,8 +1,8 @@
 import datetime
 
-from parser.exceptions import ParseTimetableError, ParseLessonError
-from parser.structures import Timetable, Departaments, Lesson, TypesLesson
-from parser.utils import is_string_one_unique_char, index_upper
+from uaviak_parser.exceptions import ParseTimetableError, ParseLessonError
+from uaviak_parser.structures import Timetable, Departaments, Lesson, TypesLesson
+from uaviak_parser.utils import is_string_one_unique_char, index_upper
 
 
 class TextTimetable:
@@ -29,19 +29,19 @@ class TextTimetable:
         # Например:
         # 17адс1 1 дрб 214 Кольцов В.А. Учебная практика Практика
         split_line = lesson_line.split()
-        types = set()
+        types_lesson = set()
 
         if len(split_line) < 5:
             raise ParseLessonError(lesson_line)
 
         group = split_line.pop(0)  # Извлекаем группу
         try:
-            number = int(split_line.pop(0))  # Извлекаем номер кабинета
+            number = int(split_line.pop(0))  # Извлекаем номер пары
         except ValueError:
             raise ParseLessonError(lesson_line)
 
         if split_line[0] == "дрб":
-            types.add(TypesLesson.SPLIT)
+            types_lesson.add(TypesLesson.SPLIT)
             del split_line[0]
 
         # Максимальная длина группы 5 символов, если больше,
@@ -54,9 +54,9 @@ class TextTimetable:
             cabinet = tmp
             teacher = split_line.pop(0)
         else:
-            # Фамилия преподавателя всегда начинает с большой буквы. Соответственно ищем первую прописную букву
+            # Фамилия преподавателя всегда начинает с большой буквы, соответственно ищем первую прописную букву
             # и делим строку по ней.
-            index_split = index_upper(tmp[1:]) + 1
+            index_split = index_upper(tmp[1:]) + 1  # Начинаем поиск заглавной буквы со 2 символа
 
             cabinet = tmp[:index_split]
             teacher = tmp[index_split:]
@@ -66,23 +66,23 @@ class TextTimetable:
 
         # Парсим тип пары.
         if split_line[-1] == 'Практика':
-            types.add(TypesLesson.PRACTICAL)
+            types_lesson.add(TypesLesson.PRACTICAL)
             del split_line[-1]
         elif split_line[-1] in ('Консульт', 'Консультация'):
-            types.add(TypesLesson.CONSULTATION)
+            types_lesson.add(TypesLesson.CONSULTATION)
             del split_line[-1]
         elif split_line[-1] == 'Экзамен':
-            types.add(TypesLesson.EXAM)
+            types_lesson.add(TypesLesson.EXAM)
             del split_line[-1]
 
-        # Все что осталось -- это предмет
+        # Все что осталось -- предмет
         subject = ' '.join(split_line)
 
         return Lesson(
             number=number,
             subject=subject,
             cabinet=cabinet,
-            types=types,
+            types=types_lesson,
             group=group,
             teacher=teacher
         )

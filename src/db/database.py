@@ -1,11 +1,11 @@
 from typing import TYPE_CHECKING, Optional
-from db.structures import Timetable
 
+from db.structures import Timetable
 
 if TYPE_CHECKING:
     import datetime
     import asyncpg
-    import parser
+    import uaviak_parser
     from db.structures import Departaments
 
 
@@ -33,9 +33,9 @@ class Database:
         if not result:
             return None
 
-        return Timetable.from_record(result)
+        return Timetable.from_record(result, db=self)
 
-    async def add_new_timetable_from_site(self, timetable: 'parser.structures.Timetable') -> None:
+    async def add_new_timetable_from_site(self, timetable: 'uaviak_parser.structures.Timetable') -> None:
         """Добавляет новое расписание.
 
         Args:

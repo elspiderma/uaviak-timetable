@@ -20,21 +20,20 @@ class Timetable(DbObject):
         self.date = date
         self.departament = departament
 
-        self._lessons = None
-
     @classmethod
-    def from_record(cls, record: 'Record') -> 'Timetable':
+    def from_record(cls, data: 'Record', db: 'Database' = None) -> 'Timetable':
         """
         Десериализация объекта из записи в БД.
 
         Args:
             data: Запись в БД.
+            db: Клиент базы данных.
 
         Returns:
             Десериализируеммый объект.
         """
-        value = dict(record)
+        data_dict = dict(data)
 
-        value['departament'] = Departaments(value['departament'])
+        data_dict['departament'] = Departaments(data_dict['departament'])
 
-        return cls.from_dict(value)
+        return cls.from_dict(data_dict, db=db)

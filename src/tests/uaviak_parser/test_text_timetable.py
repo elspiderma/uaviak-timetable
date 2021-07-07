@@ -1,10 +1,7 @@
-import json
-
-import pytest
-
-from parser.text_timetable import TextTimetable, TypesLesson
-from parser.structures import Lesson
 import datetime
+
+from uaviak_parser.structures import Lesson
+from uaviak_parser.text_timetable import TextTimetable, TypesLesson
 
 
 class TestTextTimetable:

@@ -1,9 +1,9 @@
 import asyncio
 import datetime
 
+import uaviak_parser
 from db import Database, ConnectionKeeper
 from db.structures import Departaments
-import parser
 
 
 async def main():
@@ -13,9 +13,9 @@ async def main():
     db = Database(conn)
 
     with open('/media/hdd/data/uaviak site/21-06-21.html', 'r') as f:
-        html_timetable = parser.HtmlTimetable(f.read())
+        html_timetable = uaviak_parser.HtmlTimetable(f.read())
 
-    text_timetable = parser.TextTimetable.parse(html_timetable.parse_html()[1])
+    text_timetable = uaviak_parser.TextTimetable.parse(html_timetable.parse_html()[1])
 
     await db.add_new_timetable_from_site(text_timetable.parse_text())
 

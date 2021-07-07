@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from parser.structures import TypesLesson
+from uaviak_parser.structures import TypesLesson
 
 
 @dataclass

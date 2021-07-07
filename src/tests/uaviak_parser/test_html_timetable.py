@@ -1,10 +1,8 @@
-import json
-
 import pytest
 from aioresponses import aioresponses
 
-from parser import HtmlTimetable
-from parser.exceptions import GetHtmlError
+from uaviak_parser import HtmlTimetable
+from uaviak_parser.exceptions import GetHtmlError
 
 
 class TestHtmlTimetable:
