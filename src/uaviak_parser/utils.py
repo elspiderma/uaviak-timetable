@@ -54,4 +54,4 @@ def index_upper(s: str, revers: bool = False):
         if i.isupper():
             return n
 
-    raise ValueError("upper letter case not found")
+    raise ValueError("Upper letter case not found")

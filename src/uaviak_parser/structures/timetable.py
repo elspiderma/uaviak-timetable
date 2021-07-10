@@ -17,3 +17,6 @@ class Timetable:
     departament: 'Departaments'
     # Пары
     lessons: list['Lesson']
+
+    def __repr__(self):
+        return f'<Timetable at {self.date.isoformat()} for {self.departament}>'

@@ -5,9 +5,9 @@ class GetTimetableError(Exception):
 
 class GetHtmlError(GetTimetableError):
     """Ошибка сети при получении расписания."""
-    def __init__(self, exceptions: Exception):
-        self.exceptions = exceptions
-        super().__init__(f'error connection to site UAviaK. ({self.exceptions})')
+    def __init__(self, exception: Exception):
+        self.exception = exception
+        super().__init__(f'Error connection to site UAviaK. ({self.exception})')
 
 
 class ParseTimetableError(GetTimetableError):

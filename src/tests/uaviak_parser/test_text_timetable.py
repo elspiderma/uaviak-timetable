@@ -60,7 +60,7 @@ class TestTextTimetable:
     def test_parse_text_ok(self):
         text_timetable = TextTimetable(self.TITLE, self.ADDITIONAL_INFO, self.LESSONS_TEXT)
 
-        timetable = text_timetable.parse_html()
+        timetable = text_timetable.parse_text()
 
         assert timetable.additional_info == self.ADDITIONAL_INFO
         assert timetable.date == self.DATE

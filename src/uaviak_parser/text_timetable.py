@@ -44,7 +44,7 @@ class TextTimetable:
             types_lesson.add(TypesLesson.SPLIT)
             del split_line[0]
 
-        # Максимальная длина группы 5 символов, если больше,
+        # Максимальная длина кабинета 5 символов, если больше,
         # то занчит номер кабинета и фамилия преподавателя слились ("спасибо" УАвиаК за эту хуйню).
         # Примеры слияния кабинета и фамилии:
         # 18св-1 1 Св.маШабаев А.В. Учебная практика Практика
@@ -56,7 +56,10 @@ class TextTimetable:
         else:
             # Фамилия преподавателя всегда начинает с большой буквы, соответственно ищем первую прописную букву
             # и делим строку по ней.
-            index_split = index_upper(tmp[1:]) + 1  # Начинаем поиск заглавной буквы со 2 символа
+            try:
+                index_split = index_upper(tmp[1:]) + 1  # Начинаем поиск заглавной буквы со 2 символа
+            except ValueError:
+                raise ParseLessonError(lesson_line)
 
             cabinet = tmp[:index_split]
             teacher = tmp[index_split:]
@@ -87,9 +90,9 @@ class TextTimetable:
             teacher=teacher
         )
 
-    def parse_html(self) -> Timetable:
+    def parse_text(self) -> Timetable:
         """
-        Парсит расписание.
+        Парсит расписание в текстовом формате.
 
         Returns:
             Расписание.

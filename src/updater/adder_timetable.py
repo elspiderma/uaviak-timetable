@@ -55,10 +55,8 @@ class AdderTimetable:
             text = uaviak_parser.TextTimetable.parse(text)
 
         try:
-            timetable = text.parse_html()
-        except uaviak_parser.exceptions.ParseTimetableError as e:
-            self.status_handler.add_timetable_error(e)
-        except uaviak_parser.exceptions.ParseLessonError as e:
+            timetable = text.parse_text()
+        except uaviak_parser.exceptions.GetTimetableError as e:
             self.status_handler.add_timetable_error(e)
         else:
             await self.add_timetable_from_structure(timetable)

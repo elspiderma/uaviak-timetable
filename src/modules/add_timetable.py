@@ -14,10 +14,10 @@ class ConsoleLogStatusHandler(AbstractStatusTimetableHandler):
         if isinstance(e, TimetableExistError):
             print(f'Расписание {e.timetable} уже существует.')
         else:
-            print(f'Ошибка добавления расписания: {e}.')
+            print(f'Ошибка добавления расписания: {e}')
 
     def add_timetable_ok(self, timetable: 'uaviak_parser.structures.timetable') -> None:
-        print(f'Расписание {timetable} успешно добавлено.')
+        print(f'Расписание {timetable} успешно добавлено')
 
 
 async def add_timetable_from_site(config: 'Configuration'):
