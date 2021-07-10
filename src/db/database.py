@@ -35,7 +35,7 @@ class Database:
 
         return Timetable.from_record(result, db=self)
 
-    async def add_new_timetable_from_site(self, timetable: 'uaviak_parser.structures.Timetable') -> None:
+    async def add_new_timetable(self, timetable: 'uaviak_parser.structures.Timetable') -> None:
         """Добавляет новое расписание.
 
         Args:

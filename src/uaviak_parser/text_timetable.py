@@ -87,7 +87,7 @@ class TextTimetable:
             teacher=teacher
         )
 
-    def parse_text(self) -> Timetable:
+    def parse_html(self) -> Timetable:
         """
         Парсит расписание.
 

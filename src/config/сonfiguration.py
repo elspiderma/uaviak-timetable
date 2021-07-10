@@ -1,4 +1,3 @@
-import os
 from typing import TYPE_CHECKING, Optional
 
 from config import TypesValue
@@ -8,7 +7,7 @@ if TYPE_CHECKING:
 
 
 class Configuration:
-    """Класс, представляющий конфигурацию.
+    """Класс, представляющий конфигурацию приложения.
     """
 
     _CONFIG_STRUCTURE = {
