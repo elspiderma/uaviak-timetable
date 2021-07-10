@@ -38,9 +38,9 @@ class AdderTimetable:
 
         if timetable_db is not None:
             self.status_handler.add_timetable_error(TimetableExistError(timetable))
-
-        await self.db.add_new_timetable(timetable)
-        self.status_handler.add_timetable_ok(timetable)
+        else:
+            await self.db.add_new_timetable(timetable)
+            self.status_handler.add_timetable_ok(timetable)
 
     async def add_timetable_from_text(self, text: Union['uaviak_parser.TextTimetable', str]) -> None:
         """Добавляет расписание из текста.
