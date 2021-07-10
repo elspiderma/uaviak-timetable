@@ -10,12 +10,15 @@ class IniReader(AbstractReader):
     """
     DELIMITER_LIST = ','  # Разделитель элементов в списке.
 
-    def __init__(self, confparser: ConfigParser):
+    def __init__(self, confparser: ConfigParser = None):
         """
         Args:
             confparser: Свой объект `ConfigParser`, если не задан, создается автоматически.
         """
-        self.confparser = confparser
+        if confparser:
+            self.confparser = confparser
+        else:
+            self.confparser = ConfigParser()
 
     def get(self, section: str, option: str, type_value: TypesValue) -> Union[int, str, list, None]:
         """Получает значение из конфигурации.
