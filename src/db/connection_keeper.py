@@ -1,6 +1,9 @@
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 import asyncpg
+
+if TYPE_CHECKING:
+    from config import Configuration
 
 
 class ConnectionNotInit(Exception):
@@ -10,6 +13,20 @@ class ConnectionNotInit(Exception):
 
 class ConnectionKeeper:
     _connection: Optional[asyncpg.Connection] = None
+
+    @classmethod
+    async def init_connection_from_config(cls, config: 'Configuration', **kwargs) -> None:
+        """
+        Инициализирует подключение к базе данных. Если оно уже существует, то переинициализирует его. Данные для
+        подключения берет из конфигурации приложения.
+
+        Args:
+            config: Клнфигурация приложения.
+            **kwargs: Дополнительные передаваемые параметры.
+        """
+        return await cls.init_connection(
+            config.postgres_login, config.postgres_password, config.postgres_database, config.postgres_ip, **kwargs
+        )
 
     @classmethod
     async def init_connection(cls, user: str, password: str, database: str, ip: str, **kwargs) -> None:
