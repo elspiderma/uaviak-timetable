@@ -10,6 +10,7 @@ class Configuration:
     """Класс, представляющий конфигурацию приложения.
     """
 
+    # Структура конфигурации.
     _CONFIG_STRUCTURE = {
         'postgres': {
             'login': {'type': TypesValue.STRING, 'simple': 'login db'},
@@ -45,16 +46,16 @@ class Configuration:
                 self._reader.set(section, option, option_prop['simple'])
 
     @classmethod
-    def _get_section_and_option_by_name_attr(cls, name_attr: str) -> Optional[tuple[str, str]]:
-        """Возвращает имя секции и имя опции по имени атрибута класса.
+    def _get_section_and_option_by_name_attr(cls, s: str) -> Optional[tuple[str, str]]:
+        """Разделяет секцию и опцию в строке в формате {section}_{option}.
 
         Args:
-            name_attr:
+            s: Строка в формате {section}_{option}.
 
         Returns:
-            Секция и название опции.
+            Секция и название опции, если такая секция или опция не найдена, то возвращает None
         """
-        option_name_worlds = name_attr.split('_')
+        option_name_worlds = s.split('_')
 
         section_name_worlds = []
         section_name_worlds += [option_name_worlds.pop(0)]
@@ -73,6 +74,17 @@ class Configuration:
         return None
 
     def __getattr__(self, item: str):
+        """Возвращает значение опции по ключу {section}_{option}.
+
+        Args:
+            item: Ключ.
+
+        Returns:
+            Значение опции.
+
+        Raises:
+            AttributeError -- опция не найдена.
+        """
         section_option = self._get_section_and_option_by_name_attr(item)
         if not section_option:
             raise AttributeError()

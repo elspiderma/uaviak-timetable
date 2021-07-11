@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import asyncio
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
 from config import Configuration, IniReader
@@ -8,7 +8,7 @@ from modules.add_timetable import add_timetable_from_site, add_timetable_from_ht
 from modules.generate_simple_config import generate_simple_config
 
 
-def parse_argument(args: list[str] = None):
+def parse_argument(args: list[str] = None) -> Namespace:
     """Парсит аргументы командной строки.
 
     Args:
@@ -39,7 +39,9 @@ def parse_argument(args: list[str] = None):
     return base_parser.parse_args(args)
 
 
-def main():
+def main() -> None:
+    """Точка входа в приложение.
+    """
     args = parse_argument()
 
     if args.module == 'simple-config':

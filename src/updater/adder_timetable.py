@@ -10,6 +10,8 @@ if TYPE_CHECKING:
 
 
 class AdderTimetable:
+    """Класс, добавляющий новое расписание в БД из разных форматов.
+    """
     def __init__(
             self,
             conn_db: 'asyncpg.Connection',
@@ -18,7 +20,7 @@ class AdderTimetable:
         """
         Args:
             conn_db: Подключение к БД.
-            status_handler: Обработчик статуса добавления расписания.
+            status_handler: Обработчик добавления расписания.
         """
         self.conn_db = conn_db
         self.db = Database(self.conn_db)
@@ -74,6 +76,8 @@ class AdderTimetable:
             await self.add_timetable_from_text(str_timetable)
 
     async def add_timetable_from_site(self) -> None:
+        """Добавляет расписание с сайта.
+        """
         try:
             html = await uaviak_parser.HtmlTimetable.load()
         except uaviak_parser.exceptions.GetHtmlError as e:

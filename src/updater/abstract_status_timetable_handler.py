@@ -4,10 +4,10 @@ import uaviak_parser
 
 
 class AbstractStatusTimetableHandler(ABC):
-    """Обработчик статуса добавления расписания.
+    """Обработчик добавления расписания.
     """
     def add_timetable_error(self, e: Exception) -> None:
-        """Обработчик .
+        """Обработчик ошибки при добавлении расписания.
 
         Args:
             e: Исключение.

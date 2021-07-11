@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 class ConsoleLogStatusHandler(AbstractStatusTimetableHandler):
-    """Логирует состтояние добавление расписания в консоль.
+    """Логирует добавление расписания в консоль.
     """
     def add_timetable_error(self, e: Exception) -> None:
         if isinstance(e, TimetableExistError):
@@ -20,7 +20,12 @@ class ConsoleLogStatusHandler(AbstractStatusTimetableHandler):
         print(f'Расписание {timetable} успешно добавлено')
 
 
-async def add_timetable_from_site(config: 'Configuration'):
+async def add_timetable_from_site(config: 'Configuration') -> None:
+    """Добавляет расписание с сайта колледжа.
+
+    Args:
+        config: Конфигурация приложения.
+    """
     await ConnectionKeeper.init_connection_from_config(config)
     conn_db = ConnectionKeeper.get_connection()
 
@@ -30,7 +35,13 @@ async def add_timetable_from_site(config: 'Configuration'):
     await ConnectionKeeper.close_connection()
 
 
-async def add_timetable_from_html_file(config: 'Configuration', filename: str):
+async def add_timetable_from_html_file(config: 'Configuration', filename: str) -> None:
+    """Добавлянет расписание из HTML-файла.
+
+    Args:
+        config: Конфигурация приложения.
+        filename: Имя файла c HTML-документом.
+    """
     await ConnectionKeeper.init_connection_from_config(config)
     conn_db = ConnectionKeeper.get_connection()
 
