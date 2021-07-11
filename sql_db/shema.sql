@@ -96,7 +96,7 @@ CREATE TABLE public.lessons (
     id_timetable integer NOT NULL,
     number integer NOT NULL,
     subject character varying(100) NOT NULL,
-    cabinet character varying(10) NOT NULL,
+    cabinet character varying(10),
     types integer[] NOT NULL,
     id_group integer NOT NULL,
     id_teacher integer NOT NULL

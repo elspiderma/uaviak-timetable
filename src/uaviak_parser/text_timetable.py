@@ -59,10 +59,15 @@ class TextTimetable:
             try:
                 index_split = index_upper(tmp[1:]) + 1  # Начинаем поиск заглавной буквы со 2 символа
             except ValueError:
-                raise ParseLessonError(lesson_line)
-
-            cabinet = tmp[:index_split]
-            teacher = tmp[index_split:]
+                # Если мы не находим заглавную букву, то значит кабинета нет, и после него сразу идет преподаватель.
+                # Например:
+                # 19ом1з 1 Аминов В.Н. Выполнение работ по одной или Экзамен
+                # 17п-1 1 Демонстрационный экзамен ГЭК
+                cabinet = None
+                teacher = tmp
+            else:
+                cabinet = tmp[:index_split]
+                teacher = tmp[index_split:]
 
         # Добавляем инициалы к фамилии
         teacher += f' {split_line.pop(0)}'

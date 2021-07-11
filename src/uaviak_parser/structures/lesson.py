@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 from uaviak_parser.structures import TypesLesson
 
@@ -11,7 +12,7 @@ class Lesson:
     # Предмет
     subject: str
     # Кабинет, где проводится пара
-    cabinet: str
+    cabinet: Optional[str]
     # Тип пары
     types: set[TypesLesson]
     # Группа
