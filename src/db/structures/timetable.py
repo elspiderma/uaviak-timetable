@@ -1,3 +1,4 @@
+import json
 from typing import TYPE_CHECKING
 
 from db.structures import Departaments, DbObject
@@ -9,13 +10,17 @@ if TYPE_CHECKING:
 
 
 class Timetable(DbObject):
+    """Класс, представляющий расписание.
     """
-    Класс, представляющий расписание.
-    """
-    def __init__(self, id: int, additional_info: str, date: 'datetime.date', departament: Departaments, db: 'Database'):
+    def __init__(self,
+                 id_: int,
+                 additional_info: str,
+                 date: 'datetime.date',
+                 departament: Departaments,
+                 db: 'Database'):
         super().__init__(db)
 
-        self.id = id
+        self.id = id_
         self.additional_info = additional_info
         self.date = date
         self.departament = departament
@@ -37,3 +42,21 @@ class Timetable(DbObject):
         data_dict['departament'] = Departaments(data_dict['departament'])
 
         return cls.from_dict(data_dict, db=db)
+
+    @classmethod
+    def from_json(cls, data: str, db: 'Database' = None) -> 'Timetable':
+        """
+        Десериализация объекта из JSON.
+
+        Args:
+            data: Строка в формате JSON.
+            db: Клиент базы данных.
+
+        Returns:
+            Десериализируеммый объект.
+        """
+        data_json = json.loads(data)
+
+        data_json['date'] = datetime.date.fromisoformat(data_json['date'])
+
+        return cls.from_dict(data_json, db=db)
