@@ -1,4 +1,4 @@
-from updater import AdderTimetable, AbstractStatusTimetableHandler, TimetableExistError
+from db.timetable import AdderTimetable, AbstractStatusTimetableHandler, TimetableExistError
 from db import ConnectionKeeper
 from typing import TYPE_CHECKING
 

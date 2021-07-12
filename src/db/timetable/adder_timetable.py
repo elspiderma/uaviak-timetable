@@ -2,12 +2,12 @@ from typing import TYPE_CHECKING, Union
 
 import uaviak_parser
 from db import Database
-from db.structures import Departaments, TypesLesson
-from updater import TimetableExistError
+from db.structures import Departaments
+from db.timetable import TimetableExistError
 
 if TYPE_CHECKING:
     import asyncpg
-    from updater import AbstractStatusTimetableHandler
+    from db.timetable import AbstractStatusTimetableHandler
 
 
 class AdderTimetable:
