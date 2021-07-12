@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Optional
 
-from db.structures import Timetable
+from db.structures import Timetable, Departaments, TypesLesson
 
 if TYPE_CHECKING:
     import datetime
@@ -43,12 +43,12 @@ class Database:
         """
         result = await self.conn.fetch(
             'INSERT INTO timetables(additional_info, date, departament) VALUES ($1, $2, $3) RETURNING id',
-            timetable.additional_info, timetable.date, timetable.departament.value
+            timetable.additional_info, timetable.date, Departaments.from_parser_departaments(timetable.departament).value
         )
         timetable_id = result[0]['id']
 
         for lesson in timetable.lessons:
-            lesson_types = [i.value for i in lesson.types]
+            lesson_types = [TypesLesson.from_parser_type_lesson(i).value for i in lesson.types]
             await self.conn.fetch(
                 'SELECT * FROM add_lesson'
                 '($1,         $2,            $3,             $4,             $5,           $6,           $7)',

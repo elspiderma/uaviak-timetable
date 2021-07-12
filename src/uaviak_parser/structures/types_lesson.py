@@ -2,7 +2,8 @@ from enum import Enum
 
 
 class TypesLesson(Enum):
-    """Возможные типы уроков."""
+    """Возможные типы уроков.
+    """
     # Дробление
     SPLIT = 1
     # Практика

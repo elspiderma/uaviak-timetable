@@ -1,5 +1,4 @@
-# noinspection PyUnresolvedReferences
-from uaviak_parser.structures import Departaments
-
 from .db_object import DbObject
+from .departments import Departaments
+from .types_lesson import TypesLesson
 from .timetable import Timetable

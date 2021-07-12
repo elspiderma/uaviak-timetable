@@ -13,14 +13,14 @@ class Timetable(DbObject):
     """Класс, представляющий расписание.
     """
     def __init__(self,
-                 id_: int,
+                 id: int,
                  additional_info: str,
                  date: 'datetime.date',
                  departament: Departaments,
                  db: 'Database'):
         super().__init__(db)
 
-        self.id = id_
+        self.id = id
         self.additional_info = additional_info
         self.date = date
         self.departament = departament
