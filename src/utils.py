@@ -8,18 +8,19 @@ def ask_yes_no(text: str, default: bool = False) -> bool:
     Returns:
         True - если пользователь ответил 'Yes', False - если пользователь ответил 'No'.
     """
+    def generate_prompt():
+        answers_prompt = ['y', 'n']
+        if default:
+            answers_prompt[0] = 'Y'
+        else:
+            answers_prompt[1] = 'N'
+
+        return f'{text} ({answers_prompt[0]}/{answers_prompt[1]}): '
+
     yes_value = ('y', 'yes', '1')
     no_value = ('n', 'no', '0')
 
-    value_prompt = ['y', 'n']
-
-    if default:
-        value_prompt[0] = 'Y'
-    else:
-        value_prompt[1] = 'N'
-
-    prompt = f'{text} ({value_prompt[0]}/{value_prompt[1]}): '
-
+    prompt = generate_prompt()
     while True:
         s = input(prompt).lower()
 
