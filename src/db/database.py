@@ -10,7 +10,8 @@ if TYPE_CHECKING:
 
 
 class Database:
-    """Класс для работы с БД."""
+    """Класс для работы с БД.
+    """
 
     def __init__(self, connection: 'asyncpg.Connection'):
         self.conn = connection
