@@ -29,9 +29,10 @@ class HtmlTimetable:
         soup = BeautifulSoup(self.html, 'html.parser')
         for class_html in self.CLASS_WITH_TIMETABLE:
             timetable_soup = soup.find(class_=class_html)
-            timetable_soup.find(class_='title').extract()  # Удаляем заголовок, "Расписание *** отделения"
+            if timetable_soup:
+                timetable_soup.find(class_='title').extract()  # Удаляем заголовок, "Расписание *** отделения"
 
-            timetables_text.append(timetable_soup.get_text())
+                timetables_text.append(timetable_soup.get_text())
 
         return timetables_text
 
