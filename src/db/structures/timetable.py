@@ -1,5 +1,5 @@
 import json
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 from db.structures import Departaments, DbObject
 
@@ -26,7 +26,7 @@ class Timetable(DbObject):
         self.departament = departament
 
     @classmethod
-    def from_record(cls, data: 'Record', db: 'Database' = None) -> 'Timetable':
+    def from_record(cls, data: Union['Record', dict], db: 'Database' = None) -> 'Timetable':
         """
         Десериализация объекта из записи в БД.
 

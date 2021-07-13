@@ -1,6 +1,5 @@
-import json
 from abc import ABC
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
     from db import Database
@@ -25,7 +24,7 @@ class DbObject(ABC):
         return cls(**data, db=db)
 
     @classmethod
-    def from_record(cls, data: 'Record', db: 'Database' = None) -> 'DbObject':
+    def from_record(cls, data: Union['Record', dict], db: 'Database' = None) -> 'DbObject':
         """
         Десериализация объекта из записи в БД.
 
