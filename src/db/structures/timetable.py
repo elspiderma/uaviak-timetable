@@ -42,21 +42,3 @@ class Timetable(DbObject):
         data_dict['departament'] = Departaments(data_dict['departament'])
 
         return cls.from_dict(data_dict, db=db)
-
-    @classmethod
-    def from_json(cls, data: str, db: 'Database' = None) -> 'Timetable':
-        """
-        Десериализация объекта из JSON.
-
-        Args:
-            data: Строка в формате JSON.
-            db: Клиент базы данных.
-
-        Returns:
-            Десериализируеммый объект.
-        """
-        data_json = json.loads(data)
-
-        data_json['date'] = datetime.date.fromisoformat(data_json['date'])
-
-        return cls.from_dict(data_json, db=db)

@@ -25,20 +25,6 @@ class DbObject(ABC):
         return cls(**data, db=db)
 
     @classmethod
-    def from_json(cls, data: str, db: 'Database' = None) -> 'DbObject':
-        """
-        Десериализация объекта из JSON.
-
-        Args:
-            data: Строка в формате JSON.
-            db: Клиент базы данных.
-
-        Returns:
-            Десериализируеммый объект.
-        """
-        return cls.from_dict(json.loads(data), db=db)
-
-    @classmethod
     def from_record(cls, data: 'Record', db: 'Database' = None) -> 'DbObject':
         """
         Десериализация объекта из записи в БД.
