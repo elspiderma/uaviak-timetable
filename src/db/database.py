@@ -15,9 +15,26 @@ class Database:
     def __init__(self, connection: 'asyncpg.Connection'):
         self.conn = connection
 
-    async def get_timetable(self, date: 'datetime.date', departament: 'Departaments') -> Optional[Timetable]:
+    async def is_exist_timetable(self, date: 'datetime.date', departament: 'Departaments'):
+        """Проверяет, существует ли расписание.
+
+        Args:
+            date: Дата.
+            departament: Отделение.
+
+        Returns:
+            True, если существует или False, если не существует.
         """
-        Получает расписание за определенную дату для определенного отделения.
+        result = await self.conn.fetchrow(
+            'SELECT COUNT(*) FROM timetables WHERE date = $1 AND departament = $2',
+            date, departament.value
+        )
+
+        return result['count'] == 1
+
+    async def get_timetable(self, date: 'datetime.date', departament: 'Departaments') -> Optional[Timetable]:
+        """Получает расписание за определенную дату для определенного отделения.
+
         Args:
             date: Дата.
             departament: Отделение.

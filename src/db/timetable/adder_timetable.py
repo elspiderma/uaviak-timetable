@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 class AdderTimetable:
     """Класс, добавляющий новое расписание в БД из разных форматов.
     """
+
     def __init__(
             self,
             conn_db: 'asyncpg.Connection',
@@ -37,10 +38,10 @@ class AdderTimetable:
         Raises:
             TimetableExistError - такое расписание уже существует в БД.
         """
-        timetable_db = await self.db.get_timetable(timetable.date,
-                                                   Departaments.from_parser_departaments(timetable.departament))
+        is_exist = await self.db.is_exist_timetable(timetable.date,
+                                                    Departaments.from_parser_departaments(timetable.departament))
 
-        if timetable_db is not None:
+        if is_exist:
             self.status_handler.add_timetable_error(TimetableExistError(timetable))
         else:
             await self.db.add_new_timetable(timetable)
