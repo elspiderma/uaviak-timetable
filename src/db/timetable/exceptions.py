@@ -9,4 +9,4 @@ class TimetableExistError(Exception):
     """
     def __init__(self, timetable: 'uaviak_parser.structures.Timetable'):
         self.timetable = timetable
-        super().__init__(f'Timetable {self.timetable.date} exist in DB.')
+        super().__init__(f'Timetable {self.timetable} exist in DB.')

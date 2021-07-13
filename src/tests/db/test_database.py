@@ -1,41 +1,9 @@
 import datetime
-import string
-import random
 
 import pytest
 
 from db import Database
 from db.structures import Departaments, TypesLesson
-import uaviak_parser.structures as ua_structures
-
-
-@pytest.fixture()
-def parser_timetable() -> ua_structures.Timetable:
-    def rand_str(max_length: int):
-        length = random.randint(1, max_length)
-
-        return ''.join(random.choice(string.ascii_lowercase) for i in range(length))
-
-    groups = [rand_str(4) for i in range(5)]
-    teacher = [rand_str(7) for i in range(5)]
-
-    lessons = []
-    for i in range(100):
-        lessons.append(ua_structures.Lesson(
-            number=random.randint(1, 5),
-            subject=rand_str(50),
-            cabinet=rand_str(3) if random.randint(0, 1) else None,
-            types=set(random.choices(tuple(ua_structures.TypesLesson), k=2)) if random.randint(0, 1) else [],
-            group=random.choice(groups),
-            teacher=random.choice(teacher)
-        ))
-
-    return ua_structures.Timetable(
-        additional_info=rand_str(200),
-        date=datetime.date.today(),
-        departament=random.choice(tuple(ua_structures.Departaments)),
-        lessons=lessons
-    )
 
 
 class TestDatabase:
@@ -78,7 +46,8 @@ class TestDatabase:
         assert result_no_exist is None
 
     @pytest.mark.asyncio
-    async def test_add_timetable(self, db_conn, parser_timetable):
+    async def test_add_timetable(self, db_conn, test_timetable):
+        parser_timetable = test_timetable.structure
         db = Database(db_conn)
 
         await db.add_new_timetable(parser_timetable)

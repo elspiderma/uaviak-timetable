@@ -16,16 +16,16 @@ class AdderTimetable:
 
     def __init__(
             self,
-            conn_db: 'asyncpg.Connection',
+            db_conn: 'asyncpg.Connection',
             status_handler: 'AbstractStatusTimetableHandler'
     ):
         """
         Args:
-            conn_db: Подключение к БД.
+            db_conn: Подключение к БД.
             status_handler: Обработчик добавления расписания.
         """
-        self.conn_db = conn_db
-        self.db = Database(self.conn_db)
+        self.db_conn = db_conn
+        self.db = Database(self.db_conn)
 
         self.status_handler = status_handler
 
