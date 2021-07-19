@@ -2,10 +2,10 @@
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
-from modules import AddTimetableModule, GenerateConfigModule
+from modules import AddTimetableModule, GenerateConfigModule, ServerApiModules
 
 MODULES = {
-    'api': None,  # TODO
+    'api': ServerApiModules,
     'vkbot': None,  # TODO
     'add-timetable': AddTimetableModule,
     'simple-config': GenerateConfigModule
@@ -28,13 +28,14 @@ def parse_argument(args: list[str] = None) -> Namespace:
     subparsers = base_parser.add_subparsers(description='modules')
 
     api_subparser = subparsers.add_parser('api')
+    api_subparser.add_argument('--debug', help='Run server debug mode.', action='store_true', default=False)
     api_subparser.set_defaults(module='api')
 
     vkbot_subparser = subparsers.add_parser('vkbot')
     vkbot_subparser.set_defaults(module='vkbot')
 
     add_timetable_subparser = subparsers.add_parser('add-timetable')
-    add_timetable_subparser.add_argument('--file', help='File with timetable. Support format: html, txt')
+    add_timetable_subparser.add_argument('--file', help='File with timetable. Support format: html')
     add_timetable_subparser.set_defaults(module='add-timetable')
 
     simple_config_subparser = subparsers.add_parser('simple-config')
