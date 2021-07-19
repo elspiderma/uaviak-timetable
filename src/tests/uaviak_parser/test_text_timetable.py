@@ -6,6 +6,7 @@ class TestTextTimetable:
         text_timetable = TextTimetable.parse(test_timetable.text)
 
         assert text_timetable.title == test_timetable.text.splitlines()[0]
+        # TODO: Добавить проверку additional_info и lessons
 
     def test_parse_text_ok(self, test_timetable):
         text_timetable = TextTimetable.parse(test_timetable.text)
