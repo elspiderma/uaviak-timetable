@@ -6,6 +6,10 @@ class GetTimetableError(Exception):
 class GetHtmlError(GetTimetableError):
     """Ошибка сети при получении расписания."""
     def __init__(self, exception: Exception):
+        """
+        Args:
+            exception: Ошибка.
+        """
         self.exception = exception
         super().__init__(f'Error connection to site UAviaK. ({self.exception})')
 
@@ -13,6 +17,12 @@ class GetHtmlError(GetTimetableError):
 class ParseTimetableError(GetTimetableError):
     """Ошибка парсинга расписнания."""
     def __init__(self, title: str, info: str, lessons: list[str]):
+        """
+        Args:
+            title: Заголовок расписания.
+            info: Доп. информация.
+            lessons: Массив уроков.
+        """
         self.title = title
         self.info = info
         self.lessons = lessons
@@ -22,5 +32,9 @@ class ParseTimetableError(GetTimetableError):
 class ParseLessonError(GetTimetableError):
     """Ошибка парсинга пары."""
     def __init__(self, s: str):
+        """
+        Args:
+            s: Строка урока.
+        """
         self.line = s
         super().__init__(f'error parse line: {self.line}')

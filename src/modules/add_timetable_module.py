@@ -23,6 +23,8 @@ class ConsoleLogStatusHandler(AbstractStatusTimetableHandler):
 
 
 class AddTimetableModule(AbstractConfigModule):
+    """Модуль, добавляющий расписание в БД.
+    """
     @staticmethod
     async def _add_timetable_from_site() -> None:
         """Добавляет расписание с сайта колледжа.
@@ -46,6 +48,8 @@ class AddTimetableModule(AbstractConfigModule):
             await at.add_timetable_from_html(f.read())
 
     async def _run(self) -> None:
+        """Добавляет новое расписание.
+        """
         await ConnectionKeeper.init_connection_from_config(self.config)
 
         if self.args.file:
@@ -56,4 +60,6 @@ class AddTimetableModule(AbstractConfigModule):
         await ConnectionKeeper.close_connection()
 
     def run(self) -> None:
+        """Обертка над `self._run` для запуска из sync.
+        """
         asyncio.run(self._run())

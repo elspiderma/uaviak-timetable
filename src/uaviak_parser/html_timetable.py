@@ -5,6 +5,8 @@ from uaviak_parser.exceptions import GetHtmlError
 
 
 class HtmlTimetable:
+    """Класс, представляющий HTML-документ с расписанием.
+    """
     TIMETABLE_URL = 'https://uaviak.ru/pages/raspisanie-/'
     USER_AGENT = 'TimetableParser/1.0'
 
@@ -15,6 +17,10 @@ class HtmlTimetable:
     )
 
     def __init__(self, html: str):
+        """
+        Args:
+            html: HTML-документ с расписанием.
+        """
         self.html = html
 
     def parse_html(self) -> list[str]:

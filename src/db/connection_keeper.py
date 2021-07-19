@@ -12,6 +12,8 @@ class ConnectionNotInit(Exception):
 
 
 class ConnectionKeeper:
+    """Хранитель подключения к БД.
+    """
     _connection: Optional[asyncpg.Connection] = None
 
     @classmethod

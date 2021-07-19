@@ -18,6 +18,14 @@ class Timetable(DbObject):
                  date: 'datetime.date',
                  departament: Departaments,
                  db: 'Database'):
+        """
+        Args:
+            id: ID расписания.
+            additional_info: Дополнительная информация.
+            date: Дата расписания.
+            departament: Отделение расписания.
+            db: Подключение к БД.
+        """
         super().__init__(db)
 
         self.id = id

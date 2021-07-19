@@ -6,6 +6,8 @@ from utils import ask_yes_no
 
 
 class GenerateConfigModule(AbstractModule):
+    """Модуль, генерирующий пример конфиг-файла.
+    """
     def run(self) -> None:
         """Генерирует пример конфиг-файла.
 

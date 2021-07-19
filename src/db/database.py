@@ -14,6 +14,10 @@ class Database:
     """
 
     def __init__(self, connection: 'asyncpg.Connection'):
+        """
+        Args:
+            connection: Потключение к БД.
+        """
         self.conn = connection
 
     async def is_exist_timetable(self, date: 'datetime.date', departament: 'Departaments'):

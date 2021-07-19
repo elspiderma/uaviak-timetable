@@ -8,6 +8,10 @@ if TYPE_CHECKING:
 
 class DbObject(ABC):
     def __init__(self, db: 'Database' = None):
+        """
+        Args:
+            db: Подключение к БД.
+        """
         self._db = db
 
     @classmethod

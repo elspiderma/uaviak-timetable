@@ -7,6 +7,11 @@ class ConfigError(Exception):
 class NotFoundOption(ConfigError):
     """Не найден параметр."""
     def __init__(self, section: str, option: str):
+        """
+        Args:
+            section: Секция конфигурации.
+            option: Опция конфигурации.
+        """
         self.section = section
         self.option = option
 

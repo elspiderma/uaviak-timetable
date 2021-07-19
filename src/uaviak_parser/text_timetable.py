@@ -6,7 +6,15 @@ from uaviak_parser.utils import is_string_one_unique_char, index_upper
 
 
 class TextTimetable:
+    """Класс, представляющий расписание в текстовом виде.
+    """
     def __init__(self, title: str, additional_info: str, lessons: list[str]):
+        """
+        Args:
+            title: Заголовок расписания.
+            additional_info: Дополнительная информация.
+            lessons: Массив уроков.
+        """
         self.title = title
         self.additional_info = additional_info
         self.lessons = lessons
@@ -117,6 +125,7 @@ class TextTimetable:
         try:
             split_title.remove('на')
         except ValueError:
+            # Игнорируем отсутствие "на"
             pass
 
         if len(split_title) != 5:

@@ -30,6 +30,10 @@ class Configuration:
     }
 
     def __init__(self, reader: 'AbstractReader'):
+        """
+        Args:
+            reader: Читатель конфиг-файла.
+        """
         self._reader = reader
 
     def save(self, filename: str) -> None:
