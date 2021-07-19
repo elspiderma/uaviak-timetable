@@ -68,9 +68,11 @@ class TestTimetable:
         )
 
         t2 = copy(t1)
+        t2.lessons = t2.lessons.copy()
         del t2.lessons[0]
 
         t3 = copy(t1)
+        t3.lessons = t3.lessons.copy()
         t3.lessons.append(Lesson(
                 number=3,
                 subject='subject',

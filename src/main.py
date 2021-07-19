@@ -1,11 +1,15 @@
 #!/usr/bin/env python
-import asyncio
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
-from config import Configuration, IniReader
-from modules.add_timetable import add_timetable_from_site, add_timetable_from_html_file
-from modules.generate_simple_config import generate_simple_config
+from modules import AddTimetableModule, GenerateConfigModule
+
+MODULES = {
+    'api': None,  # TODO
+    'vkbot': None,  # TODO
+    'add-timetable': AddTimetableModule,
+    'simple-config': GenerateConfigModule
+}
 
 
 def parse_argument(args: list[str] = None) -> Namespace:
@@ -44,17 +48,9 @@ def main() -> None:
     """
     args = parse_argument()
 
-    if args.module == 'simple-config':
-        generate_simple_config(filename=args.config)
-        return
+    module = MODULES[args.module](args)
 
-    config = Configuration(IniReader.from_file(args.config))
-
-    if args.module == 'add-timetable':
-        if args.file:
-            asyncio.run(add_timetable_from_html_file(config, args.file))
-        else:
-            asyncio.run(add_timetable_from_site(config))
+    module.run()
 
 
 if __name__ == '__main__':
