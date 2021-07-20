@@ -3,7 +3,7 @@ from tests.conftest import FakeInput
 from utils import ask_yes_no
 
 
-class TestUtils:
+class TestAskYesNo:
     YES_ANSWERS = ('y', 'yes', '1', 'YES', 'Y', 'yEs')
     NO_ANSWERS = ('n', 'no', '0', 'NO', 'N', 'nO')
 

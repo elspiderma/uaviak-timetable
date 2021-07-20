@@ -1,12 +1,14 @@
-from abc import ABC
 from typing import TYPE_CHECKING, Union
+from utils import Object2Json
 
 if TYPE_CHECKING:
     from db import Database
     from asyncpg import Record
 
 
-class DbObject(ABC):
+class DbObject(Object2Json):
+    IGNORE = ['_db']
+
     def __init__(self, db: 'Database' = None):
         """
         Args:
