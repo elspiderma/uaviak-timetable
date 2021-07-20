@@ -2,6 +2,8 @@ from typing import TYPE_CHECKING
 
 from aiohttp import web
 
+from api.structures import ErrorApi
+
 if TYPE_CHECKING:
     from config import Configuration
 
@@ -29,6 +31,6 @@ class AbstractEndpointApi(AbstractEndpoint):
         if token in self.config.api_api_keys:
             return await self._endpoint(request, *args, **kwargs)
 
-        response = web.json_response({'error': {'message': 'need authorization'}})
+        response = web.json_response({'error': ErrorApi('need authorization').to_json_dict()})
         response.set_status(401)
         return response
