@@ -1,6 +1,6 @@
-from utils import Object2Json
+from structures import JsonStructure
 
 
-class ErrorApi(Object2Json):
+class ErrorApi(JsonStructure):
     def __init__(self, message: str):
         self.message = message

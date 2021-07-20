@@ -1,14 +1,11 @@
 from typing import TYPE_CHECKING, Union
-from utils import Object2Json
 
 if TYPE_CHECKING:
     from db import Database
     from asyncpg import Record
 
 
-class DbObject(Object2Json):
-    IGNORE = ['_db']
-
+class DbObject:
     def __init__(self, db: 'Database' = None):
         """
         Args:
