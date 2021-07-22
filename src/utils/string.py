@@ -1,6 +1,3 @@
-import typing
-
-
 def is_string_one_unique_char(s: str, char: str) -> bool:
     """
     Проверяет, состоит ли строка только из одного уникального символа.
@@ -13,28 +10,6 @@ def is_string_one_unique_char(s: str, char: str) -> bool:
     """
     unique_chars = set(s)
     return len(unique_chars) == 1 and char in unique_chars
-
-
-def ittr_string_with_index(s: str, revers: bool = False) -> typing.Generator[tuple[int, str], None, None]:
-    """
-    Итеррирует строку.
-
-    Args:
-        s: Иттерируемая строка.
-        revers: Если `True`, то строка иттерируется в обратном порятке.
-    """
-    if not revers:
-        ittr = s
-        index = 0
-        step = 1
-    else:
-        ittr = reversed(s)
-        index = len(s) -1
-        step = -1
-
-    for char in ittr:
-        yield index, char
-        index += step
 
 
 def index_upper(s: str, revers: bool = False):
@@ -50,7 +25,11 @@ def index_upper(s: str, revers: bool = False):
     Raises:
         ValueError: В строке нет заглавных букв.
     """
-    for n, i in ittr_string_with_index(s, revers):
+    iter_str = tuple(enumerate(s))
+    if revers:
+        iter_str = reversed(iter_str)
+
+    for n, i in iter_str:
         if i.isupper():
             return n
 
