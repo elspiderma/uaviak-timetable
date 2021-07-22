@@ -2,7 +2,7 @@ import datetime
 
 from uaviak_parser.exceptions import ParseTimetableError, ParseLessonError
 from uaviak_parser.structures import Timetable, Departaments, Lesson, TypesLesson
-from uaviak_parser.utils import is_string_one_unique_char, index_upper
+from utils import is_string_one_unique_char, index_upper
 
 
 class TextTimetable:
