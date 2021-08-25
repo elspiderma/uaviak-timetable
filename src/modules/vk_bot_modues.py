@@ -13,11 +13,13 @@ class VkBotModules(AbstractConfigModule):
         super().__init__(args)
 
         self.bot = VkBot(self.config)
+        self.bot.loop_wrapper.on_startup.append(self._on_start())
+        self.bot.loop_wrapper.on_shutdown.append(self._on_stop())
 
-    async def _on_start(self, *args) -> None:
+    async def _on_start(self) -> None:
         await ConnectionKeeper.init_connection_from_config(self.config)
 
-    async def _on_stop(self, *args) -> None:
+    async def _on_stop(self) -> None:
         await ConnectionKeeper.close_connection()
 
     def run(self) -> None:
