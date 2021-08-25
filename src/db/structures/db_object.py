@@ -40,3 +40,7 @@ class DbObject:
         """
         data_dict = dict(data)
         return cls.from_dict(data_dict, db=db)
+
+    @classmethod
+    def from_records(cls, data: Union[list['Record'], list[dict]], db: 'Database' = None) -> list['DbObject']:
+        return [cls.from_record(i) for i in data]

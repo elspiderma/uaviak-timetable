@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Optional
 
-from db.structures import Timetable, Departaments, TypesLesson
+from db.structures import Timetable, Departaments, TypesLesson, Group
 
 if TYPE_CHECKING:
     import datetime
@@ -19,6 +19,25 @@ class Database:
             connection: Потключение к БД.
         """
         self.conn = connection
+
+    async def search_group(self, q: str) -> list[Group]:
+        """Поиск группы. При поиске игнорируются символы '-', ' ', а так же регистр символов.
+
+        Args:
+            q: Поисковой запрос.
+
+        Returns:
+            Подходящие группы.
+        """
+        q = q.replace('-', '').replace(' ', '').lower()
+        pattern = f'{q}%'
+
+        result = await self.conn.fetch(
+            'SELECT * FROM groups WHERE replace("groups"."number", \'-\', \'\') ILIKE $1',
+            pattern
+        )
+
+        return Group.from_records(result, db=self)
 
     async def is_exist_timetable(self, date: 'datetime.date', departament: 'Departaments'):
         """Проверяет, существует ли расписание.
