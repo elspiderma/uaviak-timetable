@@ -23,7 +23,6 @@ class Configuration:
             'admin_ids': {'type': TypesValue.LIST, 'simple': ['00001', '00002']}
         },
         'api': {
-            'api_keys': {'type': TypesValue.LIST, 'simple': ['key1', 'key2']},
             'listen_adders': {'type': TypesValue.STRING, 'simple': '0.0.0.0'},
             'port': {'type': TypesValue.INT, 'simple': 8888}
         }

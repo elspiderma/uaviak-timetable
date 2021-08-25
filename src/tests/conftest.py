@@ -74,7 +74,7 @@ async def database_name(ip_db, login_db, password_db, request, random_string) ->
 
 @pytest.fixture()
 def schema_db():
-    with open(os.path.join(SQL_PATH, 'shema.sql'), 'r') as f:
+    with open(os.path.join(SQL_PATH, 'scheme.sql'), 'r') as f:
         sql_schema = f.read()
 
     return sql_schema
