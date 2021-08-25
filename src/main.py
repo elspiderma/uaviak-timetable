@@ -2,11 +2,11 @@
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
-from modules import AddTimetableModule, GenerateConfigModule, ServerApiModules
+from modules import AddTimetableModule, GenerateConfigModule, ServerApiModules, VkBotModules
 
 MODULES = {
     'api': ServerApiModules,
-    'vkbot': None,  # TODO
+    'vkbot': VkBotModules,
     'add-timetable': AddTimetableModule,
     'simple-config': GenerateConfigModule
 }
