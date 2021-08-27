@@ -15,7 +15,7 @@ class Group(DbObject):
                  db: 'Database'):
         """
         Args:
-            id: ID расписания.
+            id: ID группы.
             number: Номер группы.
             db: Подключение к БД.
         """
