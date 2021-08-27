@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Optional
 
-from db.structures import Timetable, Departaments, TypesLesson, Group
+from db.structures import Timetable, Departaments, TypesLesson, Group, Teacher
 
 if TYPE_CHECKING:
     import datetime
@@ -20,8 +20,29 @@ class Database:
         """
         self.conn = connection
 
+    async def search_teacher(self, q: str) -> list[Teacher]:
+        """Поиск преподавателя по имени (short_name). При поиске игнорируются символ '.',
+        а так же регистр символов. Разрешается не дописывать ФИО.
+
+        Args:
+            q: Поисковой запрос.
+
+        Returns:
+            Подходящие преподаватели.
+        """
+        q = q.replace('.', '').lower()
+        pattern = f'{q}%'
+
+        result = await self.conn.fetch(
+            'SELECT * FROM teachers WHERE replace(teachers.short_name, \'.\', \'\') ILIKE $1',
+            pattern
+        )
+
+        return Teacher.from_records(result, db=self)
+
     async def search_group(self, q: str) -> list[Group]:
         """Поиск группы. При поиске игнорируются символы '-', ' ', а так же регистр символов.
+        Разрешается не дописывать номер.
 
         Args:
             q: Поисковой запрос.
