@@ -1,5 +1,5 @@
-from .database import Database
 from .connection_keeper import ConnectionKeeper, ConnectionNotInit
+from .database import Database
 
 
 from . import structures

@@ -1,46 +1,35 @@
-import json
 from typing import TYPE_CHECKING, Union
 
 from db.structures import Departaments, DbObject
 
 if TYPE_CHECKING:
-    from db import Database
     import datetime
     from asyncpg import Record
 
 
 class Timetable(DbObject):
     """Класс, представляющий расписание.
-    """
-    def __init__(self,
-                 id: int,
-                 additional_info: str,
-                 date: 'datetime.date',
-                 departament: Departaments,
-                 db: 'Database'):
-        """
-        Args:
-            id: ID расписания.
-            additional_info: Дополнительная информация.
-            date: Дата расписания.
-            departament: Отделение расписания.
-            db: Подключение к БД.
-        """
-        super().__init__(db)
 
-        self.id = id
-        self.additional_info = additional_info
-        self.date = date
-        self.departament = departament
+    Attributes:
+        id: ID расписания.
+        additional_info: Дополнительная информация.
+        date: Дата расписания.
+        departament: Отделение расписания.
+        db: Подключение к БД.
+    """
+
+    id: int
+    additional_info: str
+    date: 'datetime.date'
+    departament: Departaments
 
     @classmethod
-    def from_record(cls, data: Union['Record', dict], db: 'Database' = None) -> 'Timetable':
+    def from_record(cls, data: Union['Record', dict]) -> 'Timetable':
         """
         Десериализация объекта из записи в БД.
 
         Args:
             data: Запись в БД.
-            db: Клиент базы данных.
 
         Returns:
             Десериализируеммый объект.
@@ -49,4 +38,4 @@ class Timetable(DbObject):
 
         data_dict['departament'] = Departaments(data_dict['departament'])
 
-        return cls.from_dict(data_dict, db=db)
+        return cls.from_dict(data_dict)

@@ -1,7 +1,7 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Union
 
 from db import ConnectionKeeper
-from db.structures import Timetable, Departaments, TypesLesson, Group, Teacher
+from db.structures import Timetable, Departaments, TypesLesson, Group, Teacher, Lesson
 
 if TYPE_CHECKING:
     import datetime
@@ -21,7 +21,7 @@ class Database:
         """
         self.conn = connection
 
-    async def search_teacher(self, q: str) -> list[Teacher]:
+    async def search_teachers(self, q: str) -> list[Teacher]:
         """Поиск преподавателя по имени (short_name). При поиске игнорируются символ '.',
         а так же регистр символов. Разрешается не дописывать ФИО.
 
@@ -39,9 +39,9 @@ class Database:
             pattern
         )
 
-        return Teacher.from_records(result, db=self)
+        return Teacher.from_records(result)
 
-    async def search_group(self, q: str) -> list[Group]:
+    async def search_groups(self, q: str) -> list[Group]:
         """Поиск группы. При поиске игнорируются символы '-', ' ', а так же регистр символов.
         Разрешается не дописывать номер.
 
@@ -59,9 +59,9 @@ class Database:
             pattern
         )
 
-        return Group.from_records(result, db=self)
+        return Group.from_records(result)
 
-    async def is_exist_timetable(self, date: 'datetime.date', departament: 'Departaments'):
+    async def is_exist_timetable(self, date: 'datetime.date', departament: 'Departaments') -> bool:
         """Проверяет, существует ли расписание.
 
         Args:
@@ -96,7 +96,7 @@ class Database:
         if not result:
             return None
 
-        return Timetable.from_record(result, db=self)
+        return Timetable.from_record(result)
 
     async def add_new_timetable(self, timetable: 'uaviak_parser.structures.Timetable') -> None:
         """Добавляет новое расписание.
