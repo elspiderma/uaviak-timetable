@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, Optional
 
+from db import ConnectionKeeper
 from db.structures import Timetable, Departaments, TypesLesson, Group, Teacher
 
 if TYPE_CHECKING:
@@ -116,3 +117,7 @@ class Database:
                 '($1,         $2,            $3,             $4,             $5,           $6,           $7)',
                 timetable_id, lesson.number, lesson.subject, lesson.cabinet, lesson_types, lesson.group, lesson.teacher
             )
+
+    @classmethod
+    def from_keeper(cls) -> 'Database':
+        return Database(ConnectionKeeper.get_connection())
