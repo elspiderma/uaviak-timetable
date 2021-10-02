@@ -14,10 +14,7 @@ class TeacherResult(InterfaceResult):
         self.teacher = teacher
 
     async def get_dates_timetable(self, count: int = 6) -> list['date']:
-        return await self.db.get_dates_timetable_for_teacher(self.teacher, count)
+        return await self.db.get_date_timetables_with_lesson_for_teacher(self.teacher, sort_by_date=True, count=6)
 
-    async def get_timetable(self, date_timetable: 'date' = None) -> 'TimetableForTeacher':
-        if date_timetable:
-            pass
-        else:
-            return await self.db.get_last_timetable_for_teacher_with_lesson(self.teacher)
+    async def get_timetable(self, date_timetable: 'date') -> 'TimetableForTeacher':
+        return await self.db.get_full_information_timetable_by_date_for_teacher(date_timetable, self.teacher)

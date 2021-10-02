@@ -1,8 +1,8 @@
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union, Collection, Any
 
 from db import ConnectionKeeper
-from db.structures import Timetable, Departaments, TypesLesson, Group, Teacher, Lesson, TimetableForGroup
-from db.structures.timetable_for_teacher import TimetableForTeacher
+from db.structures import Timetable, Departaments, TypesLesson, Group, Teacher, Lesson, TimetableForGroup, \
+    TimetableForTeacher
 
 if TYPE_CHECKING:
     import datetime
@@ -22,6 +22,40 @@ class Database:
         """
         self.conn = connection
 
+    # Search
+
+    async def _search(
+            self,
+            q: str,
+            table: str,
+            column: str,
+            ignore_chars: Collection[str] = None
+    ) -> list['asyncpg.Record']:
+        """Поиск записей соответствующих запросу.
+
+        Args:
+            q: Поисковой запрос.
+            table: Таблица для поиска.
+            column: Колонка сравнения запросу.
+            ignore_chars: Игнорируемые символы.
+
+        Returns:
+            Подходящие записи.
+        """
+        if ignore_chars:
+            remove_char = ''.join(ignore_chars).lower()
+            for char in ignore_chars:
+                q = q.replace(char.lower(), '')
+        else:
+            remove_char = ''
+
+        pattern = f'{q.lower()}%'
+
+        sql_query = f'SELECT * FROM "{table}" WHERE translate(lower("{column}"), $1, \'\') LIKE $2'
+        result = await self.conn.fetch(sql_query, remove_char, pattern)
+
+        return result
+
     async def search_teachers(self, q: str) -> list[Teacher]:
         """Поиск преподавателя по имени (short_name). При поиске игнорируются символ '.',
         а так же регистр символов. Разрешается не дописывать ФИО.
@@ -32,15 +66,8 @@ class Database:
         Returns:
             Подходящие преподаватели.
         """
-        q = q.replace('.', '').lower()
-        pattern = f'{q}%'
-
-        result = await self.conn.fetch(
-            'SELECT * FROM teachers WHERE replace(teachers.short_name, \'.\', \'\') ILIKE $1',
-            pattern
-        )
-
-        return Teacher.from_records(result)
+        found_teachers = await self._search(q, 'teachers', 'short_name', ('.', ' ', ))
+        return Teacher.from_records(found_teachers)
 
     async def search_groups(self, q: str) -> list[Group]:
         """Поиск группы. При поиске игнорируются символы '-', ' ', а так же регистр символов.
@@ -52,15 +79,10 @@ class Database:
         Returns:
             Подходящие группы.
         """
-        q = q.replace('-', '').replace(' ', '').lower()
-        pattern = f'{q}%'
+        found_groups = await self._search(q, 'groups', 'number', ('-', ' ', ))
+        return Group.from_records(found_groups)
 
-        result = await self.conn.fetch(
-            'SELECT * FROM groups WHERE replace("groups"."number", \'-\', \'\') ILIKE $1',
-            pattern
-        )
-
-        return Group.from_records(result)
+    # Timetable
 
     async def is_exist_timetable(self, date: 'datetime.date', departament: 'Departaments') -> bool:
         """Проверяет, существует ли расписание.
@@ -79,131 +101,286 @@ class Database:
 
         return result['count'] == 1
 
-    async def get_group_by_id(self, group_id: int) -> Group:
-        result = await self.conn.fetchrow('SELECT * FROM groups WHERE groups.id = $1', group_id)
-        return Group.from_record(result)
+    # Search by id
 
-    async def get_teacher_by_id(self, teacher_id: int) -> Teacher:
-        result = await self.conn.fetchrow('SELECT * FROM teachers WHERE teachers.id = $1', teacher_id)
-        return Teacher.from_record(result)
+    async def _search_by_id(self, id_: int, table: str) -> Optional['asyncpg.Record']:
+        """Ищет запись по id, из таблицы table.
 
-    async def get_timetables_for_group(self, group: Union[int, Group], count: int = 1) -> list[Timetable]:
-        group_id = group.id if isinstance(group, Group) else group
+        Args:
+            id_: ID записи.
+            table: Таблица, где искать ID.
 
-        query = '''
-            SELECT *
+        Returns:
+            Строка из БД или None, если такого ID не существует.
+        """
+        return await self.conn.fetchrow(f'SELECT * FROM "{table}" WHERE id = $1', id_)
+
+    async def search_group_by_id(self, group_id: int) -> Optional[Group]:
+        """Ищет группу с group_id.
+
+        Args:
+            group_id: ID группы.
+
+        Returns:
+            Группа или None, если такой группы не существует.
+        """
+        result = await self._search_by_id(group_id, 'groups')
+        return Group.from_record(result) if result else None
+
+    async def search_teacher_by_id(self, teacher_id: int) -> Optional[Teacher]:
+        """Ищет преподавателя с teacher_id.
+
+        Args:
+            teacher_id: ID преподавателя.
+
+        Returns:
+            Преподаватель или None, если такого преподавателя не существует.
+        """
+        result = await self._search_by_id(teacher_id, 'teachers')
+        return Teacher.from_record(result) if result else None
+
+    # Search timetables with certain lesson
+
+    async def _search_timetables_with_certain_lesson(
+            self,
+            column: str,
+            value: Any,
+            order_by_column: str = None,
+            is_desc_order: bool = False,
+            limit: int = None,
+            fields: Collection[str] = None
+    ) -> list['asyncpg.Record']:
+        """Получает расписание содержащяя пару удовлетворяющее условие "column == value"
+
+        Args:
+            column: Столбец пары в котором мы ищем значение.
+            value: Искомое значение.
+            order_by_column: Столбец для сортировки, если None, сортировка не производится.
+            is_desc_order: Если True сортировка производится в обратном порядке.
+            limit: Максимальное количество записей.
+            fields: Возвращаемы поля в записи, если None, то возвращаются все поля.
+        Returns:
+            Список расписаний содержащий нужную пару.
+        """
+        if fields:
+            fields_sql = ', '.join(f'"{i}"' for i in fields)
+        else:
+            fields_sql = '*'
+
+        query = f'''
+            SELECT {fields_sql}
             FROM timetables
             WHERE
-                timetables.id IN (SELECT DISTINCT lessons.id_timetable FROM lessons WHERE id_group = $1)
-            ORDER BY date DESC
-            LIMIT $2
+                timetables.id IN (SELECT DISTINCT id_timetable FROM lessons WHERE "{column}" = $1)
         '''
+        args_query = [value]
 
-        result = await self.conn.fetch(query, group_id, count)
+        if order_by_column and is_desc_order:
+            query += f' ORDER BY "{order_by_column}" DESC '
+        elif order_by_column and not is_desc_order:
+            query += f' ORDER BY "{order_by_column}" '
 
+        if limit:
+            args_query.append(limit)
+            query += f' LIMIT $2 '
+
+        result = await self.conn.fetch(query, *args_query)
+        return result
+
+    async def search_timetables_with_lesson_for_group(
+            self,
+            group: Union[int, Group],
+            sort_by_date: bool = False,
+            sort_new_to_old: bool = True,
+            count: int = None
+    ) -> list[Timetable]:
+        """Поиск расписаниий содержащих пару для группы group.
+
+        Args:
+            group: Группа или ID группы.
+            sort_by_date: Если True, то сортирует расписания по дате.
+            sort_new_to_old: Если True, то сортирует от новых расписаний до стрых.
+            count: Количество расписаний.
+
+        Returns:
+            Расписания содержащию пару для группы group.
+        """
+        group_id = group.id if isinstance(group, Group) else group
+
+        result = await self._search_timetables_with_certain_lesson(
+            'id_group',
+            group_id,
+            'date' if sort_by_date else False,
+            sort_new_to_old,
+            count
+        )
         return Timetable.from_records(result)
 
-    async def get_dates_timetable_for_group(self, group: Union[int, Group], count: int = 6) -> list['datetime.date']:
+    async def search_timetables_with_lesson_for_teacher(
+            self,
+            teacher: Union[int, Teacher],
+            sort_by_date: bool = False,
+            sort_new_to_old: bool = True,
+            count: int = None
+    ) -> list[Timetable]:
+        """Поиск расписаниий содержащих пару для преподавателя teacher.
+
+        Args:
+            teacher: Перподаватель или ID преподавателя.
+            sort_by_date: Если True, то сортирует расписания по дате.
+            sort_new_to_old: Если True, то сортирует от новых расписаний до стрых.
+            count: Количество расписаний.
+
+        Returns:
+            Расписания содержащие пару для преподавателя teacher.
+        """
+        teacher_id = teacher.id if isinstance(teacher, Teacher) else teacher
+
+        result = await self._search_timetables_with_certain_lesson(
+            'id_teacher',
+            teacher_id,
+            'date' if sort_by_date else False,
+            sort_new_to_old,
+            count
+        )
+        return Timetable.from_records(result)
+
+    async def get_date_timetables_with_lesson_for_group(
+            self,
+            group: Union[int, Group],
+            sort_by_date: bool = False,
+            sort_new_to_old: bool = True,
+            count: int = None
+    ) -> list['datetime.date']:
+        """Возвращает даты расписаниий содержащих пару для группы group.
+
+        Args:
+            group: Группа или ID группы.
+            sort_by_date: Если True, то сортирует расписания по дате.
+            sort_new_to_old: Если True, то сортирует от новых расписаний до стрых.
+            count: Количество дат.
+
+        Returns:
+            Даты расписаний содержащию пару для группы group.
+        """
         group_id = group.id if isinstance(group, Group) else group
 
-        query = '''
-            SELECT date
-            FROM timetables
-            WHERE
-                timetables.id IN (SELECT DISTINCT lessons.id_timetable FROM lessons WHERE id_group = $1)
-            ORDER BY date DESC
-            LIMIT $2
-        '''
-
-        result = await self.conn.fetch(query, group_id, count)
+        result = await self._search_timetables_with_certain_lesson(
+            'id_group',
+            group_id,
+            'date' if sort_by_date else False,
+            sort_new_to_old,
+            count,
+            ('date', )
+        )
 
         return [i['date'] for i in result]
 
-    async def get_timetable_lessons_for_group(self, group: Union[int, Group], timetable: Union[int, Timetable]) \
-            -> list[Lesson]:
-        group_id = group.id if isinstance(group, Group) else group
-        timetable_id = timetable.id if isinstance(timetable, Timetable) else timetable
+    async def get_date_timetables_with_lesson_for_teacher(
+            self,
+            teacher: Union[int, Teacher],
+            sort_by_date: bool = False,
+            sort_new_to_old: bool = True,
+            count: int = None
+    ) -> list['datetime.date']:
+        """Возвращает даты расписаниий содержащих пару для преподавателя teacher.
 
-        queue = '''
-            SELECT *
-            FROM lessons
+        Args:
+            teacher: Преподаватель или ID преподавателя.
+            sort_by_date: Если True, то сортирует расписания по дате.
+            sort_new_to_old: Если True, то сортирует от новых расписаний до стрых.
+            count: Количество дат.
+
+        Returns:
+            Даты расписаний содержащию пару для преподавателя teacher.
+        """
+        teacher_id = teacher.id if isinstance(teacher, Teacher) else teacher
+
+        result = await self._search_timetables_with_certain_lesson(
+            'id_teacher',
+            teacher_id,
+            'date' if sort_by_date else False,
+            sort_new_to_old,
+            count,
+            ('date', )
+        )
+
+        return [i['date'] for i in result]
+
+    async def _get_full_information_timetable_lessons_by_date(
+            self,
+            column: str,
+            value: Any,
+            date: 'datetime.date'
+    ) -> list['asyncpg.Record']:
+        """Получение полной информации о парах для дня date для которые подходят под условие "column = value".
+
+        Args:
+            column: Столбец в котором мы ищем значение value.
+            value: Искомое значение.
+            date: Дата искомых пар.
+
+        Returns:
+            Полная информация о парах.
+        """
+        column = '.'.join(f'"{i}"' for i in column.split('.'))
+        query = f"""
+            SELECT
+                l.id as l_id,
+                l.id_timetable,
+                l."number" as l_number,
+                l.subject,
+                l.cabinet,
+                l."types",
+                l.id_group,
+                l.id_teacher,
+                g."id" as g_id,
+                g."number" as g_number,
+                t.id as t_id,
+                t.short_name,
+                t.full_name,
+                tt.id as tt_id,
+                tt.additional_info,
+                tt.date,
+                tt.departament
+            FROM
+                lessons l
+                INNER JOIN groups g on g.id = l.id_group
+                INNER JOIN teachers t on t.id = l.id_teacher
+                INNER JOIN timetables tt on tt.id = l.id_timetable
             WHERE
-                id_timetable = $1 AND
-                id_group = $2
-            ORDER BY number
-        '''
-        result = await self.conn.fetch(queue, timetable_id, group_id)
+                  {column} = $1 AND
+                  tt.date = $2
+        """
+        return await self.conn.fetch(query, value, date)
 
-        return Lesson.from_records(result)
-
-    async def get_last_timetable_for_group_with_lesson(self, group: Union[int, Group]) -> TimetableForGroup:
+    async def get_full_information_timetable_by_date_for_group(
+            self,
+            date: 'datetime.date',
+            group: Union[int, Group]
+    ) -> Optional[TimetableForGroup]:
         group = await self._get_group_or_return(group)
 
-        timetables = await self.get_timetables_for_group(group, 1)
-        timetable = timetables[0]
+        result = await self._get_full_information_timetable_lessons_by_date(
+            'g.id',
+            group.id,
+            date
+        )
+        return TimetableForGroup.from_combined_records(result, group)
 
-        lessons = await self.get_timetable_lessons_for_group(group, timetable)
-
-        return TimetableForGroup(group=group, timetable=timetable, lessons=lessons)
-
-    async def get_dates_timetable_for_teacher(self, teacher: Union[int, Teacher], count: int = 6) -> list['datetime.date']:
-        teacher_id = teacher.id if isinstance(teacher, Teacher) else teacher
-
-        query = '''
-            SELECT date
-            FROM timetables
-            WHERE
-                timetables.id IN (SELECT DISTINCT lessons.id_timetable FROM lessons WHERE id_teacher = $1)
-            ORDER BY date DESC
-            LIMIT $2
-        '''
-
-        result = await self.conn.fetch(query, teacher_id, count)
-
-        return [i['date'] for i in result]
-
-    async def get_timetables_for_teacher(self, teacher: Union[int, Teacher], count: int = 1) -> list[Timetable]:
-        teacher_id = teacher.id if isinstance(teacher, Teacher) else teacher
-
-        query = '''
-            SELECT *
-            FROM timetables
-            WHERE
-                timetables.id IN (SELECT DISTINCT lessons.id_timetable FROM lessons WHERE id_teacher = $1)
-            ORDER BY date DESC
-            LIMIT $2
-        '''
-
-        result = await self.conn.fetch(query, teacher_id, count)
-
-        return Timetable.from_records(result)
-
-    async def get_timetable_lessons_for_teacher(self, teacher: Union[int, Teacher], timetable: Union[int, Timetable]) \
-            -> list[Lesson]:
-        teacher_id = teacher.id if isinstance(teacher, Teacher) else teacher
-        timetable_id = timetable.id if isinstance(timetable, Timetable) else timetable
-
-        queue = '''
-            SELECT *
-            FROM lessons
-            WHERE
-                id_timetable = $1 AND
-                id_teacher = $2
-            ORDER BY number
-        '''
-        result = await self.conn.fetch(queue, timetable_id, teacher_id)
-
-        return Lesson.from_records(result)
-
-    async def get_last_timetable_for_teacher_with_lesson(self, teacher: Union[int, Teacher]) -> TimetableForTeacher:
+    async def get_full_information_timetable_by_date_for_teacher(
+            self,
+            date: 'datetime.date',
+            teacher: Union[int, Teacher]
+    ) -> Optional[TimetableForTeacher]:
         teacher = await self._get_teacher_or_return(teacher)
 
-        timetables = await self.get_timetables_for_teacher(teacher, 1)
-        timetable = timetables[0]
-
-        lessons = await self.get_timetable_lessons_for_teacher(teacher, timetable)
-
-        return TimetableForTeacher(teacher=teacher, timetable=timetable, lessons=lessons)
+        result = await self._get_full_information_timetable_lessons_by_date(
+            't.id',
+            teacher.id,
+            date
+        )
+        return TimetableForTeacher.from_combined_records(result, teacher)
 
     async def get_timetable(self, date: 'datetime.date', departament: 'Departaments') -> Optional[Timetable]:
         """Получает расписание за определенную дату для определенного отделения.
@@ -246,10 +423,10 @@ class Database:
             )
 
     async def _get_group_or_return(self, group: Union[int, Group]) -> Group:
-        return group if isinstance(group, Group) else await self.get_group_by_id(group)
+        return group if isinstance(group, Group) else await self.search_group_by_id(group)
 
     async def _get_teacher_or_return(self, teacher: Union[int, Group]) -> Teacher:
-        return teacher if isinstance(teacher, Teacher) else await self.get_teacher_by_id(teacher)
+        return teacher if isinstance(teacher, Teacher) else await self.search_teacher_by_id(teacher)
 
     @classmethod
     def from_keeper(cls) -> 'Database':

@@ -1,8 +1,8 @@
+import datetime
 from typing import TYPE_CHECKING
 
 from vkbottle.bot import Blueprint
 
-from db import Database
 from vk_bot.core import search_lessons
 
 if TYPE_CHECKING:
@@ -25,8 +25,11 @@ async def search_timetable(msg: 'Message') -> None:
         await msg.answer('Ничего не найдено.')
     elif len(results) == 1:
         result = results[0]
-        timetable_group = await result.get_timetable()
+        dates = await result.get_dates_timetable()
+        timetable_group = await result.get_timetable(dates[0])
 
+        await msg.answer(f'Подходящие даты: {dates}')
         await msg.answer(timetable_group)
     else:
         await msg.answer('Найдено несколько результатов.')
+

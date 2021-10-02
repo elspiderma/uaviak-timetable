@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Union
 
-from db.structures import DbObject, TypesLesson
+from db.structures import DbObject, TypesLesson, Teacher, Group
 
 if TYPE_CHECKING:
     from asyncpg import Record
@@ -25,3 +25,36 @@ class Lesson(DbObject):
         data_dict['types'] = [TypesLesson(i) for i in data_dict['types']]
 
         return cls.from_dict(data_dict)
+
+
+@dataclass
+class FullLesson(Lesson):
+    teacher: Teacher
+    group: Group
+
+    @classmethod
+    def from_record(cls, data: Union['Record', dict]) -> 'FullLesson':
+        data_dict = dict(data)
+
+        assert data_dict['id_group'] == data_dict['g_id']
+        assert data_dict['id_teacher'] == data_dict['t_id']
+
+        return cls(
+            id=data_dict['l_id'],
+            id_timetable=data_dict['id_timetable'],
+            number=data_dict['l_number'],
+            subject=data_dict['subject'],
+            cabinet=data_dict['cabinet'],
+            types=[TypesLesson(i) for i in data_dict['types']],
+            id_group=data_dict['id_group'],
+            id_teacher=data_dict['id_teacher'],
+            group=Group(
+                id=data_dict.pop('g_id'),
+                number=data_dict.pop('g_number')
+            ),
+            teacher=Teacher(
+                id=data_dict['t_id'],
+                short_name=data_dict['short_name'],
+                full_name=data_dict['full_name']
+            )
+        )

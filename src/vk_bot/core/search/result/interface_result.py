@@ -13,5 +13,5 @@ class InterfaceResult:
     async def get_dates_timetable(self, count: int = 6):
         pass
 
-    async def get_timetable(self, date_timetable: 'date' = None):
+    async def get_timetable(self, date_timetable: 'date'):
         raise NotImplemented

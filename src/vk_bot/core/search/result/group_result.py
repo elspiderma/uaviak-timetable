@@ -14,10 +14,7 @@ class GroupResult(InterfaceResult):
         self.group = group
 
     async def get_dates_timetable(self, count: int = 6) -> list['date']:
-        return await self.db.get_dates_timetable_for_group(self.group, count)
+        return await self.db.get_date_timetables_with_lesson_for_group(self.group, sort_by_date=True, count=count)
 
-    async def get_timetable(self, date_timetable: 'date' = None) -> 'TimetableForGroup':
-        if date_timetable:
-            pass
-        else:
-            return await self.db.get_last_timetable_for_group_with_lesson(self.group)
+    async def get_timetable(self, date_timetable: 'date') -> 'TimetableForGroup':
+        return await self.db.get_full_information_timetable_by_date_for_group(date_timetable, self.group)
