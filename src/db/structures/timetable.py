@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Union
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Union, Optional
 
 from db.structures import Departaments, DbObject
 
@@ -7,6 +8,7 @@ if TYPE_CHECKING:
     from asyncpg import Record
 
 
+@dataclass
 class Timetable(DbObject):
     """Класс, представляющий расписание.
 
@@ -19,7 +21,7 @@ class Timetable(DbObject):
     """
 
     id: int
-    additional_info: str
+    additional_info: Optional[str]
     date: 'datetime.date'
     departament: Departaments
 

@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
 
-from vkbottle import Keyboard
 from vkbottle.bot import Blueprint
 
-from db import ConnectionKeeper, Database
+from db import Database
+from vk_bot.core import search_lessons
 
 if TYPE_CHECKING:
     from vkbottle.bot import Message
@@ -19,8 +19,14 @@ async def search_timetable(msg: 'Message') -> None:
     Args:
         msg: Сообщение
     """
-    db = Database(ConnectionKeeper.get_connection())
+    results = await search_lessons(msg.text)
 
-    groups = await db.search_group(msg.text)
+    if len(results) == 0:
+        await msg.answer('Ничего не найдено.')
+    elif len(results) == 1:
+        result = results[0]
+        timetable_group = await result.get_timetable()
 
-    await msg.answer(f"Найденные группы: {', '.join([i.number for i in groups])}", reply_to=msg.id)
+        await msg.answer(timetable_group)
+    else:
+        await msg.answer('Найдено несколько результатов.')

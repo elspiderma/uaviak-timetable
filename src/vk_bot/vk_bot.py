@@ -12,7 +12,7 @@ class VkBot:
         routers.bp_timetable
     ]
 
-    def __init__(self, config: 'Configuration'):
+    def __init__(self, config: 'Configuration') -> None:
         self.config = config
 
         self.loop_wrapper = LoopWrapper()
@@ -20,9 +20,9 @@ class VkBot:
 
         self._init_blueprint()
 
-    def _init_blueprint(self):
+    def _init_blueprint(self) -> None:
         for i in self.BLUEPRINTS:
             i.load(self.bot)
 
-    def run(self):
+    def run(self) -> None:
         self.bot.run_forever()
