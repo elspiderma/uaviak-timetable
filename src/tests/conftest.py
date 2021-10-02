@@ -155,9 +155,10 @@ def generate_text_for_timetable(timetable: ua_structures.Timetable) -> str:
     result += '-------------------------------------------\n'
 
     for i in timetable.lessons:
-        lesson_line_component: list[str] = []
-        lesson_line_component.append(i.group)
-        lesson_line_component.append(str(i.number))
+        lesson_line_component: list[str] = [
+            i.group,
+            str(i.number)
+        ]
 
         if ua_structures.TypesLesson.SPLIT in i.types:
             lesson_line_component.append('дрб')
