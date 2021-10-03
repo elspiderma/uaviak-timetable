@@ -130,7 +130,7 @@ def generate_parser_timetable(date: datetime.date, departament: ua_structures.De
         lessons.append(ua_structures.Lesson(
             number=random.randint(1, 5),
             subject=rand_str(50),
-            cabinet=rand_str(3) if random.randint(0, 1) else None,
+            cabinet=rand_str(3) if random.randint(0, 10) == 10 else None,
             types=types_lesson,
             group=random.choice(groups),
             teacher=random.choice(teacher)
