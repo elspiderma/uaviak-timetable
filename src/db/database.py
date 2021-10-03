@@ -359,6 +359,15 @@ class Database:
             date: 'datetime.date',
             group: Union[int, Group]
     ) -> Optional[TimetableForGroup]:
+        """Получение полной информации о расписании группы group за день date.
+
+        Args:
+            date: Дата расписания.
+            group: Группа.
+
+        Returns:
+            Полная информация о расписании группы group за день date.
+        """
         group = await self._get_group_or_return(group)
 
         result = await self._get_full_information_timetable_lessons_by_date(
@@ -373,6 +382,15 @@ class Database:
             date: 'datetime.date',
             teacher: Union[int, Teacher]
     ) -> Optional[TimetableForTeacher]:
+        """Получение полной информации о расписании преподавателя teacher за день date.
+
+        Args:
+            date: Дата расписания.
+            teacher: Преподаватель.
+
+        Returns:
+            Полная информация о расписании преподавателя teacher за день date.
+        """
         teacher = await self._get_teacher_or_return(teacher)
 
         result = await self._get_full_information_timetable_lessons_by_date(
@@ -423,11 +441,32 @@ class Database:
             )
 
     async def _get_group_or_return(self, group: Union[int, Group]) -> Group:
+        """Если передан int, то получает группу по ID, иначе возвращает ее.
+
+        Args:
+            group: Группа или ID группы.
+
+        Returns:
+            Группа.
+        """
         return group if isinstance(group, Group) else await self.search_group_by_id(group)
 
     async def _get_teacher_or_return(self, teacher: Union[int, Group]) -> Teacher:
+        """Если передан int, то получает преподавателя по ID, иначе возвращает ее.
+
+        Args:
+            teacher: Преподаватель или ID преподавателя.
+
+        Returns:
+            Преподаватель.
+        """
         return teacher if isinstance(teacher, Teacher) else await self.search_teacher_by_id(teacher)
 
     @classmethod
     def from_keeper(cls) -> 'Database':
+        """Получает объект Database используя подключение из ConnectionKeeper.
+
+        Returns:
+            Объект Database.
+        """
         return Database(ConnectionKeeper.get_connection())
