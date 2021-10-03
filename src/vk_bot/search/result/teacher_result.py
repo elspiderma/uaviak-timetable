@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Optional
 
-from vk_bot.core.search.result.group_result import InterfaceResult
+from vk_bot.search.result.group_result import InterfaceResult
 
 if TYPE_CHECKING:
     from db.structures import Teacher, TimetableForTeacher

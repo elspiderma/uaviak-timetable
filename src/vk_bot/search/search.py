@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING
 
 from db import Database
-from vk_bot.core import GroupResult, TeacherResult
+from vk_bot.search import GroupResult, TeacherResult
 
 if TYPE_CHECKING:
-    from vk_bot.core.search.result.group_result import InterfaceResult
+    from vk_bot.search.result.group_result import InterfaceResult
 
 
 def _is_group(query: str):

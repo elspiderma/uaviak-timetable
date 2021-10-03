@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from vkbottle.bot import Blueprint
 
-from vk_bot.core import search_lessons
+from vk_bot.search import search_lessons
 
 if TYPE_CHECKING:
     from vkbottle.bot import Message

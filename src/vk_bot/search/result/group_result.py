@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from vk_bot.core.search.result.interface_result import InterfaceResult
+from vk_bot.search.result.interface_result import InterfaceResult
 
 if TYPE_CHECKING:
     from db.structures import Group, TimetableForGroup
