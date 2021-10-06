@@ -2,10 +2,9 @@
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
-from modules import AddTimetableModule, GenerateConfigModule, ServerApiModules, VkBotModules
+from modules import AddTimetableModule, GenerateConfigModule, VkBotModules
 
 MODULES = {
-    'api': ServerApiModules,
     'vkbot': VkBotModules,
     'add-timetable': AddTimetableModule,
     'simple-config': GenerateConfigModule
@@ -26,10 +25,6 @@ def parse_argument(args: list[str] = None) -> Namespace:
     base_parser.set_defaults(module='base')
 
     subparsers = base_parser.add_subparsers(description='modules')
-
-    api_subparser = subparsers.add_parser('api')
-    api_subparser.add_argument('--debug', help='Run server debug mode.', action='store_true', default=False)
-    api_subparser.set_defaults(module='api')
 
     vkbot_subparser = subparsers.add_parser('vkbot')
     vkbot_subparser.set_defaults(module='vkbot')
