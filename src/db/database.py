@@ -351,6 +351,8 @@ class Database:
             WHERE
                   {column} = $1 AND
                   tt.date = $2
+            ORDER BY
+                l.number
         """
         return await self.conn.fetch(query, value, date)
 

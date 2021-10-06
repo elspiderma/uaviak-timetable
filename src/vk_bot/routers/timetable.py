@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from vkbottle.bot import Blueprint
 
 from vk_bot.search import search_lessons
-from vk_bot.view import generate_text_timetable, generate_keyboard_date, TypeKeyboardDate
+from vk_bot.view import TimetableText, generate_keyboard_date
 
 if TYPE_CHECKING:
     from vkbottle.bot import Message
@@ -25,11 +25,15 @@ async def search_timetable(msg: 'Message') -> None:
         await msg.answer('Ничего не найдено.')
     elif len(results) == 1:
         result = results[0]
+
         dates = await result.get_dates_timetable()
         date = dates[0]
+
         timetable = await result.get_timetable(date)
 
         kb = generate_keyboard_date(dates, date, timetable)
-        await msg.answer(generate_text_timetable(timetable).generate_text(), keyboard=kb.get_json(), reply_to=msg.id)
+        message = TimetableText(timetable).generate_text()
+
+        await msg.answer(message, keyboard=kb.get_json(), reply_to=msg.id)
     else:
         await msg.answer('Найдено несколько результатов.')

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from vk_bot.search.result.interface_result import InterfaceResult
 
@@ -26,7 +26,7 @@ class GroupResult(InterfaceResult):
         """
         return await self.db.get_date_timetables_with_lesson_for_group(self.group, sort_by_date=True, count=count)
 
-    async def get_timetable(self, date_timetable: 'date') -> 'TimetableForGroup':
+    async def get_timetable(self, date_timetable: 'date') -> Optional['TimetableForGroup']:
         """Получает расписание этогой группы для даты date_timetable.
 
         Args:

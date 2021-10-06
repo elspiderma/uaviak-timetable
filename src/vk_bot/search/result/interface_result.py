@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Optional
 from db import Database
 
 if TYPE_CHECKING:
-    from db.structures import DbObject
+    from db.structures import TimetableForSomeone
     from datetime import date
 
 
@@ -24,7 +24,7 @@ class InterfaceResult:
         """
         pass
 
-    async def get_timetable(self, date_timetable: 'date') -> Optional['DbObject']:
+    async def get_timetable(self, date_timetable: 'date') -> Optional['TimetableForSomeone']:
         """Получает расписание для даты date_timetable.
 
         Args:

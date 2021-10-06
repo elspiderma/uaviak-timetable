@@ -61,3 +61,21 @@ class FullLesson(Lesson):
             ),
             date=data_dict['date']
         )
+
+
+class FullLessonForSomeone(FullLesson):
+    @property
+    def whose(self):
+        raise NotImplemented
+
+
+class FullLessonForGroup(FullLessonForSomeone):
+    @property
+    def whose(self):
+        return self.teacher.short_name
+
+
+class FullLessonForTeacher(FullLessonForSomeone):
+    @property
+    def whose(self):
+        return self.group.number

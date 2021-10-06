@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Union, Optional
 
-from db.structures import Departaments, DbObject, Teacher, Group
-from db.structures.lesson import FullLesson
+from db.structures import Departaments, DbObject, Teacher, Group, FullLessonForGroup, FullLessonForTeacher
 
 if TYPE_CHECKING:
+    from db.structures import ObjectWithTitle, FullLessonForSomeone
     import datetime
     from asyncpg import Record
 
@@ -44,9 +44,21 @@ class Timetable(DbObject):
 
 
 @dataclass
-class TimetableForGroup(Timetable):
+class TimetableForSomeone(Timetable):
+    lessons: list['FullLessonForSomeone']
+
+    @property
+    def someone(self) -> 'ObjectWithTitle':
+        raise NotImplemented
+
+
+@dataclass
+class TimetableForGroup(TimetableForSomeone):
     group: Group
-    lessons: list[FullLesson]
+
+    @property
+    def someone(self) -> Group:
+        return self.group
 
     @classmethod
     def from_combined_records(cls, data: list[Union['Record', dict]], group: Group) -> Optional['TimetableForGroup']:
@@ -65,14 +77,17 @@ class TimetableForGroup(Timetable):
             date=data[0]['date'],
             departament=Departaments(data[0]['departament']),
             group=group,
-            lessons=FullLesson.from_records(data)
+            lessons=FullLessonForGroup.from_records(data)
         )
 
 
 @dataclass
-class TimetableForTeacher(Timetable):
+class TimetableForTeacher(TimetableForSomeone):
     teacher: Teacher
-    lessons: list[FullLesson]
+
+    @property
+    def someone(self) -> Teacher:
+        return self.teacher
 
     @classmethod
     def from_combined_records(cls, data: list[Union['Record', dict]], teacher: Teacher) -> Optional['TimetableForTeacher']:
@@ -90,5 +105,5 @@ class TimetableForTeacher(Timetable):
             date=data[0]['date'],
             departament=Departaments(data[0]['departament']),
             teacher=teacher,
-            lessons=FullLesson.from_records(data)
+            lessons=FullLessonForTeacher.from_records(data)
         )

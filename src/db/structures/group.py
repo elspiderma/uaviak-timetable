@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
-from db.structures import DbObject
+from db.structures import DbObject, ObjectWithTitle
 
 
 @dataclass
-class Group(DbObject):
+class Group(DbObject, ObjectWithTitle):
     """Класс, представляющий расписание.
 
     Args:
@@ -14,3 +14,7 @@ class Group(DbObject):
 
     id: int
     number: str
+
+    @property
+    def title(self) -> str:
+        return self.number

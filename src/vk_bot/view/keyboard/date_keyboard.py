@@ -1,9 +1,13 @@
 import datetime
 import enum
+from typing import TYPE_CHECKING
 
 from vkbottle import Keyboard, Text, KeyboardButtonColor
 
-from db.structures import DbObject, TimetableForGroup, TimetableForTeacher
+from db.structures import TimetableForGroup, TimetableForTeacher
+
+if TYPE_CHECKING:
+    from db.structures import TimetableForSomeone
 
 
 class TypeKeyboardDate(enum.Enum):
@@ -25,7 +29,8 @@ def _generate_keyboard_date(dates: list[datetime.date], current_date: datetime.d
     return kb
 
 
-def generate_keyboard_date(dates: list[datetime.date], current_date: datetime.date, timetable: 'DbObject') -> Keyboard:
+def generate_keyboard_date(dates: list[datetime.date], current_date: datetime.date, timetable: 'TimetableForSomeone') \
+        -> Keyboard:
     if isinstance(timetable, TimetableForGroup):
         return _generate_keyboard_date(dates, current_date, TypeKeyboardDate.FOR_GROUP, timetable.group.id)
     elif isinstance(timetable, TimetableForTeacher):
