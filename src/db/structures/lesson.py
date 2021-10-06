@@ -1,3 +1,4 @@
+import datetime
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Union
 
@@ -29,6 +30,7 @@ class Lesson(DbObject):
 
 @dataclass
 class FullLesson(Lesson):
+    date: datetime.date
     teacher: Teacher
     group: Group
 
@@ -56,5 +58,6 @@ class FullLesson(Lesson):
                 id=data_dict['t_id'],
                 short_name=data_dict['short_name'],
                 full_name=data_dict['full_name']
-            )
+            ),
+            date=data_dict['date']
         )
