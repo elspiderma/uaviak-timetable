@@ -1,3 +1,4 @@
+import locale
 from typing import TYPE_CHECKING
 from config import Configuration, IniReader
 
@@ -23,3 +24,5 @@ class AbstractConfigModule(AbstractModule):
     def __init__(self, args: 'Namespace'):
         super().__init__(args)
         self.config = Configuration(IniReader.from_file(self.args.config))
+
+        locale.setlocale(locale.LC_TIME, self.config.locale_lang)

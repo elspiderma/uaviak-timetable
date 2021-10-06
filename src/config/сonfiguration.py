@@ -25,6 +25,9 @@ class Configuration:
         'api': {
             'listen_adders': {'type': TypesValue.STRING, 'simple': '0.0.0.0'},
             'port': {'type': TypesValue.INT, 'simple': 8888}
+        },
+        'locale': {
+            'lang': {'type': TypesValue.STRING, 'simple': 'en_US.UTF-8'}
         }
     }
 
