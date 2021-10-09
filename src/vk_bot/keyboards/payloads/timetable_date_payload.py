@@ -1,5 +1,4 @@
 import datetime
-import json
 
 from db.structures import WhoseTimetable
 from vk_bot.keyboards.payloads import AbstractPayload

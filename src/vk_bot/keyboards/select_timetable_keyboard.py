@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from vkbottle import Keyboard, Text
+
 from vk_bot.keyboards import Key, generate_grid_keyboard
 
 if TYPE_CHECKING:

@@ -1,5 +1,7 @@
-from vkbottle import Bot, LoopWrapper
 from typing import TYPE_CHECKING
+
+from vkbottle import Bot, LoopWrapper
+
 from vk_bot import routers
 
 if TYPE_CHECKING:

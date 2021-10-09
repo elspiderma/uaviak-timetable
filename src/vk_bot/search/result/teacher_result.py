@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class TeacherResult(AbstractResult):
-    """Найденый преподаватель.
+    """Найденный преподаватель.
     """
     def __init__(self, teacher: 'Teacher'):
         super().__init__()
