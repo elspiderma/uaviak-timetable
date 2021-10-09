@@ -1,12 +1,18 @@
-from dataclasses import dataclass
+import enum
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Union, Optional
 
 from db.structures import Departaments, DbObject, Teacher, Group, FullLessonForGroup, FullLessonForTeacher
 
 if TYPE_CHECKING:
-    from db.structures import ObjectWithTitle, FullLessonForSomeone
+    from db.structures import ObjectWithTitleAndId, FullLessonForSomeone
     import datetime
     from asyncpg import Record
+
+
+class WhoseTimetable(enum.Enum):
+    FOR_TEACHER = 'teacher'
+    FOR_GROUP = 'group'
 
 
 @dataclass
@@ -47,14 +53,19 @@ class Timetable(DbObject):
 class TimetableForSomeone(Timetable):
     lessons: list['FullLessonForSomeone']
 
+    whose_timetable: Optional[WhoseTimetable] = field(default=None, init=False)
+
     @property
-    def someone(self) -> 'ObjectWithTitle':
+    def someone(self) -> 'ObjectWithTitleAndId':
         raise NotImplemented
 
 
 @dataclass
 class TimetableForGroup(TimetableForSomeone):
     group: Group
+
+    def __post_init__(self):
+        self.whose_timetable = WhoseTimetable.FOR_GROUP
 
     @property
     def someone(self) -> Group:
@@ -84,6 +95,9 @@ class TimetableForGroup(TimetableForSomeone):
 @dataclass
 class TimetableForTeacher(TimetableForSomeone):
     teacher: Teacher
+
+    def __post_init__(self):
+        self.whose_timetable = WhoseTimetable.FOR_TEACHER
 
     @property
     def someone(self) -> Teacher:

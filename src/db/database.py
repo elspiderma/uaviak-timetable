@@ -187,64 +187,6 @@ class Database:
         result = await self.conn.fetch(query, *args_query)
         return result
 
-    async def search_timetables_with_lesson_for_group(
-            self,
-            group: Union[int, Group],
-            sort_by_date: bool = False,
-            sort_new_to_old: bool = True,
-            count: int = None
-    ) -> list[Timetable]:
-        """Поиск расписаниий содержащих пару для группы group.
-
-        Args:
-            group: Группа или ID группы.
-            sort_by_date: Если True, то сортирует расписания по дате.
-            sort_new_to_old: Если True, то сортирует от новых расписаний до стрых.
-            count: Количество расписаний.
-
-        Returns:
-            Расписания содержащию пару для группы group.
-        """
-        group_id = group.id if isinstance(group, Group) else group
-
-        result = await self._search_timetables_with_certain_lesson(
-            'id_group',
-            group_id,
-            'date' if sort_by_date else False,
-            sort_new_to_old,
-            count
-        )
-        return Timetable.from_records(result)
-
-    async def search_timetables_with_lesson_for_teacher(
-            self,
-            teacher: Union[int, Teacher],
-            sort_by_date: bool = False,
-            sort_new_to_old: bool = True,
-            count: int = None
-    ) -> list[Timetable]:
-        """Поиск расписаниий содержащих пару для преподавателя teacher.
-
-        Args:
-            teacher: Перподаватель или ID преподавателя.
-            sort_by_date: Если True, то сортирует расписания по дате.
-            sort_new_to_old: Если True, то сортирует от новых расписаний до стрых.
-            count: Количество расписаний.
-
-        Returns:
-            Расписания содержащие пару для преподавателя teacher.
-        """
-        teacher_id = teacher.id if isinstance(teacher, Teacher) else teacher
-
-        result = await self._search_timetables_with_certain_lesson(
-            'id_teacher',
-            teacher_id,
-            'date' if sort_by_date else False,
-            sort_new_to_old,
-            count
-        )
-        return Timetable.from_records(result)
-
     async def get_date_timetables_with_lesson_for_group(
             self,
             group: Union[int, Group],

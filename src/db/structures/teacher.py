@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
-from db.structures import DbObject, ObjectWithTitle
+from db.structures import DbObject, ObjectWithTitleAndId
 
 
 @dataclass
-class Teacher(DbObject, ObjectWithTitle):
+class Teacher(DbObject, ObjectWithTitleAndId):
     """Класс, представляющий расписание.
 
     Args:

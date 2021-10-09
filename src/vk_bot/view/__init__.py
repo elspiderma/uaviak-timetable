@@ -1,2 +1,1 @@
-from .keyboard.date_keyboard import generate_keyboard_date, TypeKeyboardDate
-from .timetable_text import TimetableText
+from .timetable import TimetableText, get_message_timetable_for_result_search

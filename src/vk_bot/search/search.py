@@ -1,10 +1,11 @@
 from typing import TYPE_CHECKING
 
-from db import Database
+from db.structures import WhoseTimetable
+from vk_bot.keyboards.payloads import TimetableDatePayload
 from vk_bot.search import GroupResult, TeacherResult
 
 if TYPE_CHECKING:
-    from vk_bot.search.result.group_result import InterfaceResult
+    from vk_bot.search.result.group_result import AbstractResult
 
 
 def _is_group(query: str):
@@ -19,8 +20,8 @@ def _is_group(query: str):
     return query[0].isnumeric()
 
 
-async def search_lessons(query: str) -> list['InterfaceResult']:
-    """Ищет подходящие группы или преподавателей в БД.
+async def search_by_query(query: str) -> list['AbstractResult']:
+    """Ищет подходящие группы или преподавателей в БД по поисковому запросу.
 
     Args:
         query: Поисковой запрос.
@@ -28,9 +29,24 @@ async def search_lessons(query: str) -> list['InterfaceResult']:
     Returns:
         Подходящие группы/преподаватели.
     """
-    db = Database.from_keeper()
-
     if _is_group(query):
-        return [GroupResult(i) for i in await db.search_groups(query)]
+        return await GroupResult.search(query)
     else:
-        return [TeacherResult(i) for i in await db.search_teachers(query)]
+        return await TeacherResult.search(query)
+
+
+async def search_by_payload(payload: 'TimetableDatePayload') -> 'AbstractResult':
+    """Ищет группы или преподавателей по payload'у.
+
+    Args:
+        payload: Payload.
+
+    Returns:
+        Результаты поиска.
+    """
+    if payload.whose_timetable is WhoseTimetable.FOR_GROUP:
+        return await GroupResult.search_by_id(payload.id)
+    elif payload.whose_timetable is WhoseTimetable.FOR_TEACHER:
+        return await TeacherResult.search_by_id(payload.id)
+    else:
+        raise RuntimeError('Not supported whose_timetable.')

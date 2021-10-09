@@ -1,19 +1,29 @@
 from typing import TYPE_CHECKING, Optional
 
-from vk_bot.search.result.group_result import InterfaceResult
+from db import Database
+from vk_bot.search.result.group_result import AbstractResult
 
 if TYPE_CHECKING:
     from db.structures import Teacher, TimetableForTeacher
     from datetime import date
 
 
-class TeacherResult(InterfaceResult):
+class TeacherResult(AbstractResult):
     """Найденый преподаватель.
     """
     def __init__(self, teacher: 'Teacher'):
         super().__init__()
 
         self.teacher = teacher
+
+    @property
+    def title(self) -> str:
+        """Возвращает заголовок результата.
+
+        Returns:
+            Заголовок.
+        """
+        return self.teacher.title
 
     async def get_dates_timetable(self, count: int = 6) -> list['date']:
         """Получает даты, для которых доступно расписание этого преподавателя.
@@ -36,3 +46,29 @@ class TeacherResult(InterfaceResult):
             Расписание или None, если оно не найдено.
         """
         return await self.db.get_full_information_timetable_by_date_for_teacher(date_timetable, self.teacher)
+
+    @classmethod
+    async def search(cls, query: str) -> list['TeacherResult']:
+        """Поиск преподавателя.
+
+        Args:
+            query: Поисковой запрос.
+
+        Returns:
+            Список подходящих преподавателей.
+        """
+        db = Database.from_keeper()
+        return [cls(i) for i in await db.search_teachers(query)]
+
+    @classmethod
+    async def search_by_id(cls, id_: int) -> Optional['TeacherResult']:
+        """Ищет преподавателя с ID id_.
+
+        Args:
+            id_: ID преподавателя.
+
+        Returns:
+            Преподаватель с ID id_.
+        """
+        db = Database.from_keeper()
+        return cls(await db.search_teacher_by_id(id_))
