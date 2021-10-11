@@ -1,4 +1,6 @@
 from .db_object import DbObject
+from .chat import Chat
+from .vk_cache_photo import VKCachePhoto
 from .object_with_title import ObjectWithTitleAndId
 from .departments import Departaments
 from .group import Group

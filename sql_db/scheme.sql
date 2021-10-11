@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 13.3
--- Dumped by pg_dump version 13.3
+-- Dumped from database version 13.4
+-- Dumped by pg_dump version 13.4
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -39,7 +39,7 @@ CREATE TYPE public."TypesLesson" AS ENUM (
 
 
 --
--- Name: add_lesson(integer, integer, character varying, character varying, integer[], character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
+-- Name: add_lesson(integer, integer, character varying, character varying, public."TypesLesson"[], character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
 CREATE FUNCTION public.add_lesson(p_id_timetable integer, p_number integer, p_subject character varying, p_cabinet character varying, p_types public."TypesLesson"[], p_group_number character varying, p_teacher_name character varying) RETURNS TABLE(id integer, id_timetable integer, number integer, subject character varying, cabinet character varying, types public."TypesLesson"[], id_group integer, id_teacher integer)
@@ -69,9 +69,60 @@ CREATE FUNCTION public.add_lesson(p_id_timetable integer, p_number integer, p_su
 $$;
 
 
+--
+-- Name: add_or_update_vk_cache(character varying, character varying); Type: PROCEDURE; Schema: public; Owner: -
+--
+
+CREATE PROCEDURE public.add_or_update_vk_cache(p_key character varying, p_photo_id character varying)
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+        v_count_cache_record int;
+    BEGIN
+        SELECT COUNT(*) INTO v_count_cache_record FROM vk_cache_photo WHERE key_cache = p_key;
+        IF v_count_cache_record = 0 THEN
+            INSERT INTO vk_cache_photo(key_cache, vk_photo_id) VALUES (p_key, p_photo_id);
+        ELSE
+            UPDATE vk_cache_photo SET vk_photo_id = p_photo_id WHERE key_cache = p_key;
+        END IF;
+    END;
+    $$;
+
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
+
+--
+-- Name: chats; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.chats (
+    id integer NOT NULL,
+    vk_id integer,
+    timetable_photo boolean DEFAULT true
+);
+
+
+--
+-- Name: chats_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.chats_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: chats_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.chats_id_seq OWNED BY public.chats.id;
+
 
 --
 -- Name: groups; Type: TABLE; Schema: public; Owner: -
@@ -140,6 +191,26 @@ ALTER SEQUENCE public.lessons_id_seq OWNED BY public.lessons.id;
 
 
 --
+-- Name: subscriber_group; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.subscriber_group (
+    id_user integer NOT NULL,
+    id_group integer NOT NULL
+);
+
+
+--
+-- Name: subscriber_teacher; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.subscriber_teacher (
+    id_chat integer NOT NULL,
+    id_teacher integer NOT NULL
+);
+
+
+--
 -- Name: teachers; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -203,6 +274,44 @@ ALTER SEQUENCE public.timetables_id_seq OWNED BY public.timetables.id;
 
 
 --
+-- Name: vk_cache_photo; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.vk_cache_photo (
+    id integer NOT NULL,
+    key_cache character varying(255),
+    vk_photo_id character varying(100)
+);
+
+
+--
+-- Name: vk_cache_photo_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.vk_cache_photo_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: vk_cache_photo_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.vk_cache_photo_id_seq OWNED BY public.vk_cache_photo.id;
+
+
+--
+-- Name: chats id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.chats ALTER COLUMN id SET DEFAULT nextval('public.chats_id_seq'::regclass);
+
+
+--
 -- Name: groups id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -231,6 +340,21 @@ ALTER TABLE ONLY public.timetables ALTER COLUMN id SET DEFAULT nextval('public.t
 
 
 --
+-- Name: vk_cache_photo id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.vk_cache_photo ALTER COLUMN id SET DEFAULT nextval('public.vk_cache_photo_id_seq'::regclass);
+
+
+--
+-- Name: chats chats_pk; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.chats
+    ADD CONSTRAINT chats_pk PRIMARY KEY (id);
+
+
+--
 -- Name: groups groups_number_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -252,6 +376,22 @@ ALTER TABLE ONLY public.groups
 
 ALTER TABLE ONLY public.lessons
     ADD CONSTRAINT lessons_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: subscriber_group subscriber_group_pk; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.subscriber_group
+    ADD CONSTRAINT subscriber_group_pk PRIMARY KEY (id_user, id_group);
+
+
+--
+-- Name: subscriber_teacher subscriber_teacher_pk; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.subscriber_teacher
+    ADD CONSTRAINT subscriber_teacher_pk PRIMARY KEY (id_chat, id_teacher);
 
 
 --
@@ -287,6 +427,20 @@ ALTER TABLE ONLY public.timetables
 
 
 --
+-- Name: chats_vk_user_id_uindex; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX chats_vk_user_id_uindex ON public.chats USING btree (vk_id);
+
+
+--
+-- Name: vk_cache_photo_key_cache_uindex; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX vk_cache_photo_key_cache_uindex ON public.vk_cache_photo USING btree (key_cache);
+
+
+--
 -- Name: lessons lessons_id_group_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -308,6 +462,38 @@ ALTER TABLE ONLY public.lessons
 
 ALTER TABLE ONLY public.lessons
     ADD CONSTRAINT lessons_id_timetable_fkey FOREIGN KEY (id_timetable) REFERENCES public.timetables(id) NOT VALID;
+
+
+--
+-- Name: subscriber_group subscriber_group_chats_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.subscriber_group
+    ADD CONSTRAINT subscriber_group_chats_id_fk FOREIGN KEY (id_user) REFERENCES public.chats(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: subscriber_group subscriber_group_groups_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.subscriber_group
+    ADD CONSTRAINT subscriber_group_groups_id_fk FOREIGN KEY (id_group) REFERENCES public.groups(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: subscriber_teacher subscriber_teacher_chats_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.subscriber_teacher
+    ADD CONSTRAINT subscriber_teacher_chats_id_fk FOREIGN KEY (id_chat) REFERENCES public.chats(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: subscriber_teacher subscriber_teacher_teachers_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.subscriber_teacher
+    ADD CONSTRAINT subscriber_teacher_teachers_id_fk FOREIGN KEY (id_teacher) REFERENCES public.teachers(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --

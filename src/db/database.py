@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Optional, Union, Collection, Any
 
 from db import ConnectionKeeper
 from db.structures import Timetable, Departaments, TypesLesson, Group, Teacher, Lesson, TimetableForGroup, \
-    TimetableForTeacher
+    TimetableForTeacher, Chat, VKCachePhoto
 
 if TYPE_CHECKING:
     import datetime
@@ -405,6 +405,36 @@ class Database:
             Преподаватель.
         """
         return teacher if isinstance(teacher, Teacher) else await self.search_teacher_by_id(teacher)
+
+    async def get_chat_by_vk_id(self, vk_id: int) -> Optional[Chat]:
+        result = await self.conn.fetchrow('SELECT * FROM chats WHERE vk_id = $1', vk_id)
+
+        if result:
+            return Chat.from_record(result)
+
+        return None
+
+    async def create_new_chat(self, vk_id: int) -> None:
+        await self.conn.execute('INSERT INTO chats(vk_id) VALUES ($1)', vk_id)
+
+    async def get_chat_and_create_if_not_exist(self, vk_id) -> Chat:
+        chat = await self.get_chat_by_vk_id(vk_id)
+        if chat:
+            return chat
+
+        await self.create_new_chat(vk_id)
+        return await self.get_chat_by_vk_id(vk_id)
+
+    async def get_cache_photo_id_by_key(self, key: str) -> Optional[VKCachePhoto]:
+        result = await self.conn.fetchrow('SELECT * FROM vk_cache_photo WHERE key_cache = $1', key)
+
+        if result:
+            return VKCachePhoto.from_record(result)
+
+        return None
+
+    async def set_cache_photo(self, key: str, photo_id: str):
+        await self.conn.execute('CALL add_or_update_vk_cache($1, $2)', key, photo_id)
 
     @classmethod
     def from_keeper(cls) -> 'Database':
