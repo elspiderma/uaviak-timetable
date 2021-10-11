@@ -1,13 +1,10 @@
 from typing import TYPE_CHECKING
 
 from db.structures import TypesLesson
-from vk_bot.keyboards import generate_keyboard_date
 from vk_bot.timetable import TYPES_TO_STRING
 
 if TYPE_CHECKING:
-    import datetime
     from db.structures import TimetableForSomeone, FullLessonForSomeone
-    from vk_bot.search import AbstractResult
 
 
 class TimetableText:
@@ -67,7 +64,7 @@ class TimetableText:
         """
         return self.timetable.date.strftime('%a %d.%m')
 
-    def generate(self) -> str:
+    def generate_text_timetable(self) -> str:
         """Генерирует текст расписания.
 
         Returns:
@@ -83,27 +80,3 @@ class TimetableText:
         lines.append(self._generate_date_line())
 
         return '\n'.join(lines)
-
-
-async def get_message_timetable_for_result_search(result: 'AbstractResult', date: 'datetime.date' = None) -> tuple[str, str]:
-    """Возвращает текст расписания и клавиатуру с датой для результата поиска.
-
-    Args:
-        result: Результат поиска.
-        date: Дата расписания, если None, то используется последняя дата.
-
-    Returns:
-        Текст расписания и клавиатура с доступными датами.
-    """
-    dates = await result.get_dates_timetable(9)
-
-    # Если дата не передана, то используем последнию дату.
-    if not date:
-        date = dates[0]
-
-    timetable = await result.get_timetable(date)
-
-    kb = generate_keyboard_date(dates, date, timetable)
-    message = TimetableText(timetable).generate()
-
-    return message, kb.get_json()
