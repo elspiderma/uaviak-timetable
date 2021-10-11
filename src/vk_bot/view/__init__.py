@@ -1,1 +1,0 @@
-from .timetable_text import TimetableText, get_message_timetable_for_result_search

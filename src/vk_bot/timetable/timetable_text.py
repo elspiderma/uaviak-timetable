@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 from db.structures import TypesLesson
 from vk_bot.keyboards import generate_keyboard_date
+from vk_bot.timetable import TYPES_TO_STRING
 
 if TYPE_CHECKING:
     import datetime
@@ -50,14 +51,7 @@ class TimetableText:
             Типы пар в виде строки.
         """
         def convert(t: list[TypesLesson]) -> tuple[str]:
-            types2string = {
-                TypesLesson.EXAM: 'экз',
-                TypesLesson.SPLIT: 'дрб',
-                TypesLesson.PRACTICAL: 'практ',
-                TypesLesson.CONSULTATION: 'конс'
-            }
-
-            return tuple(types2string[i] for i in t)
+            return tuple(TYPES_TO_STRING[i] for i in t)
 
         types_str = convert(types)
         if not types_str:
@@ -73,7 +67,7 @@ class TimetableText:
         """
         return self.timetable.date.strftime('%a %d.%m')
 
-    def generate_text(self) -> str:
+    def generate(self) -> str:
         """Генерирует текст расписания.
 
         Returns:
@@ -110,6 +104,6 @@ async def get_message_timetable_for_result_search(result: 'AbstractResult', date
     timetable = await result.get_timetable(date)
 
     kb = generate_keyboard_date(dates, date, timetable)
-    message = TimetableText(timetable).generate_text()
+    message = TimetableText(timetable).generate()
 
     return message, kb.get_json()

@@ -1,6 +1,13 @@
 from dataclasses import dataclass
+from io import BytesIO
 
 from PIL import ImageFont, Image, ImageDraw
+
+
+def get_bytes_image(img: Image) -> bytes:
+    io = BytesIO()
+    img.save(io, format="jpeg")
+    return io.getvalue()
 
 
 @dataclass

@@ -6,7 +6,7 @@ from vk_bot.keyboards import generate_select_timetable_keyboard
 from vk_bot.keyboards.payloads import TimetableDatePayload
 from vk_bot.rules import PayloadRule
 from vk_bot.search import search_by_query, search_by_payload
-from vk_bot.view import get_message_timetable_for_result_search
+from vk_bot.timetable import get_message_timetable_for_result_search
 
 if TYPE_CHECKING:
     from vkbottle.bot import Message

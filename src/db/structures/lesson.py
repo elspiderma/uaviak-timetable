@@ -65,17 +65,17 @@ class FullLesson(Lesson):
 
 class FullLessonForSomeone(FullLesson):
     @property
-    def whose(self):
+    def whose(self) -> str:
         raise NotImplemented
 
 
 class FullLessonForGroup(FullLessonForSomeone):
     @property
-    def whose(self):
+    def whose(self) -> str:
         return self.teacher.short_name
 
 
 class FullLessonForTeacher(FullLessonForSomeone):
     @property
-    def whose(self):
+    def whose(self) -> str:
         return self.group.number
