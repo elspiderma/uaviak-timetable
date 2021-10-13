@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 from vkbottle import Keyboard, Text, KeyboardButtonColor
 
-from vk_bot.keyboards import Key, generate_grid_keyboard
+from vk_bot.keyboards import Key, generate_grid_keyboard, add_go_home_key
 from vk_bot.keyboards.payloads import TimetableDatePayload
 
 if TYPE_CHECKING:
@@ -41,4 +41,7 @@ def generate_keyboard_date(dates: list[datetime.date], current_date: datetime.da
 
     kb = Keyboard(inline=False, one_time=False)
     generate_grid_keyboard(keys, 3, kb)
+
+    kb.row()
+    add_go_home_key(kb)
     return kb

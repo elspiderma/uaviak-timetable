@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
 class VkBot:
     BLUEPRINTS: list['Blueprint'] = [
+        routers.bp_base,
         routers.bp_timetable
     ]
 

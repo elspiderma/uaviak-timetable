@@ -35,18 +35,19 @@ async def search_by_query(query: str) -> list['AbstractResult']:
         return await TeacherResult.search(query)
 
 
-async def search_by_payload(payload: 'TimetableDatePayload') -> 'AbstractResult':
+async def search_by_id(whose: 'WhoseTimetable', id_: int) -> 'AbstractResult':
     """Ищет группы или преподавателей по payload'у.
 
     Args:
-        payload: Payload.
+        whose: # TODO
+        id_: # TODO
 
     Returns:
         Результаты поиска.
     """
-    if payload.whose_timetable is WhoseTimetable.FOR_GROUP:
-        return await GroupResult.search_by_id(payload.id)
-    elif payload.whose_timetable is WhoseTimetable.FOR_TEACHER:
-        return await TeacherResult.search_by_id(payload.id)
+    if whose is WhoseTimetable.FOR_GROUP:
+        return await GroupResult.search_by_id(id_)
+    elif whose is WhoseTimetable.FOR_TEACHER:
+        return await TeacherResult.search_by_id(id_)
     else:
         raise RuntimeError('Not supported whose_timetable.')

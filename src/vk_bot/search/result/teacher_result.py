@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Optional
 
 from db import Database
+from db.structures import WhoseTimetable
 from vk_bot.search.result.group_result import AbstractResult
 
 if TYPE_CHECKING:
@@ -15,6 +16,14 @@ class TeacherResult(AbstractResult):
         super().__init__()
 
         self.teacher = teacher
+
+    @property
+    def id(self) -> int:
+        return self.teacher.id
+
+    @property
+    def whose(self) -> 'WhoseTimetable':
+        return WhoseTimetable.FOR_TEACHER
 
     @property
     def title(self) -> str:

@@ -1,18 +1,29 @@
 from typing import TYPE_CHECKING, Optional
 
 from db import Database
-from db.structures import ObjectWithTitleAndId
 
 if TYPE_CHECKING:
-    from db.structures import TimetableForSomeone
+    from db.structures import TimetableForSomeone, WhoseTimetable
     from datetime import date
 
 
-class AbstractResult(ObjectWithTitleAndId):
+class AbstractResult:
     """Интерфейс для результата поиска.
     """
     def __init__(self):
         self.db = Database.from_keeper()
+
+    @property
+    def id(self) -> int:
+        raise NotImplemented
+
+    @property
+    def whose(self) -> 'WhoseTimetable':
+        raise NotImplemented
+
+    @property
+    def title(self) -> str:
+        raise NotImplemented
 
     async def get_dates_timetable(self, count: int) -> list['date']:
         """Получает даты, для которых доступно расписание.

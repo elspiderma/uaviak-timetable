@@ -2,10 +2,10 @@ from typing import TYPE_CHECKING
 
 from vkbottle.bot import Blueprint
 
-from vk_bot.keyboards import generate_select_timetable_keyboard
-from vk_bot.keyboards.payloads import TimetableDatePayload
+from vk_bot.keyboards import generate_select_timetable_keyboard, TooMuchResultInKeyboardError
+from vk_bot.keyboards.payloads import TimetableDatePayload, ResultPayload
 from vk_bot.rules import PayloadRule
-from vk_bot.search import search_by_query, search_by_payload
+from vk_bot.search import search_by_query, search_by_id
 from vk_bot.timetable import get_message_timetable_for_result_search
 
 if TYPE_CHECKING:
@@ -16,17 +16,34 @@ bp.labeler.vbml_ignore_case = True
 
 
 @bp.on.private_message(PayloadRule(TimetableDatePayload))
-async def search_timetable_for_date(msg: 'Message'):
+async def search_timetable_for_date(msg: 'Message') -> None:
     """Расписание для другого дня. Срабатывает при нажатии на кнопку с датой.
 
     Args:
         msg: Сообщение.
     """
     payload = TimetableDatePayload.from_dict(msg.get_payload_json())
-    result = await search_by_payload(payload)
+    result = await search_by_id(payload.whose_timetable, payload.id)
 
     message, photo_id, keyboard_json = await get_message_timetable_for_result_search(
         bp.api, msg.peer_id, result, payload.date
+    )
+    await msg.answer(message, keyboard=keyboard_json, reply_to=msg.id, attachment=photo_id)
+
+
+@bp.on.private_message(PayloadRule(ResultPayload))
+async def result_timetable(msg: 'Message') -> None:
+    """Расписание для результата поиска. Срабатывает при нажатии на кнопку с выбором результата
+        поиска преподавателя/группы.
+
+    Args:
+        msg: Сообщение
+    """
+    payload = ResultPayload.from_dict(msg.get_payload_json())
+    result = await search_by_id(payload.whose_timetable, payload.id)
+
+    message, photo_id, keyboard_json = await get_message_timetable_for_result_search(
+        bp.api, msg.peer_id, result
     )
     await msg.answer(message, keyboard=keyboard_json, reply_to=msg.id, attachment=photo_id)
 
@@ -49,5 +66,9 @@ async def search_timetable(msg: 'Message') -> None:
         )
         await msg.answer(message, keyboard=keyboard_json, reply_to=msg.id, attachment=photo_id)
     else:
-        kb = generate_select_timetable_keyboard(results)
-        await msg.answer('Найдено несколько результатов.', keyboard=kb.get_json(), reply_to=msg.id)
+        try:
+            kb = generate_select_timetable_keyboard(results)
+        except TooMuchResultInKeyboardError:
+            await msg.answer('Слишком много результатов. Напишите запрос точнее.')
+        else:
+            await msg.answer('Найдено несколько результатов.', keyboard=kb.get_json(), reply_to=msg.id)

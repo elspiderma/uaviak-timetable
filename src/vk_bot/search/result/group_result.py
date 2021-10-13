@@ -1,10 +1,11 @@
 from typing import TYPE_CHECKING, Optional
 
 from db import Database
+from db.structures import WhoseTimetable
 from vk_bot.search.result.abstract_result import AbstractResult
 
 if TYPE_CHECKING:
-    from db.structures import Group, TimetableForGroup
+    from db.structures import Group, TimetableForGroup, WhoseTimetable
     from datetime import date
 
 
@@ -15,6 +16,14 @@ class GroupResult(AbstractResult):
         super().__init__()
 
         self.group = group
+
+    @property
+    def id(self) -> int:
+        return self.group.id
+
+    @property
+    def whose(self) -> 'WhoseTimetable':
+        return WhoseTimetable.FOR_GROUP
 
     @property
     def title(self) -> str:
