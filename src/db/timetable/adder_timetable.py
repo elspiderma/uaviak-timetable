@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING, Union
 
 import uaviak_parser
 from db import Database
-from db.structures import Departaments
 from db.timetable import TimetableExistError
 
 if TYPE_CHECKING:
@@ -38,8 +37,7 @@ class AdderTimetable:
         Raises:
             TimetableExistError - такое расписание уже существует в БД.
         """
-        is_exist = await self.db.is_exist_timetable(timetable.date,
-                                                    Departaments.from_parser_departaments(timetable.departament))
+        is_exist = await self.db.is_exist_timetable(timetable.date)
 
         if is_exist:
             self.status_handler.add_timetable_error(TimetableExistError(timetable))
@@ -75,8 +73,7 @@ class AdderTimetable:
         if isinstance(html, str):
             html = uaviak_parser.HtmlTimetable(html)
 
-        for str_timetable in html.parse_html():
-            await self.add_timetable_from_text(str_timetable)
+        await self.add_timetable_from_text(html.parse_html())
 
     async def add_timetable_from_site(self) -> None:
         """Добавляет расписание с сайта.

@@ -1,22 +1,20 @@
 import datetime
 
 from uaviak_parser.exceptions import ParseTimetableError, ParseLessonError
-from uaviak_parser.structures import Timetable, Departaments, Lesson, TypesLesson
+from uaviak_parser.structures import Timetable, Lesson, TypesLesson
 from utils import is_string_one_unique_char, index_upper
 
 
 class TextTimetable:
     """Класс, представляющий расписание в текстовом виде.
     """
-    def __init__(self, title: str, additional_info: str, lessons: list[str]):
+    def __init__(self, title: str, lessons: list[str]):
         """
         Args:
             title: Заголовок расписания.
-            additional_info: Дополнительная информация.
             lessons: Массив уроков.
         """
         self.title = title
-        self.additional_info = additional_info
         self.lessons = lessons
 
     def _parse_lesson(self, lesson_line: str) -> Lesson:
@@ -115,52 +113,32 @@ class TextTimetable:
             ParseLessonError - ошибка парсинга строки с расписанием
         """
 
-        # Заголовок имеет формат "Расписание [на] {дата} {date_of_week} ({department} отделение)".
+        # Заголовок имеет формат "Расписание преподаватели {date} {date_of_week} ({} отделение)".
         # Например:
         # Расписание 23.03.2021 Вторник (Заочное отделение)
         # или
         # Расписание на 23.03.2021 Вторник (Дневное отделение)
         split_title = self.title.split()
-        # Унифицируем заголовок с "на" и без него
-        try:
-            split_title.remove('на')
-        except ValueError:
-            # Игнорируем отсутствие "на"
-            pass
 
-        if len(split_title) != 5:
-            raise ParseTimetableError(self.title, self.additional_info, self.lessons)
+        if len(split_title) != 6:
+            raise ParseTimetableError(self.title, self.lessons)
 
-        date = split_title[1]
+        date = split_title[2]
 
         try:
             # Парсинг даты
             day, month, year = date.split('.')
             date = datetime.date(day=int(day), month=int(month), year=int(year))
         except ValueError:
-            raise ParseTimetableError(self.title, self.additional_info, self.lessons)
-
-        # Парсинг отделения
-        if 'Дневное отделение' in self.title:
-            departament = Departaments.FULL_TIME
-        elif 'Заочное отделение' in self.title:
-            departament = Departaments.CORRESPONDENCE
-        else:
-            raise ParseTimetableError(self.title, self.additional_info, self.lessons)
+            raise ParseTimetableError(self.title, self.lessons)
 
         # Парсинг пар
         parsed_lesson = list()
         for i in self.lessons:
             parsed_lesson.append(self._parse_lesson(i))
 
-        additional_info = self.additional_info
-        if additional_info == '':
-            additional_info = None
-
         return Timetable(
-            additional_info=additional_info,
             date=date,
-            departament=departament,
             lessons=parsed_lesson
         )
 
@@ -178,15 +156,15 @@ class TextTimetable:
         # <Заголовок>
         # <Доп. информация>
         # -------------------------
-        # <Пара 1 для 1 группы>
-        # <Пара 2 для 1 группы>
-        # <Пара n для 1 группы>
+        # <Пара 1 для 1 преподавателя>
+        # <Пара 2 для 1 преподавателя>
+        # <Пара n для 1 преподавателя>
         # -------------------------
-        # <Пара 1 для 2 группы>
-        # <Пара 2 для 2 группы>
-        # <Пара n для 2 группы>
+        # <Пара 1 для 2 преподавателя>
+        # <Пара 2 для 2 преподавателя>
+        # <Пара n для 2 преподавателя>
         # -------------------------
-        # <Пара n для n группы>
+        # <Пара n для n преподавателя>
 
         timetable_lines = timetable.strip().splitlines()
 
@@ -194,7 +172,6 @@ class TextTimetable:
         title = timetable_lines.pop(0)
 
         lesson_lines = []
-        additional_info_lines = []
 
         is_timetable_begin = False
         for line in timetable_lines:
@@ -205,11 +182,9 @@ class TextTimetable:
             if line != '':  # Игнорируем пустые строки
                 # Строка содержащяя только "-" является разделителем между группами
                 if is_string_one_unique_char(line, '-'):
-                    # Все, что идет до первого разделителя -- это доп. информация.
+                    # Все, что идет до первого разделителя -- это различная доп. информация, которую мы игнорируем.
                     is_timetable_begin = True
                 elif is_timetable_begin:
                     lesson_lines.append(line)
-                else:
-                    additional_info_lines.append(line)
 
-        return cls(title, '\n'.join(additional_info_lines), lesson_lines)
+        return cls(title, lesson_lines)

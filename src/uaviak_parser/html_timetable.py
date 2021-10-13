@@ -7,14 +7,11 @@ from uaviak_parser.exceptions import GetHtmlError
 class HtmlTimetable:
     """Класс, представляющий HTML-документ с расписанием.
     """
-    TIMETABLE_URL = 'https://uaviak.ru/pages/raspisanie-/'
+    TIMETABLE_URL = 'https://uaviak.ru/pages/raspisanie/'
     USER_AGENT = 'TimetableParser/1.0'
 
-    # Классы HTML-элементов, содержащие расписание
-    CLASS_WITH_TIMETABLE = (
-        'scrolling-text pos1',
-        'scrolling-text pos2'
-    )
+    # Класс HTML-элемента, с расписанием
+    CLASS_WITH_TIMETABLE = ('scrolling-text', 'pos0')
 
     def __init__(self, html: str):
         """
@@ -23,24 +20,18 @@ class HtmlTimetable:
         """
         self.html = html
 
-    def parse_html(self) -> list[str]:
+    def parse_html(self) -> str:
         """
         Достает из html-страницы текст с расписанием.
 
         Returns:
             Сырой текст расписания.
         """
-        timetables_text = []
-
         soup = BeautifulSoup(self.html, 'html.parser')
-        for class_html in self.CLASS_WITH_TIMETABLE:
-            timetable_soup = soup.find(class_=class_html)
-            if timetable_soup:
-                timetable_soup.find(class_='title').extract()  # Удаляем заголовок, "Расписание *** отделения"
+        timetable_soup = soup.find(class_=self.CLASS_WITH_TIMETABLE)
 
-                timetables_text.append(timetable_soup.get_text())
-
-        return timetables_text
+        timetable_soup.find(class_='title').extract()  # Удаляем заголовок "Расписание"
+        return timetable_soup.get_text()
 
     @classmethod
     async def load(cls) -> 'HtmlTimetable':

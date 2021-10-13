@@ -2,7 +2,7 @@ import enum
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Union, Optional
 
-from db.structures import Departaments, DbObject, Teacher, Group, FullLessonForGroup, FullLessonForTeacher
+from db.structures import DbObject, Teacher, Group, FullLessonForGroup, FullLessonForTeacher
 
 if TYPE_CHECKING:
     from db.structures import ObjectWithTitleAndId, FullLessonForSomeone
@@ -21,15 +21,11 @@ class Timetable(DbObject):
 
     Attributes:
         id: ID расписания.
-        additional_info: Дополнительная информация.
         date: Дата расписания.
-        departament: Отделение расписания.
     """
 
     id: int
-    additional_info: Optional[str]
     date: 'datetime.date'
-    departament: Departaments
 
     @classmethod
     def from_record(cls, data: Union['Record', dict]) -> 'Timetable':
@@ -43,9 +39,6 @@ class Timetable(DbObject):
             Десериализируеммый объект.
         """
         data_dict = dict(data)
-
-        data_dict['departament'] = Departaments(data_dict['departament'])
-
         return cls.from_dict(data_dict)
 
 
@@ -84,9 +77,7 @@ class TimetableForGroup(TimetableForSomeone):
 
         return cls(
             id=data[0]['t_id'],
-            additional_info=data[0]['additional_info'],
             date=data[0]['date'],
-            departament=Departaments(data[0]['departament']),
             group=group,
             lessons=FullLessonForGroup.from_records(data)
         )
@@ -115,9 +106,7 @@ class TimetableForTeacher(TimetableForSomeone):
 
         return cls(
             id=data[0]['t_id'],
-            additional_info=data[0]['additional_info'],
             date=data[0]['date'],
-            departament=Departaments(data[0]['departament']),
             teacher=teacher,
             lessons=FullLessonForTeacher.from_records(data)
         )

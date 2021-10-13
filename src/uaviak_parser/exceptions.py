@@ -16,15 +16,13 @@ class GetHtmlError(GetTimetableError):
 
 class ParseTimetableError(GetTimetableError):
     """Ошибка парсинга расписнания."""
-    def __init__(self, title: str, info: str, lessons: list[str]):
+    def __init__(self, title: str, lessons: list[str]):
         """
         Args:
             title: Заголовок расписания.
-            info: Доп. информация.
             lessons: Массив уроков.
         """
         self.title = title
-        self.info = info
         self.lessons = lessons
         super().__init__(f'error parse timetable: {self.title}')
 

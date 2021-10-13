@@ -1,14 +1,13 @@
 from typing import TYPE_CHECKING, Optional, Union, Collection, Any
 
 from db import ConnectionKeeper
-from db.structures import Timetable, Departaments, TypesLesson, Group, Teacher, Lesson, TimetableForGroup, \
+from db.structures import Timetable, TypesLesson, Group, Teacher, Lesson, TimetableForGroup, \
     TimetableForTeacher, Chat, VKCachePhoto
 
 if TYPE_CHECKING:
     import datetime
     import asyncpg
     import uaviak_parser
-    from db.structures import Departaments
 
 
 class Database:
@@ -84,20 +83,16 @@ class Database:
 
     # Timetable
 
-    async def is_exist_timetable(self, date: 'datetime.date', departament: 'Departaments') -> bool:
+    async def is_exist_timetable(self, date: 'datetime.date') -> bool:
         """Проверяет, существует ли расписание.
 
         Args:
             date: Дата.
-            departament: Отделение.
 
         Returns:
             True, если существует или False, если не существует.
         """
-        result = await self.conn.fetchrow(
-            'SELECT COUNT(*) FROM timetables WHERE date = $1 AND departament = $2',
-            date, departament.value
-        )
+        result = await self.conn.fetchrow('SELECT COUNT(*) FROM timetables WHERE date = $1', date)
 
         return result['count'] == 1
 
@@ -282,9 +277,7 @@ class Database:
                 t.short_name,
                 t.full_name,
                 tt.id as tt_id,
-                tt.additional_info,
-                tt.date,
-                tt.departament
+                tt.date
             FROM
                 lessons l
                 INNER JOIN groups g on g.id = l.id_group
@@ -344,20 +337,16 @@ class Database:
         )
         return TimetableForTeacher.from_combined_records(result, teacher)
 
-    async def get_timetable(self, date: 'datetime.date', departament: 'Departaments') -> Optional[Timetable]:
+    async def get_timetable(self, date: 'datetime.date') -> Optional[Timetable]:
         """Получает расписание за определенную дату для определенного отделения.
 
         Args:
             date: Дата.
-            departament: Отделение.
 
         Returns:
             Расписание или None, если расписание не найдено.
         """
-        result = await self.conn.fetchrow(
-            'SELECT * FROM timetables WHERE date = $1 AND departament = $2',
-            date, departament.value
-        )
+        result = await self.conn.fetchrow('SELECT * FROM timetables WHERE date = $1', date)
 
         if not result:
             return None
@@ -370,10 +359,7 @@ class Database:
         Args:
             timetable: Расписание полученное с сайта
         """
-        result = await self.conn.fetch(
-            'INSERT INTO timetables(additional_info, date, departament) VALUES ($1, $2, $3) RETURNING id',
-            timetable.additional_info, timetable.date, Departaments.from_parser_departaments(timetable.departament).value
-        )
+        result = await self.conn.fetch('INSERT INTO timetables(date) VALUES ($1) RETURNING id', timetable.date)
         timetable_id = result[0]['id']
 
         for lesson in timetable.lessons:

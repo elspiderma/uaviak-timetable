@@ -9,23 +9,17 @@ if TYPE_CHECKING:
 @dataclass
 class Timetable:
     """Дата-класс расписания."""
-    # Дополнительная информация
-    additional_info: Optional[str]
     # Дата
     date: 'datetime.date'
-    # Отделение
-    departament: 'Departaments'
     # Пары
     lessons: list['Lesson']
 
     def __repr__(self):
-        return f'<Timetable at {self.date.isoformat()} for {self.departament}>'
+        return f'<Timetable at {self.date.isoformat()}>'
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
-            if self.additional_info != other.additional_info or \
-                    self.date != other.date or \
-                    self.departament is not other.departament:
+            if self.date != other.date:
                 return False
 
             lessons_other = other.lessons.copy()
