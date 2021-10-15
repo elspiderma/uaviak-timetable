@@ -1,4 +1,7 @@
-class AbstractPayload:
+from abc import ABC
+
+
+class AbstractPayload(ABC):
     COMMAND = ''
 
     def to_dict(self) -> dict:

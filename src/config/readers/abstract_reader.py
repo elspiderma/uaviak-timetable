@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
@@ -8,6 +8,7 @@ if TYPE_CHECKING:
 class AbstractReader(ABC):
     """Класс, представляющий читателя файла.
     """
+    @abstractmethod
     def get(self, section: str, option: str, type_value: 'TypesValue') -> Union[int, str, list, None]:
         """Получает значение из конфигурации.
 
@@ -23,8 +24,9 @@ class AbstractReader(ABC):
             NotFoundOption - опция не найдена
             TypeError - неудалось найти такой тип
         """
-        raise NotImplemented
+        pass
 
+    @abstractmethod
     def set(self, section: str, option: str, value: Union[int, str, list, None]) -> None:
         """Изменяет/создает значение конфигурации.
 
@@ -36,21 +38,23 @@ class AbstractReader(ABC):
         Raises:
             TypeError - тип значения не поддерживается
         """
-        raise NotImplemented
+        pass
 
     @classmethod
+    @abstractmethod
     def from_file(cls, filename: str) -> 'AbstractReader':
         """Чиатет кинфигурацию из файла.
 
         Args:
             filename: Имя файла.
         """
-        raise NotImplemented
+        pass
 
+    @abstractmethod
     def write_file(self, filename: str) -> None:
         """Сохраняет конфигурцию в файл.
 
         Args:
             filename: Имя файла.
         """
-        raise NotImplemented
+        pass

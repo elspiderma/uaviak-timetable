@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Optional
 
 from db import Database
@@ -7,24 +8,28 @@ if TYPE_CHECKING:
     from datetime import date
 
 
-class AbstractResult:
+class AbstractResult(ABC):
     """Интерфейс для результата поиска.
     """
     def __init__(self):
         self.db = Database.from_keeper()
 
     @property
+    @abstractmethod
     def id(self) -> int:
-        raise NotImplemented
+        pass
 
     @property
+    @abstractmethod
     def whose(self) -> 'WhoseTimetable':
-        raise NotImplemented
+        pass
 
     @property
+    @abstractmethod
     def title(self) -> str:
-        raise NotImplemented
+        pass
 
+    @abstractmethod
     async def get_dates_timetable(self, count: int) -> list['date']:
         """Получает даты, для которых доступно расписание.
 
@@ -36,6 +41,7 @@ class AbstractResult:
         """
         pass
 
+    @abstractmethod
     async def get_timetable(self, date_timetable: 'date') -> Optional['TimetableForSomeone']:
         """Получает расписание для даты date_timetable.
 
@@ -45,9 +51,10 @@ class AbstractResult:
         Returns:
             Расписание или None, если оно не найдено.
         """
-        raise NotImplemented
+        pass
 
     @classmethod
+    @abstractmethod
     async def search(cls, query: str) -> list['AbstractResult']:
         """Поиск.
 
@@ -57,9 +64,10 @@ class AbstractResult:
         Returns:
             Результаты поиска.
         """
-        raise NotImplemented
+        pass
 
     @classmethod
+    @abstractmethod
     async def search_by_id(cls, id_: int) -> Optional['AbstractResult']:
         """Поиск по ID.
 
@@ -69,4 +77,4 @@ class AbstractResult:
         Returns:
             Результат с нужным ID.
         """
-        raise NotImplemented
+        pass
