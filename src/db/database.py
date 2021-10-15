@@ -50,7 +50,7 @@ class Database:
 
         pattern = f'{q.lower()}%'
 
-        sql_query = f'SELECT * FROM "{table}" WHERE translate(lower("{column}"), $1, \'\') LIKE $2'
+        sql_query = f'SELECT * FROM "{table}" WHERE translate(lower("{column}"), $1, \'\') LIKE $2 ORDER BY {column}'
         result = await self.conn.fetch(sql_query, remove_char, pattern)
 
         return result

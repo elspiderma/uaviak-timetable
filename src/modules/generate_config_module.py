@@ -18,7 +18,6 @@ class GenerateConfigModule(AbstractModule):
             if not ask_yes_no('Overwrite?'):
                 return
 
-        ini_reader = IniReader()
-        conf = Configuration(ini_reader)
+        conf = Configuration(IniReader())
         conf.generate_simple()
         conf.save(self.args.config)

@@ -19,7 +19,7 @@ class VkBot:
         self.config = config
 
         self.loop_wrapper = LoopWrapper()
-        self.bot = Bot(token=config.vk_api_token, loop_wrapper=self.loop_wrapper)
+        self.bot = Bot(token=config.vk_bot_token, loop_wrapper=self.loop_wrapper)
 
         self._init_blueprint()
 

@@ -1,11 +1,10 @@
 from typing import TYPE_CHECKING
 
 from utils import DrawnTable, Cell, get_bytes_image
-from vk_bot.timetable import WHOSE_TIMETABLE_TO_STRING, TYPES_TO_STRING
+from vk_bot.core.timetable import WHOSE_TIMETABLE_TO_STRING, TYPES_TO_STRING
 
 if TYPE_CHECKING:
     from db.structures import TimetableForSomeone, TypesLesson
-    from PIL import Image
 
 
 class TimetablePhoto:

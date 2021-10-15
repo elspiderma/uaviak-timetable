@@ -4,11 +4,11 @@ from vkbottle import PhotoMessageUploader
 
 from db import Database
 from vk_bot.keyboards import generate_keyboard_date
-from vk_bot.timetable import TimetablePhoto, TimetableText
+from vk_bot.core.timetable import TimetablePhoto, TimetableText
 
 if TYPE_CHECKING:
     import datetime
-    from vk_bot.search import AbstractResult
+    from vk_bot.core.search import AbstractResult
     from db.structures import TimetableForSomeone
     from vkbottle import API
 

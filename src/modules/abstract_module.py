@@ -1,6 +1,6 @@
 import locale
 from typing import TYPE_CHECKING
-from config import Configuration, IniReader
+from config import Configuration, IniReader, ConfigurationKeeper
 
 if TYPE_CHECKING:
     from argparse import Namespace
@@ -24,5 +24,6 @@ class AbstractConfigModule(AbstractModule):
     def __init__(self, args: 'Namespace'):
         super().__init__(args)
         self.config = Configuration(IniReader.from_file(self.args.config))
+        ConfigurationKeeper.save_configuration(self.config)
 
         locale.setlocale(locale.LC_TIME, self.config.locale_lang)

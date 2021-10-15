@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Optional
 
 from db import Database
 from db.structures import WhoseTimetable
-from vk_bot.search.result.abstract_result import AbstractResult
+from vk_bot.core.search.result.abstract_result import AbstractResult
 
 if TYPE_CHECKING:
     from db.structures import Group, TimetableForGroup, WhoseTimetable

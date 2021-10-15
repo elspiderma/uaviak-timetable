@@ -5,8 +5,8 @@ from vkbottle.bot import Blueprint
 from vk_bot.keyboards import generate_select_timetable_keyboard, TooMuchResultInKeyboardError
 from vk_bot.keyboards.payloads import TimetableDatePayload, ResultPayload
 from vk_bot.rules import PayloadRule
-from vk_bot.search import search_by_query, search_by_id
-from vk_bot.timetable import get_message_timetable_for_result_search
+from vk_bot.core.search import search_by_query, search_by_id
+from vk_bot.core.timetable import get_message_timetable_for_result_search
 
 if TYPE_CHECKING:
     from vkbottle.bot import Message

@@ -18,9 +18,10 @@ class Configuration:
             'ip': {'type': TypesValue.STRING, 'simple': 'ip db'},
             'database': {'type': TypesValue.STRING, 'simple': 'database name'}
         },
-        'vk_api': {
+        'vk_bot': {
             'token': {'type': TypesValue.STRING, 'simple': 'api token'},
-            'admin_ids': {'type': TypesValue.LIST, 'simple': ['00001', '00002']}
+            'admin_ids': {'type': TypesValue.LIST, 'simple': ['00001', '00002']},
+            'photo_call_timetable': {'type': TypesValue.STRING, 'simple': ''}
         },
         'api': {
             'listen_adders': {'type': TypesValue.STRING, 'simple': '0.0.0.0'},

@@ -1,11 +1,10 @@
 from typing import TYPE_CHECKING
 
 from db.structures import WhoseTimetable
-from vk_bot.keyboards.payloads import TimetableDatePayload
-from vk_bot.search import GroupResult, TeacherResult
+from vk_bot.core.search import GroupResult, TeacherResult
 
 if TYPE_CHECKING:
-    from vk_bot.search.result.group_result import AbstractResult
+    from vk_bot.core.search.result.group_result import AbstractResult
 
 
 def _is_group(query: str):

@@ -7,7 +7,7 @@ from vk_bot.keyboards import Key, generate_grid_keyboard, add_go_home_key
 from vk_bot.keyboards.payloads import ResultPayload
 
 if TYPE_CHECKING:
-    from vk_bot.search import AbstractResult
+    from vk_bot.core.search import AbstractResult
 
 
 class TooMuchResultInKeyboardError(Exception):

@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from db.structures import TypesLesson
-from vk_bot.timetable import TYPES_TO_STRING
+from vk_bot.core.timetable import TYPES_TO_STRING
 
 if TYPE_CHECKING:
     from db.structures import TimetableForSomeone, FullLessonForSomeone
