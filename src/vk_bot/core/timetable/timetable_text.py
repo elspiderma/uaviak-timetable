@@ -21,7 +21,7 @@ class TimetableText:
         """
         return f'{self.timetable.someone.title}:'
 
-    def _generate_lesson_line(self, lesson: 'FullLessonForSomeone'):
+    def _generate_lessons_line(self) -> list[str]:
         """Возвращает строку текста с парой.
 
         Args:
@@ -30,13 +30,18 @@ class TimetableText:
         Returns:
             Строка с парой.
         """
-        lesson_str = [f'{lesson.number})', lesson.cabinet, 'каб.', lesson.whose, lesson.subject]
+        lessons_line = list()
 
-        types_str = self._types_to_str(lesson.types)
-        if types_str:
-            lesson_str.append(types_str)
+        for lesson in self.timetable.lessons:
+            lesson_str = [f'{lesson.number})', lesson.cabinet, 'каб.', lesson.whose, lesson.subject]
 
-        return ' '.join(lesson_str)
+            types_str = self._types_to_str(lesson.types)
+            if types_str:
+                lesson_str.append(types_str)
+
+            lessons_line.append(' '.join(lesson_str))
+
+        return lessons_line
 
     def _types_to_str(self, types: list[TypesLesson]):
         """Преобразует типы пары в строку.
@@ -73,8 +78,7 @@ class TimetableText:
         lines = list()
 
         lines.append(self._generate_title_line())
-        for lesson in self.timetable.lessons:
-            lines.append(self._generate_lesson_line(lesson))
+        lines += self._generate_lessons_line()
 
         lines.append('')
         lines.append(self._generate_date_line())

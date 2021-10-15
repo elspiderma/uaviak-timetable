@@ -64,7 +64,7 @@ async def get_message_timetable_for_result_search(
 
     timetable = await result.get_timetable(date)
 
-    kb = generate_keyboard_date(dates, date, timetable)
+    kb = generate_keyboard_date(dates, date, result)
 
     if chat.timetable_photo:
         photo_id = await _get_id_photo_timetable(api, timetable)

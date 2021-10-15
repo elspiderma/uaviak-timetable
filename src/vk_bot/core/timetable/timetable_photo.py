@@ -32,7 +32,7 @@ class TimetablePhoto:
         for i in ('№', 'Каб.', WHOSE_TIMETABLE_TO_STRING.get(self.timetable.whose_timetable), 'Предмет'):
             drawn_table.append(Cell(i, background_color=self.BACKGROUND_TITLE_TABLE))
 
-    def _draw_main_information(self, drawn_table: DrawnTable) -> None:
+    def _draw_lessons_information(self, drawn_table: DrawnTable) -> None:
         for lesson in self.timetable.lessons:
             drawn_table.row()
             drawn_table.append(Cell(str(lesson.number)))
@@ -57,7 +57,7 @@ class TimetablePhoto:
         drawn_table = DrawnTable(self.font, self.size_font)
 
         self._draw_title_table(drawn_table)
-        self._draw_main_information(drawn_table)
+        self._draw_lessons_information(drawn_table)
         self._draw_types_lesson(drawn_table)
 
         return get_bytes_image(drawn_table.draw())

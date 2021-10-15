@@ -7,10 +7,10 @@ from vk_bot.keyboards import Key, generate_grid_keyboard, add_go_home_key
 from vk_bot.keyboards.payloads import TimetableDatePayload
 
 if TYPE_CHECKING:
-    from db.structures import TimetableForSomeone
+    from vk_bot.core.search import AbstractResult
 
 
-def generate_keyboard_date(dates: list[datetime.date], current_date: datetime.date, timetable: 'TimetableForSomeone') \
+def generate_keyboard_date(dates: list[datetime.date], current_date: datetime.date, result: 'AbstractResult') \
         -> Keyboard:
     """Формирует клавиатуру из дат dates.
 
@@ -28,8 +28,8 @@ def generate_keyboard_date(dates: list[datetime.date], current_date: datetime.da
 
         payload = TimetableDatePayload(
             date=i,
-            id_=timetable.someone.id,
-            whose_timetable=timetable.whose_timetable
+            id_=result.id,
+            whose_timetable=result.whose
         )
 
         keys.append(
