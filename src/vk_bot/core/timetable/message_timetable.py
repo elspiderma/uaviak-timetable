@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Optional
 
 from vkbottle import PhotoMessageUploader
 
+from config import ConfigurationKeeper
 from db import Database
 from vk_bot.keyboards import generate_keyboard_date
 from vk_bot.core.timetable import TimetablePhoto, TimetableText
@@ -22,7 +23,13 @@ async def _get_id_photo_timetable(api: 'API', timetable: 'TimetableForSomeone') 
     if cached_photo_id:
         return cached_photo_id.vk_photo_id
 
-    img = TimetablePhoto(timetable, 'NotoSans-Regular', 42).draw_photo_timetable()
+    config = ConfigurationKeeper.get_configuration()
+
+    img = TimetablePhoto(
+        timetable,
+        config.vk_bot_font_family_photo_timetable,
+        config.vk_bot_font_size_photo_timetable
+    ).draw_photo_timetable()
     photo_id = await PhotoMessageUploader(api).upload(img)
 
     await db.set_cache_photo(cache_key, photo_id)

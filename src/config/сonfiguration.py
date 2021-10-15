@@ -21,7 +21,9 @@ class Configuration:
         'vk_bot': {
             'token': {'type': TypesValue.STRING, 'simple': 'api token'},
             'admin_ids': {'type': TypesValue.LIST, 'simple': ['00001', '00002']},
-            'photo_call_timetable': {'type': TypesValue.STRING, 'simple': ''}
+            'photo_call_timetable': {'type': TypesValue.STRING, 'simple': ''},
+            'font_family_photo_timetable': {'type': TypesValue.STRING, 'simple': 'NotoSans-Regular'},
+            'font_size_photo_timetable': {'type': TypesValue.INT, 'simple': 48}
         },
         'api': {
             'listen_adders': {'type': TypesValue.STRING, 'simple': '0.0.0.0'},
