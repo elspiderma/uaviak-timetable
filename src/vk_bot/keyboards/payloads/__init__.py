@@ -3,3 +3,6 @@ from .timetable_date_payload import TimetableDatePayload
 from .go_home_payload import GoHomePayload
 from .result_payload import ResultPayload
 from .call_timetable_payload import CallTimetablePayload
+from .setting_menu_payload import SettingMenuPayload
+from .change_format_timetable_payload import ChangeFormatTimetablePayload
+from .notify_setting_payload import NotifySettingPayload

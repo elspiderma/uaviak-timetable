@@ -10,10 +10,11 @@ if TYPE_CHECKING:
 
 
 class VkBot:
-    BLUEPRINTS: list['Blueprint'] = [
+    BLUEPRINTS: tuple['Blueprint'] = (
         routers.bp_base,
+        routers.bp_setting,
         routers.bp_timetable
-    ]
+    )
 
     def __init__(self, config: 'Configuration') -> None:
         self.config = config

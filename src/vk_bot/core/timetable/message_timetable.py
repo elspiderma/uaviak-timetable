@@ -45,8 +45,8 @@ async def get_message_timetable_for_result_search(
     """Возвращает текст сообщения, фото и клавиатуру с датой для результата поиска.
 
     Args:
-        api: # TODO
-        chat_id: # TODO
+        api: API ВК.
+        chat_id: ID чата в ВК.
         result: Результат поиска.
         date: Дата расписания, если None, то используется последняя дата.
 

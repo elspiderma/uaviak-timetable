@@ -4,7 +4,7 @@ from db.structures import TypesLesson
 from vk_bot.core.timetable import TYPES_TO_STRING
 
 if TYPE_CHECKING:
-    from db.structures import TimetableForSomeone, FullLessonForSomeone
+    from db.structures import TimetableForSomeone
 
 
 class TimetableText:

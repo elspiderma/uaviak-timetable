@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from vkbottle import Keyboard
-from vkbottle import KeyboardButtonColor
+from vkbottle import Keyboard, KeyboardButtonColor
 
 if TYPE_CHECKING:
     from vkbottle import ABCAction

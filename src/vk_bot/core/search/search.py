@@ -38,8 +38,8 @@ async def search_by_id(whose: 'WhoseTimetable', id_: int) -> 'AbstractResult':
     """Ищет группы или преподавателей по payload'у.
 
     Args:
-        whose: # TODO
-        id_: # TODO
+        whose: Тип объекта.
+        id_: ID искомого объекта.
 
     Returns:
         Результаты поиска.

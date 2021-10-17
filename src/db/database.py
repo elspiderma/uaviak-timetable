@@ -393,17 +393,38 @@ class Database:
         return teacher if isinstance(teacher, Teacher) else await self.search_teacher_by_id(teacher)
 
     async def get_chat_by_vk_id(self, vk_id: int) -> Optional[Chat]:
+        """Получает чат VK из БД.
+
+        Args:
+            vk_id: VK ID чата.
+
+        Returns:
+            Чат VK.
+        """
         result = await self.conn.fetchrow('SELECT * FROM chats WHERE vk_id = $1', vk_id)
 
-        if result:
-            return Chat.from_record(result)
+        if not result:
+            return None
 
-        return None
+        return Chat.from_record(result)
 
     async def create_new_chat(self, vk_id: int) -> None:
+        """Добавляет запись о чате VK в бд.
+
+        Args:
+            vk_id: VK ID чата.
+        """
         await self.conn.execute('INSERT INTO chats(vk_id) VALUES ($1)', vk_id)
 
     async def get_chat_and_create_if_not_exist(self, vk_id) -> Chat:
+        """Получает чат VK, предварительно добавив запись о нем в БД, если его нет.
+
+        Args:
+            vk_id: VK ID чата.
+
+        Returns:
+            Чат VK.
+        """
         chat = await self.get_chat_by_vk_id(vk_id)
         if chat:
             return chat
@@ -412,15 +433,39 @@ class Database:
         return await self.get_chat_by_vk_id(vk_id)
 
     async def get_cache_photo_id_by_key(self, key: str) -> Optional[VKCachePhoto]:
+        """Получает ID кэшированого фото.
+
+        Args:
+            key: Ключ кэша.
+
+        Returns:
+            Кэшированное фото или None, если его нет.
+        """
         result = await self.conn.fetchrow('SELECT * FROM vk_cache_photo WHERE key_cache = $1', key)
 
-        if result:
-            return VKCachePhoto.from_record(result)
+        if not result:
+            return None
 
-        return None
+        return VKCachePhoto.from_record(result)
 
-    async def set_cache_photo(self, key: str, photo_id: str):
+    async def set_cache_photo(self, key: str, photo_id: str) -> None:
+        """Добавляет кэш фотографии.
+
+        Args:
+            key: Ключ кэша.
+            photo_id: ID фотографии.
+        """
         await self.conn.execute('CALL add_or_update_vk_cache($1, $2)', key, photo_id)
+
+    async def change_format_timetable_for_chat(self, chat: Union[int, Chat]) -> None:
+        """Изменяет настройку отвечающию за формат фотографии с фото на текст и наоборот.
+
+        Args:
+            chat: ID чата из БД (не VK'онтактовский)
+        """
+        chat_id = chat if isinstance(chat, int) else chat.id
+
+        await self.conn.execute('UPDATE chats SET timetable_photo = NOT timetable_photo WHERE id = $1', chat_id)
 
     @classmethod
     def from_keeper(cls) -> 'Database':

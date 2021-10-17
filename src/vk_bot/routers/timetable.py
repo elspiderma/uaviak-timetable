@@ -15,7 +15,7 @@ bp = Blueprint()
 bp.labeler.vbml_ignore_case = True
 
 
-@bp.on.private_message(PayloadRule(TimetableDatePayload))
+@bp.on.private_message(PayloadRule(TimetableDatePayload), state=None)
 async def search_timetable_for_date(msg: 'Message') -> None:
     """Расписание для другого дня. Срабатывает при нажатии на кнопку с датой.
 
@@ -31,7 +31,7 @@ async def search_timetable_for_date(msg: 'Message') -> None:
     await msg.answer(message, keyboard=keyboard_json, reply_to=msg.id, attachment=photo_id)
 
 
-@bp.on.private_message(PayloadRule(ResultPayload))
+@bp.on.private_message(PayloadRule(ResultPayload), state=None)
 async def result_timetable(msg: 'Message') -> None:
     """Расписание для результата поиска. Срабатывает при нажатии на кнопку с выбором результата
         поиска преподавателя/группы.
@@ -48,7 +48,7 @@ async def result_timetable(msg: 'Message') -> None:
     await msg.answer(message, keyboard=keyboard_json, reply_to=msg.id, attachment=photo_id)
 
 
-@bp.on.private_message()
+@bp.on.private_message(state=None)
 async def search_timetable(msg: 'Message') -> None:
     """Поиск расписание по номеру группы/ФИО преподавателя.
 
