@@ -17,16 +17,6 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: Departaments; Type: TYPE; Schema: public; Owner: -
---
-
-CREATE TYPE public."Departaments" AS ENUM (
-    'full_time',
-    'correspondence'
-);
-
-
---
 -- Name: TypesLesson; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -191,20 +181,20 @@ ALTER SEQUENCE public.lessons_id_seq OWNED BY public.lessons.id;
 
 
 --
--- Name: subscriber_group; Type: TABLE; Schema: public; Owner: -
+-- Name: subscribers_group; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.subscriber_group (
-    id_user integer NOT NULL,
+CREATE TABLE public.subscribers_group (
+    id_chat integer NOT NULL,
     id_group integer NOT NULL
 );
 
 
 --
--- Name: subscriber_teacher; Type: TABLE; Schema: public; Owner: -
+-- Name: subscribers_teacher; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.subscriber_teacher (
+CREATE TABLE public.subscribers_teacher (
     id_chat integer NOT NULL,
     id_teacher integer NOT NULL
 );
@@ -247,9 +237,7 @@ ALTER SEQUENCE public.teachers_id_seq OWNED BY public.teachers.id;
 
 CREATE TABLE public.timetables (
     id integer NOT NULL,
-    additional_info text,
-    date date NOT NULL,
-    departament public."Departaments" NOT NULL
+    date date NOT NULL
 );
 
 
@@ -379,18 +367,18 @@ ALTER TABLE ONLY public.lessons
 
 
 --
--- Name: subscriber_group subscriber_group_pk; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: subscribers_group subscriber_group_pk; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.subscriber_group
-    ADD CONSTRAINT subscriber_group_pk PRIMARY KEY (id_user, id_group);
+ALTER TABLE ONLY public.subscribers_group
+    ADD CONSTRAINT subscriber_group_pk PRIMARY KEY (id_chat, id_group);
 
 
 --
--- Name: subscriber_teacher subscriber_teacher_pk; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: subscribers_teacher subscriber_teacher_pk; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.subscriber_teacher
+ALTER TABLE ONLY public.subscribers_teacher
     ADD CONSTRAINT subscriber_teacher_pk PRIMARY KEY (id_chat, id_teacher);
 
 
@@ -411,14 +399,6 @@ ALTER TABLE ONLY public.teachers
 
 
 --
--- Name: timetables timetables_departament_date_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.timetables
-    ADD CONSTRAINT timetables_departament_date_key UNIQUE (departament, date);
-
-
---
 -- Name: timetables timetables_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -434,6 +414,13 @@ CREATE UNIQUE INDEX chats_vk_user_id_uindex ON public.chats USING btree (vk_id);
 
 
 --
+-- Name: timetables_date_uindex; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX timetables_date_uindex ON public.timetables USING btree (date);
+
+
+--
 -- Name: vk_cache_photo_key_cache_uindex; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -445,7 +432,7 @@ CREATE UNIQUE INDEX vk_cache_photo_key_cache_uindex ON public.vk_cache_photo USI
 --
 
 ALTER TABLE ONLY public.lessons
-    ADD CONSTRAINT lessons_id_group_fkey FOREIGN KEY (id_group) REFERENCES public.groups(id) NOT VALID;
+    ADD CONSTRAINT lessons_id_group_fkey FOREIGN KEY (id_group) REFERENCES public.groups(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -453,7 +440,7 @@ ALTER TABLE ONLY public.lessons
 --
 
 ALTER TABLE ONLY public.lessons
-    ADD CONSTRAINT lessons_id_teacher_fkey FOREIGN KEY (id_teacher) REFERENCES public.teachers(id) NOT VALID;
+    ADD CONSTRAINT lessons_id_teacher_fkey FOREIGN KEY (id_teacher) REFERENCES public.teachers(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -461,38 +448,38 @@ ALTER TABLE ONLY public.lessons
 --
 
 ALTER TABLE ONLY public.lessons
-    ADD CONSTRAINT lessons_id_timetable_fkey FOREIGN KEY (id_timetable) REFERENCES public.timetables(id) NOT VALID;
+    ADD CONSTRAINT lessons_id_timetable_fkey FOREIGN KEY (id_timetable) REFERENCES public.timetables(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: subscriber_group subscriber_group_chats_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: subscribers_group subscriber_group_chats_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.subscriber_group
-    ADD CONSTRAINT subscriber_group_chats_id_fk FOREIGN KEY (id_user) REFERENCES public.chats(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY public.subscribers_group
+    ADD CONSTRAINT subscriber_group_chats_id_fk FOREIGN KEY (id_chat) REFERENCES public.chats(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: subscriber_group subscriber_group_groups_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: subscribers_group subscriber_group_groups_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.subscriber_group
+ALTER TABLE ONLY public.subscribers_group
     ADD CONSTRAINT subscriber_group_groups_id_fk FOREIGN KEY (id_group) REFERENCES public.groups(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: subscriber_teacher subscriber_teacher_chats_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: subscribers_teacher subscriber_teacher_chats_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.subscriber_teacher
+ALTER TABLE ONLY public.subscribers_teacher
     ADD CONSTRAINT subscriber_teacher_chats_id_fk FOREIGN KEY (id_chat) REFERENCES public.chats(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: subscriber_teacher subscriber_teacher_teachers_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: subscribers_teacher subscriber_teacher_teachers_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.subscriber_teacher
+ALTER TABLE ONLY public.subscribers_teacher
     ADD CONSTRAINT subscriber_teacher_teachers_id_fk FOREIGN KEY (id_teacher) REFERENCES public.teachers(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
