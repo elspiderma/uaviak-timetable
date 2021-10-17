@@ -4,7 +4,8 @@ from vkbottle.bot import Blueprint
 
 from db import Database
 from vk_bot import StateDispenser
-from vk_bot.keyboards import get_setting_keyboard, get_empty_keyboard
+from vk_bot.core import get_notify_message
+from vk_bot.keyboards import get_setting_keyboard, get_notify_keyboard
 from vk_bot.keyboards.payloads import SettingMenuPayload, ChangeFormatTimetablePayload, NotifySettingPayload
 from vk_bot.rules import PayloadRule
 
@@ -53,9 +54,8 @@ async def notify_setting(msg: 'Message') -> None:
     Args:
         msg: Сообщение.
     """
+    await msg.answer(await get_notify_message(msg.peer_id), keyboard=get_notify_keyboard().get_json())
     await bp.state_dispenser.set(msg.peer_id, StateDispenser.NOTIFY_SETTING)
-
-    await msg.answer('Тут должен быть список подписок.', keyboard=get_empty_keyboard().get_json())
 
 
 @bp.on.private_message(state=StateDispenser.NOTIFY_SETTING)
@@ -65,4 +65,4 @@ async def notify_object(msg: 'Message'):
     Args:
         msg: Сообщение.
     """
-    await msg.answer('123')
+    await msg.answer(await get_notify_message(msg.peer_id))

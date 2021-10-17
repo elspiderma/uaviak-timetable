@@ -162,12 +162,12 @@ class Database:
         else:
             fields_sql = '*'
 
-        query = f'''
+        query = f"""
             SELECT {fields_sql}
             FROM timetables
             WHERE
                 timetables.id IN (SELECT DISTINCT id_timetable FROM lessons WHERE "{column}" = $1)
-        '''
+        """
         args_query = [value]
 
         if order_by_column and is_desc_order:
@@ -466,6 +466,38 @@ class Database:
         chat_id = chat if isinstance(chat, int) else chat.id
 
         await self.conn.execute('UPDATE chats SET timetable_photo = NOT timetable_photo WHERE id = $1', chat_id)
+
+    async def get_user_subscriptions_group(self, vk_id: int) -> list[Group]:
+        query = """
+        SELECT groups.*
+        FROM
+            subscribers_group
+            INNER JOIN groups ON groups.id = subscribers_group.id_group
+            INNER JOIN chats ON chats.id = subscribers_group.id_chat
+        WHERE
+            chats.vk_id = $1
+        """
+
+        result = await self.conn.fetch(query, vk_id)
+
+        return Group.from_records(result)
+
+    async def get_user_subscriptions_teacher(self, chat: Union[Chat, int]) -> list[Teacher]:
+        chat_id = chat if isinstance(chat, int) else chat.id
+
+        query = """
+            SELECT teachers.*
+            FROM
+                subscribers_teacher
+                INNER JOIN teachers ON teachers.id = subscribers_teacher.id_teacher
+                INNER JOIN chats ON chats.id = subscribers_teacher.id_chat
+            WHERE
+                chats.vk_id = $1
+            """
+
+        result = await self.conn.fetch(query, chat_id)
+
+        return Teacher.from_records(result)
 
     @classmethod
     def from_keeper(cls) -> 'Database':
