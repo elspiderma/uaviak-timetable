@@ -1,11 +1,11 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Union
 
 from db import Database
 from db.structures import WhoseTimetable
 from vk_bot.core.search.result.abstract_result import AbstractResult
 
 if TYPE_CHECKING:
-    from db.structures import Group, TimetableForGroup, WhoseTimetable
+    from db.structures import Group, TimetableForGroup, Chat
     from datetime import date
 
 
@@ -55,6 +55,12 @@ class GroupResult(AbstractResult):
             Расписание или None, если оно не найдено.
         """
         return await self.db.get_full_information_timetable_by_date_for_group(date_timetable, self.group)
+
+    async def subscribe_user(self, chat: Union[int, 'Chat']) -> None:
+        await self.db.add_subscribe_group_for_user(chat, self.group)
+
+    async def unsubscribe_user(self, chat: Union[int, 'Chat']) -> None:
+        await self.db.delete_subscribe_group_for_user(chat, self.group)
 
     @classmethod
     async def search(cls, query: str) -> list['GroupResult']:

@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from vkbottle.bot import Blueprint
 
-from vk_bot.keyboards import generate_select_timetable_keyboard, TooMuchResultInKeyboardError
+from vk_bot.keyboards import get_results_keyboard, TooMuchResultInKeyboardError
 from vk_bot.keyboards.payloads import TimetableDatePayload, ResultPayload
 from vk_bot.rules import PayloadRule
 from vk_bot.core.search import search_by_query, search_by_id
@@ -67,7 +67,7 @@ async def search_timetable(msg: 'Message') -> None:
         await msg.answer(message, keyboard=keyboard_json, reply_to=msg.id, attachment=photo_id)
     else:
         try:
-            kb = generate_select_timetable_keyboard(results)
+            kb = get_results_keyboard(results)
         except TooMuchResultInKeyboardError:
             await msg.answer('Слишком много результатов. Напишите запрос точнее.')
         else:

@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Union
 
 from db import Database
 
 if TYPE_CHECKING:
-    from db.structures import TimetableForSomeone, WhoseTimetable
+    from db.structures import TimetableForSomeone, WhoseTimetable, Chat
     from datetime import date
 
 
@@ -50,6 +50,24 @@ class AbstractResult(ABC):
 
         Returns:
             Расписание или None, если оно не найдено.
+        """
+        pass
+
+    @abstractmethod
+    async def subscribe_user(self, chat: Union[int, 'Chat']) -> None:
+        """Подписывает пользователя.
+
+        Args:
+            chat_id: ID чата.
+        """
+        pass
+
+    @abstractmethod
+    async def unsubscribe_user(self, chat: Union[int, 'Chat']) -> None:
+        """Подписывает пользователя.
+
+        Args:
+            chat_id: ID чата.
         """
         pass
 

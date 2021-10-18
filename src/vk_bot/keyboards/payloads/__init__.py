@@ -6,3 +6,4 @@ from .call_timetable_payload import CallTimetablePayload
 from .setting_menu_payload import SettingMenuPayload
 from .change_format_timetable_payload import ChangeFormatTimetablePayload
 from .notify_setting_payload import NotifySettingPayload
+from .subscribe_payload import SubscribeAction, SubscribePayload

@@ -14,7 +14,7 @@ class TooMuchResultInKeyboardError(Exception):
     pass
 
 
-def generate_select_timetable_keyboard(results: list['AbstractResult']) -> Keyboard:
+def get_results_keyboard(results: list['AbstractResult']) -> Keyboard:
     """Клавиатура из результатов поиска results.
 
     Args:

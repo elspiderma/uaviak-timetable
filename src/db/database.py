@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Optional, Union, Collection, Any
 
+from asyncpg import UniqueViolationError
+
 from db import ConnectionKeeper
 from db.structures import Timetable, TypesLesson, Group, Teacher, Lesson, TimetableForGroup, \
     TimetableForTeacher, Chat, VKCachePhoto
@@ -498,6 +500,46 @@ class Database:
         result = await self.conn.fetch(query, chat_id)
 
         return Teacher.from_records(result)
+
+    async def _subscribe_user(self, object: str, chat_id: int, object_id: int, is_delete: bool = False) -> bool:
+        if is_delete:
+            query = f'DELETE FROM subscribers_{object} WHERE id_chat = $1 AND id_{object} = $2 RETURNING TRUE'
+        else:
+            query = f'INSERT INTO subscribers_{object}(id_chat, id_{object}) VALUES($1, $2)'
+
+        try:
+            result = await self.conn.execute(query, chat_id, object_id)
+        except UniqueViolationError as e:
+            return False
+        else:
+            return True
+
+    async def add_subscribe_teacher_for_user(self, chat: Union[int, Chat], teacher: Union[int, Teacher]) -> bool:
+        chat_id = chat if isinstance(chat, int) else chat.id
+        teacher_id = teacher if isinstance(teacher, int) else teacher.id
+
+        return await self._subscribe_user('teacher', chat_id, teacher_id)
+
+    async def add_subscribe_group_for_user(self, chat: Union[int, Chat], group: Union[int, Group]) -> bool:
+        chat_id = chat if isinstance(chat, int) else chat.id
+        group_id = group if isinstance(group, int) else group.id
+
+        return await self._subscribe_user('group', chat_id, group_id)
+
+    async def delete_subscribe_teacher_for_user(self, chat: Union[int, Chat], teacher: Union[int, Teacher]) -> bool:
+        chat_id = chat if isinstance(chat, int) else chat.id
+        teacher_id = teacher if isinstance(teacher, int) else teacher.id
+
+        return await self._subscribe_user('teacher', chat_id, teacher_id, True)
+
+    async def delete_subscribe_group_for_user(self, chat: Union[int, Chat], group: Union[int, Group]) -> bool:
+        chat_id = chat if isinstance(chat, int) else chat.id
+        group_id = group if isinstance(group, int) else group.id
+
+        return await self._subscribe_user('group', chat_id, group_id, True)
+
+    async def is_exist_subscribe_teacher_for_user(self, chat: Union[int, Chat], teacher: Union[int, Teacher]) -> bool:
+        pass
 
     @classmethod
     def from_keeper(cls) -> 'Database':
